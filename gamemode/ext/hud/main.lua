@@ -1,3 +1,8 @@
+EXTENSION.name = 'HUD'
+EXTENSION.shouldOverride = false
+
+if SERVER then return end
+
 //Health
 Q.CalcPerc = function( value, max )
 	return value / max
@@ -50,7 +55,7 @@ local huds = {
 }
 local bg_colour = Color(240,240,240, 30)
 
-hook.Add("HUDPaint", "dr.hud.Vitals", function()
+function CLIENT_EXT:HUDPaint()
 	if LocalPlayer().Vitals != nil then
 		for k,arc in pairs(huds)do
 			//Text
@@ -65,11 +70,11 @@ hook.Add("HUDPaint", "dr.hud.Vitals", function()
 			draw.Arc(arc.x,arc.y,arc.r,arc.t,arc.sa,arc.ea,arc.rough,arc.c, true)
 		end
 	end
-end)
+end
 
 //Remove default HUD
-hook.Add( "HUDShouldDraw", "hide hud", function( name )
-	 if name == "CHudHealth" then//or name == "CHudBattery" then
+function CLIENT_EXT:HUDShouldDraw()
+	 if self == "CHudHealth" then //or self == "CHudBattery" then
 		 return false
 	 end
-end )
+end

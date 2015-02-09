@@ -1,4 +1,4 @@
-"dremains"
+"deadremains"
 {
 	"base"		"base"
     "title"  "Dead Remains"
