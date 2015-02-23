@@ -15,7 +15,7 @@ local function handleFunctionTable(tbl)
 end
 
 function loader.recursiveLoad(folder,callback)
-	local files,folders = helper.findInFolder(folder,'LUA')
+	local files,folders = helper.findInFolder('gamemodes/'..folder)
 	local callback = callback or function() end
 	
 	local path = folder..'/'
@@ -32,7 +32,7 @@ end
 
 function loader.loadExtensions()
 
-	local _,extensions = helper.findInFolder('deadremains/gamemode/extensions','LUA')
+	local _, extensions = helper.findInFolder('gamemodes/deadremains/gamemode/extensions')
 
 	extension = {}
 	client = {}
@@ -59,6 +59,10 @@ function loader.loadExtensions()
 		loader.recursiveLoad('deadremains/gamemode/extensions/'..ext,callback)
 	end
 
+	extension = nil
+	client = nil
+	server = nil
+	shared = nil
 end
 
 function loader.disableExtension(name)
@@ -85,4 +89,13 @@ function loader.enableExtension(name)
 	end
 
 	dr.extensions[name].__isDisabled = false
+end
+
+function loader.loadVGUI()
+
+	local _, uiElements = helper.findInFolder('gamemodes/deadremains/gamemode/vgui')
+
+	for n, uiElement in pairs(uiElements) do
+		loader.recursiveLoad('deadremains/gamemode/vgui/'..uiElement)
+	end
 end

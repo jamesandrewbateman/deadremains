@@ -12,6 +12,6 @@ end
 
 function helper.findInFolder(folder,tag)
 
-	return file.Find(folder .. '/*',tag)
+	return file.Find(folder .. '/*',tag or 'GAME')
 end
 
