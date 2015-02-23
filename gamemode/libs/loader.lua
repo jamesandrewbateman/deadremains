@@ -7,8 +7,9 @@ local function handleFunctionTable(tbl)
 		if extension.shouldOverride and extension.shouldOverride(index) then
 			GAMEMODE[index] = func
 		else
-			hook.Add(index,index..' for extension '.. extension.name.. ' (' .. #dr.extensions[extension.name].. ')',func)
-			table.insert(dr.extensions[extension.name].hooks,index)
+			local name = index..' for extension '.. extension.name.. ' (' .. #dr.extensions[extension.name].. ')'
+			hook.Add(index,name,func)
+			table.insert(dr.extensions[extension.name].hooks,{name=name,func=func,index=index})
 		end
 	end
 end
@@ -40,7 +41,7 @@ function loader.loadExtensions()
 
 	local callback = function()
 
-		dr.extensions[extension.name] = {}
+		dr.extensions[extension.name] = {__ext = extension}
 		dr.extensions[extension.name].hooks = {}
 
 		local GAMEMODE = GM or GAMEMODE
@@ -58,4 +59,30 @@ function loader.loadExtensions()
 		loader.recursiveLoad('deadremains/gamemode/extensions/'..ext,callback)
 	end
 
+end
+
+function loader.disableExtension(name)
+
+	local ext = dr.extensions[name]
+
+	if not ext or ext.__isDisabled then return end
+
+	for _, hookTbl in pairs(ext.hooks) do
+		hook.Remove(hookTbl.index,hookTbl.name)
+	end
+
+	dr.extensions[name].__isDisabled = true
+end
+
+function loader.enableExtension(name)
+
+	local ext = dr.extensions[name]
+
+	if not ext or not ext.__isDisabled then return end
+
+	for _, hookTbl in pairs(ext.hooks) do
+		hook.Add(hookTbl.index,hookTbl.name,hookTbl.func)
+	end
+
+	dr.extensions[name].__isDisabled = false
 end
