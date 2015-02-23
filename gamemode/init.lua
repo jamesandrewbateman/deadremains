@@ -1,6 +1,2 @@
-include( "shared.lua" )
-include( "loader.lua" )
-
-AddCSLuaFile("loader.lua")
-AddCSLuaFile("shared.lua")
-
+include('sh_init.lua')
+AddCSLuaFile('sh_init.lua')

@@ -1,2 +1,1 @@
-include("shared.lua")
-include( "loader.lua" )
+include('sh_init.lua')
