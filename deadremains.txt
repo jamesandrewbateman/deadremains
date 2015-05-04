@@ -1,14 +1,7 @@
 "deadremains"
 {
+	"title"		"Dead Remains"
 	"base"		"base"
-    "title"  "Dead Remains"
-    "version"   "1.0"
-    "menusystem"	"1"
-
-    "author_name"   "Alig96"
-    "author_email"  ""
-
-    "icon"  ""
-    "info"  ""
-    "hide"  "0"
+	"maps"		"^drs"
+	"menusystem"	"1"
 }
