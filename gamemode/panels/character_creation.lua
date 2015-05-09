@@ -155,11 +155,22 @@ function panel:showCharacterCreation()
 		right_base:DockMargin(0, 128, 0, 0)
 		right_base:SetWide(256)
 
-		local face_option = right_base:Add("deadremains.combobox")
-		face_option:Dock(TOP)
-		face_option:DockMargin(0, 0, 0, 0)
-		face_option:SetTall(48 +20 *1.5)
-		face_option:setName("Gender")
+		local gender_option = right_base:Add("deadremains.combobox")
+		gender_option:Dock(TOP)
+		gender_option:DockMargin(0, 0, 0, 0)
+		gender_option:SetTall(48 +20 *1.5)
+		gender_option:setName("Gender")
+		gender_option:addOption("Male", function()
+			local models = deadremains.settings.get("male_models")
+
+			model:SetModel(models[1])
+		end)
+
+		gender_option:addOption("Female", function()
+			local models = deadremains.settings.get("female_models")
+
+			model:SetModel(models[1])
+		end)
 
 		local bottom_base = self.character_creation_base:Add("Panel")
 		bottom_base:Dock(BOTTOM)
@@ -194,6 +205,7 @@ end
 -- Purpose:
 --		
 ----------------------------------------------------------------------
+
 function panel:showCharacter()
 	if (!IsValid(self.character_base)) then
 		self.character_base = self:Add("Panel")
@@ -253,7 +265,7 @@ function panel:PerformLayout()
 	local w, h = self:GetSize()
 
 	if (IsValid(self.buttons_base)) then
-		self.buttons_base:SetSize(600, (48 +20 *2) *4 +81 *3)
+		self.buttons_base:SetSize(700, (48 +20 *2) *4 +81 *3)
 		self.buttons_base:Center()
 	end
 end
@@ -269,10 +281,17 @@ end
 
 vgui.Register("deadremains.character.creation", panel, "EditablePanel")
 
-
 if (IsValid(testmenu)) then testmenu:Remove() end
+
+--[[
+
+timer.Simple(0.1, function()
 
 testmenu = vgui.Create("deadremains.character.creation")
 testmenu:SetSize(ScrW(), ScrH())
 
 gui.EnableScreenClicker(true)
+
+end)
+
+]]
