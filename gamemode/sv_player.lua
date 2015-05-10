@@ -105,3 +105,9 @@ net.Receive("deadremains.player.initalize", function(bits, player)
 		player.dr_loaded = true
 	end
 end)
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+

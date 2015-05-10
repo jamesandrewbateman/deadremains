@@ -1,4 +1,4 @@
-if (CLIENT)) then
+if (CLIENT) then
 
 
 

@@ -238,12 +238,13 @@ function panel:Init()
 	self.inventory_primary:createInventory(5, 2)
 	
 	self.inventory_primary:addItem(test)
-
+	self.inventory_primary:addItem(test)
+	
 	self.inventory_secondary = self:Add("deadremains.inventory")
 	self.inventory_secondary:createInventory(3, 2)
 
 	self.inventory_back = self:Add("deadremains.inventory")
-	self.inventory_back:createInventory(2, 5)
+	self.inventory_back:createInventory(5, 5)
 
 	self.inventory_legs = self:Add("deadremains.inventory")
 	self.inventory_legs:createInventory(2, 2)
@@ -264,7 +265,7 @@ function panel:PerformLayout()
 	self.inventory_secondary:SetPos(w -60 *3 -25, h -60 *2 -25)
 
 	self.inventory_legs:SetPos(w -60 *2 -25, 25 +60 *5 +25)
-	self.inventory_back:SetPos(w -60 *2 -25, 25)
+	self.inventory_back:SetPos(w -60 *2 -195, 25)
 end
 ----------------------------------------------------------------------
 -- Purpose:

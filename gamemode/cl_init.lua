@@ -47,9 +47,9 @@ end
 surface.CreateFont("deadremains.hud.big", {font = "AvenirNext LT Pro Regular", size = 60, weight = 400})
 --surface.CreateFont("deadremains.hud.big.blur", {font = "AvenirNext LT Pro Regular", size = 60, weight = 400, blursize = 6, antialias = false})
 
-local material_health = Material("deadremains/hud/outercircle.png")
-local material_health_shadow = Material("vgui/hsv")
-local material_health_background = Material("deadremains/hud/innercircle.png")
+local material_health = Material("deadremains/hud/outercircle.png", "noclamp smooth")
+local material_health_shadow = Material("vgui/hsv", "noclamp smooth")
+local material_health_background = Material("deadremains/hud/innercircle.png", "noclamp smooth")
 
 local health_x, health_y = 100, 256
 local health_size = 200
