@@ -13,3 +13,6 @@ panel_color_background_light = Color(255, 255, 255, 100)
 
 gender_male = 1
 gender_female = 2
+
+-- The size of a single rectangle.
+slot_size = 60

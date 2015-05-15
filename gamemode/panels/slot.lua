@@ -1,6 +1,6 @@
 -- The size of a single rectangle.
 local slot_size = 60
-local color_line = Color(255, 255, 255, 15)
+local color_line = Color(255, 255, 255, 25)
 
 local panel = {}
 
@@ -42,12 +42,12 @@ function panel:getSlotsAtArea(start_x, start_y, end_x, end_y)
 
 	return result
 end
-
+ 
 ----------------------------------------------------------------------
 -- Purpose:
 --		
 ----------------------------------------------------------------------
-
+   
 function panel:getItemsAtArea(start_x, start_y, end_x, end_y)
 	local result = {}
 
@@ -68,7 +68,7 @@ function panel:getItemsAtArea(start_x, start_y, end_x, end_y)
 
 	return result
 end
-  
+
 ----------------------------------------------------------------------
 -- Purpose:
 --		
@@ -106,7 +106,7 @@ function panel:addItem(item, x, y)
 		end
 	end
 end
-
+ 
 ----------------------------------------------------------------------
 -- Purpose:
 --		
@@ -136,7 +136,7 @@ end
 --		
 ----------------------------------------------------------------------
 
-function panel:createInventory(columns, rows)
+function panel:createSlots(columns, rows)
 	self.rows = rows
 	self.columns = columns
 
@@ -152,8 +152,8 @@ local moving_slot = nil
 local moving_slot_receiver = nil
 
 function panel:Paint(w, h)
-	draw.SimpleRect(0, 0, w, h, Color(0, 0, 30, 200))
-	draw.SimpleOutlined(0, 0, w, h, color_line)
+	draw.simpleRect(0, 0, w, h, Color(0, 0, 30, 200))
+	draw.simpleOutlined(0, 0, w, h, color_line)
 
 	surface.SetDrawColor(color_line)
 
@@ -181,7 +181,7 @@ function panel:Paint(w, h)
 				if (#items <= 0) then
 					table.insert(slots_free, i)
 				else
-					draw.SimpleRect(slots[i].x, slots[i].y, slot_size, slot_size, Color(255, 0, 0, 20))
+					draw.simpleRect(slots[i].x, slots[i].y, slot_size, slot_size, Color(255, 0, 0, 20))
 				end
 			end
 			
@@ -189,7 +189,7 @@ function panel:Paint(w, h)
 				for k = 1, moving_slot.size do
 					local i = slots_free[k]
 
-					draw.SimpleRect(slots[i].x, slots[i].y, slot_size, slot_size, Color(0, 255, 0, 20))
+					draw.simpleRect(slots[i].x, slots[i].y, slot_size, slot_size, Color(0, 255, 0, 20))
 				end
 				
 				moving_slot_receiver = {parent = self, x = slots[slots_free[1]].x, y = slots[slots_free[1]].y}
@@ -200,7 +200,7 @@ function panel:Paint(w, h)
 					local i = slots_free[k]
 
 					if (i and slots[i]) then
-						draw.SimpleRect(slots[i].x, slots[i].y, slot_size, slot_size, Color(255, 0, 0, 20))
+						draw.simpleRect(slots[i].x, slots[i].y, slot_size, slot_size, Color(255, 0, 0, 20))
 					end
 				end
 			end
@@ -213,7 +213,7 @@ function panel:Paint(w, h)
 	--	local slots = self:getSlotsAtArea(mouse_x, mouse_y, mouse_x +slot_size *2, mouse_y)
 	
 	--	for i = 1, #slots do
-	--		draw.SimpleRect(slots[i].x, slots[i].y, slot_size, slot_size, Color(255, 255, 255, 100))
+	--		draw.simpleRect(slots[i].x, slots[i].y, slot_size, slot_size, Color(255, 255, 255, 100))
 	--	end
 	--end
 	
@@ -221,14 +221,14 @@ function panel:Paint(w, h)
 	for y = 1, self.rows do
 		for x = 1, self.columns do
 			if (mouse_x >= x *slot_size -slot_size and mouse_x <= (x *slot_size) *2 and mouse_y >= y *slot_size -slot_size and mouse_y <= y *slot_size) then
-				draw.SimpleRect(x *slot_size -slot_size, y *slot_size -slot_size, slot_size, slot_size, Color(255, 255, 255, 100))
+				draw.simpleRect(x *slot_size -slot_size, y *slot_size -slot_size, slot_size, slot_size, Color(255, 255, 255, 100))
 			end
 		end
 	end
 	]]
 end
 
-vgui.Register("deadremains.inventory", panel, "EditablePanel")
+vgui.Register("deadremains.slots", panel, "EditablePanel")
 
 local panel = {}
 
@@ -344,7 +344,7 @@ end
 ----------------------------------------------------------------------
 
 function panel:Paint(w, h)
-	--draw.SimpleRect(0, 0, w, h, Color(255, 255, 255, 10))
+	--draw.simpleRect(0, 0, w, h, Color(255, 255, 255, 10))
 end
 
 vgui.Register("deadremains.slot", panel, "EditablePanel")

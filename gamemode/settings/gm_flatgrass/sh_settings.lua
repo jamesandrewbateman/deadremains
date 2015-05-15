@@ -54,3 +54,20 @@ local models = {
 }
 
 deadremains.settings.new("female_models", models)
+
+----------------------------------------------------------------------
+-- Purpose:
+--		The default inventories.
+----------------------------------------------------------------------
+
+local inventories = {
+	feet = {name = "Feet", horizontal = 2, vertical = 2},
+	legs = {name = "Legs", horizontal = 2, vertical = 2},
+	head = {name = "Head", horizontal = 2, vertical = 2},
+	back = {name = "Back", horizontal = 2, vertical = 4},
+	chest = {name = "Chest", horizontal = 2, vertical = 2},
+	primary = {name = "Primary", horizontal = 5, vertical = 2},
+	secondary = {name = "Secondary", horizontal = 3, vertical = 2}
+}
+
+deadremains.settings.new("default_inventories", inventories)

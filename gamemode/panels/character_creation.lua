@@ -22,7 +22,7 @@ function panel:showButtons()
 		self.buttons_base = self:Add("Panel")
 
 		function self.buttons_base:Paint(w,h)
-			--draw.SimpleOutlined(0,0,w,h,color_red)
+			--draw.simpleOutlined(0,0,w,h,color_red)
 		end
 
 		local header = self.buttons_base:Add("deadremains.button")
@@ -31,10 +31,10 @@ function panel:showButtons()
 		header:SetTall(48 +20 *2)
 
 		function header:Paint(w, h)
-			draw.SimpleRect(0, 0, w, h, panel_color_background)
+			draw.simpleRect(0, 0, w, h, panel_color_background)
 
 			local nick = LocalPlayer():Nick()
-			local width = util.GetTextSize("deadremains.button", "Welcome back")
+			local width = util.getTextSize("deadremains.button", "Welcome back")
 
 			draw.SimpleText("Welcome back", "deadremains.button", w *0.5 -8, h *0.5, panel_color_text, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
 			draw.SimpleText(nick, "deadremains.button", w *0.5 +8, h *0.5, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
@@ -52,7 +52,7 @@ function panel:showButtons()
 		line:SetTall(1)
 
 		function line:Paint(w, h)
-			draw.SimpleRect(0, 0, w, h, color_line)
+			draw.simpleRect(0, 0, w, h, color_line)
 		end
 		
 		local button_character = self.buttons_base:Add("deadremains.button")
@@ -76,7 +76,7 @@ function panel:showButtons()
 		line:SetTall(1)
 
 		function line:Paint(w, h)
-			draw.SimpleRect(0, 0, w, h, color_line)
+			draw.simpleRect(0, 0, w, h, color_line)
 		end
 		
 		local button_settings = self.buttons_base:Add("deadremains.button")
@@ -104,7 +104,7 @@ function panel:showCharacterCreation()
 		self.character_creation_base:Center()
 
 		function self.character_creation_base:Paint(w,h)
-		--	draw.SimpleOutlined(0,0,w,h,color_red)
+		--	draw.simpleOutlined(0,0,w,h,color_red)
 		end
 
 		local top_base =  self.character_creation_base:Add("Panel")

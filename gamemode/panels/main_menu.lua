@@ -124,7 +124,7 @@ function panel:addCategory(name, icon, callback, no_parent)
 		draw.RoundedBox(2, 0, 0, w, h, panel_color_background)
 
 		if (icon) then
-			draw.Material(w *0.5 -16, h *0.5 -16, 32, 32, color_white, icon)
+			draw.material(w *0.5 -16, h *0.5 -16, 32, 32, color_white, icon)
 		end
 	end
 	
@@ -202,6 +202,8 @@ end
 ----------------------------------------------------------------------
 
 function panel:Paint(w, h)
+	Derma_DrawBackgroundBlur(self)
+	
 	draw.RoundedBox(2, 0, 0, w, 80, panel_color_background)
 
 	draw.SimpleText("EQUIPMENT", "deadremains.button", w *0.5, 80 *0.5, panel_color_text, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
@@ -222,32 +224,45 @@ local panel = {}
 ----------------------------------------------------------------------
 
 function panel:Init()
-	local test = deadremains.item.get("base")
+	local data = deadremains.settings.get("default_inventories")
 
 	self.inventory_head = self:Add("deadremains.inventory")
-	self.inventory_head:createInventory(2, 2)
-	self.inventory_head:addItem(test)
+	self.inventory_head:setInventory("head", data.head)
 
 	self.inventory_chest = self:Add("deadremains.inventory")
-	self.inventory_chest:createInventory(2, 2)
+	self.inventory_chest:setInventory("chest", data.chest)
 
 	self.inventory_feet = self:Add("deadremains.inventory")
-	self.inventory_feet:createInventory(2, 2)
+	self.inventory_feet:setInventory("feet", data.feet)
 
 	self.inventory_primary = self:Add("deadremains.inventory")
-	self.inventory_primary:createInventory(5, 2)
-	
-	self.inventory_primary:addItem(test)
-	self.inventory_primary:addItem(test)
+	self.inventory_primary:setInventory("primary", data.primary)
 	
 	self.inventory_secondary = self:Add("deadremains.inventory")
-	self.inventory_secondary:createInventory(3, 2)
+	self.inventory_secondary:setInventory("secondary", data.secondary)
 
 	self.inventory_back = self:Add("deadremains.inventory")
-	self.inventory_back:createInventory(5, 5)
+	self.inventory_back:setInventory("back", data.back)
 
 	self.inventory_legs = self:Add("deadremains.inventory")
-	self.inventory_legs:createInventory(2, 2)
+	self.inventory_legs:setInventory("legs", data.legs)
+
+	self.model = self:Add("DModelPanel")
+	self.model:SetModel("models/humans/group01/male_01.mdl")
+	self.model:SetSize(264, 500)
+	self.model:SetFOV(36)
+
+	function self.model.LayoutEntity(_self, entity)
+		local sequence = entity:LookupSequence("idle_subtle")
+		
+		entity:SetAngles(Angle(0, 45, 0))
+		entity:ResetSequence(sequence)
+		
+		--if (!self.bodyGroups) then
+		--	self.skins = entity:SkinCount()
+		--	self.bodyGroups = entity:GetNumBodyGroups()
+		--end
+	end
 end
 
 ----------------------------------------------------------------------
@@ -259,13 +274,33 @@ function panel:PerformLayout()
 	local w, h = self:GetSize()
 
 	self.inventory_head:SetPos(25, 25)
-	self.inventory_chest:SetPos(25, 25 *2 +60 *2)
-	self.inventory_feet:SetPos(25, 25 +60 *4 +25 *2)
-	self.inventory_primary:SetPos(25, h -60 *2 -25)
-	self.inventory_secondary:SetPos(w -60 *3 -25, h -60 *2 -25)
 
-	self.inventory_legs:SetPos(w -60 *2 -25, 25 +60 *5 +25)
-	self.inventory_back:SetPos(w -60 *2 -195, 25)
+	local height = 25 +self.inventory_head:GetTall() +16
+
+	self.inventory_chest:SetPos(25, height)
+
+	height = height +self.inventory_chest:GetTall() +16
+
+	self.inventory_feet:SetPos(25, height)
+
+	height = 25 +self.inventory_primary:GetTall()
+
+	self.inventory_primary:SetPos(25, h -height)
+
+	local width, height = 25 +self.inventory_secondary:GetWide(), 25 +self.inventory_secondary:GetTall()
+
+	self.inventory_secondary:SetPos(w -width, h -height)
+
+	width = 25 +self.inventory_back:GetWide()
+
+	self.inventory_back:SetPos(w -width, 25)
+
+	width, height = 25 +self.inventory_legs:GetWide(), 25 +self.inventory_secondary:GetTall() +self.inventory_legs:GetTall() +16
+
+	self.inventory_legs:SetPos(w -width, h -height)
+
+
+	self.model:SetPos(w *0.5 -self.model:GetWide() *0.5, 25)
 end
 ----------------------------------------------------------------------
 -- Purpose:
@@ -288,7 +323,52 @@ vgui.Register("deadremains.equipment", panel, "EditablePanel")
 
 
 
+local panel = {}
 
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+
+function panel:Init()
+	self:DockPadding(25, 25, 25, 25)
+end
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+
+function panel:addCategory(name)
+	local panel = self:Add("Panel")
+	panel:Dock(LEFT)
+	panel:SetWide(116)
+
+	function panel:Paint(w, h)
+		draw.SimpleText(name, "deadremains.button", 0, 0, panel_color_text, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
+	end
+end
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+
+function panel:PerformLayout()
+	local w, h = self:GetSize()
+
+end
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+
+function panel:Paint(w, h)
+	draw.RoundedBox(2, 0, 0, w, h, panel_color_background)
+end
+
+vgui.Register("deadremains.skills", panel, "EditablePanel")
 
 
 
@@ -300,7 +380,7 @@ if (IsValid(main_menu)) then main_menu:Remove() end
 --STORE_SCALE = math.Clamp(ScrW() /2560, 0.87, 1)
 
 main_menu = vgui.Create("deadremains.main_menu")
-main_menu:SetSize(660, 730)
+main_menu:SetSize(670, 800)
 main_menu:Center()
 main_menu.x=200
 main_menu:MakePopup()
@@ -321,7 +401,51 @@ main_menu:addCategory("a", character_icon, function(base)
 	--	storePanel:rebuild()
 		
 	--end)
+
+end)
+
+local skills_icon = Material("icon16/user_add.png")
+
+main_menu:addCategory("b", skills_icon, function(base)
+	local skills_panel = main_menu:getPanel("skills_panel")
 	
+	if (!IsValid(skills_panel)) then
+		skills_panel = main_menu:addPanel(base, "skills_panel", "deadremains.skills")
+		skills_panel:Dock(FILL)
+		--character_panel:DockPadding(4, 4, 4, 4)
+
+		skills_panel:addCategory("Combat")
+		skills_panel:addCategory("Crafting")
+		skills_panel:addCategory("Survival")
+		skills_panel:addCategory("Medical")
+		skills_panel:addCategory("Spec")
+	end
+	
+	--next_frame(function()
+	--	storePanel:rebuild()
+		
+	--end)
+
 end)
 
 --main_menu:openCategory("a")
+
+net.Receive("deadremains.getitem", function(bits)
+	local inventory_id = net:ReadString()
+	local unique = net.ReadString()
+	local x = net.ReadUInt(8)
+	local y = net.ReadUInt(8)
+
+	local item = deadremains.item.get(unique)
+
+	if (item) then
+		local character_panel = main_menu:getPanel("character_panel")
+	
+		if (IsValid(character_panel)) then
+			character_panel.inventory_back:addItem(item, x, y)
+		end
+	end
+end)
+
+
+

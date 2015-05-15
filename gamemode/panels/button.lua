@@ -71,7 +71,7 @@ function panel:Paint(w, h)
 
 	if (!self.disabled) then
 		if (last_selected == self or self.Hovered) then
-			draw.SimpleOutlined(0, 0, w, h, panel_color_text)
+			draw.simpleOutlined(0, 0, w, h, panel_color_text)
 		end
 	
 		draw.SimpleText(self.name, "deadremains.button", w *0.5, h *0.5, panel_color_text, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)

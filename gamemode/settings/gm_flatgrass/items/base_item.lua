@@ -20,3 +20,11 @@ item.fov = 14
 
 -- How much the entity in the DModelPanel should be rotated (yaw).
 item.rotate = 45
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+
+function item:use()
+end
