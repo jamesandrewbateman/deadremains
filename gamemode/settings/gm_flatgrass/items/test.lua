@@ -24,8 +24,8 @@ item.rotate = 45
 -- What type of inventory this item fits in.
 item.type = inventory_type_head
 
--- How many of this item we can fit into one slot.
-item.stack = 16
+-- How much this item weighs.
+item.weight = 4
 
 ----------------------------------------------------------------------
 -- Purpose:

@@ -148,7 +148,7 @@ function player_meta:getItemsAtArea(inventory, start_x, start_y, end_x, end_y, r
 		end
 	end
 
-	return result
+	return !return_one and result
 end
 
 ----------------------------------------------------------------------
@@ -158,7 +158,7 @@ end
 
 util.AddNetworkString("deadremains.getitem")
 
-function player_meta:addItem(inventory_id, unique, amount, x, y)
+function player_meta:addItem(inventory_id, unique, x, y)
 	local inventory = self.dr_character.inventory[inventory_id]
 
 	if (inventory) then
@@ -185,12 +185,11 @@ function player_meta:addItem(inventory_id, unique, amount, x, y)
 								if (slot_x > x +1) then continue end
 								if (slot_y > y +1) then continue end
 								
-								table.insert(inventory.slots, {unique = unique, amount = amount, x = slot_x, y = slot_y})
+								table.insert(inventory.slots, {unique = unique, x = slot_x, y = slot_y})
 	
 								net.Start("deadremains.getitem")
 									net.WriteString(inventory_id)
 									net.WriteString(unique)
-									net.WriteUInt(amount, 32)
 									net.WriteUInt(slot_x, 32)
 									net.WriteUInt(slot_y, 32)
 								net.Send(self)
@@ -211,7 +210,7 @@ function player_meta:addItem(inventory_id, unique, amount, x, y)
 						local end_x, end_y = start_x +item.slots_horizontal *slot_size -2, start_y +item.slots_vertical *slot_size -2
 						
 						-- Don't search outside the inventory bounds.
-						if (end_x <= inventory.slots_horizontal *slot_size and end_y <= inventory.slots_vertical *slot_size and amount > 0) then
+						if (end_x <= inventory.slots_horizontal *slot_size and end_y <= inventory.slots_vertical *slot_size) then
 							local slots = self:getItemsAtArea(inventory, start_x, start_y, end_x, end_y)
 							
 							if (#slots <= 0) then
@@ -219,12 +218,11 @@ function player_meta:addItem(inventory_id, unique, amount, x, y)
 								-- We search 1 pixel inside the slot, reset that.
 								start_x, start_y = start_x -1, start_y -1
 
-								table.insert(inventory.slots, {unique = unique, amount = amount, x = start_x, y = start_y})
+								table.insert(inventory.slots, {unique = unique, x = start_x, y = start_y})
 
 								net.Start("deadremains.getitem")
 									net.WriteString(inventory_id)
 									net.WriteString(unique)
-									net.WriteUInt(amount, 32)
 									net.WriteUInt(start_x, 32)
 									net.WriteUInt(start_y, 32)
 								net.Send(self)
@@ -233,31 +231,7 @@ function player_meta:addItem(inventory_id, unique, amount, x, y)
 
 								return true
 							else
-								for i = 1, #slots do
-									local slot = slots[i]
-		
-									if (slot.unique == item.unique) then
-										if (slot.amount < item.stack) then
-											local left_over = math.max(slot.amount +(amount -item.stack), 0)
-
-											slot.amount = slot.amount +(amount -left_over)
-
-											net.Start("deadremains.itemamount")
-												net.WriteString(inventory_id)
-												net.WriteString(slot.unique)
-												net.WriteUInt(slot.x, 32)
-												net.WriteUInt(slot.y, 32)
-												net.WriteUInt(slot.amount, 32)
-											net.Send(self)
-
-											if (left_over > 0) then
-												amount = left_over
-											else
-												return
-											end
-										end
-									end
-								end
+								
 							end
 						end
 					end
@@ -278,7 +252,7 @@ end
 
 util.AddNetworkString("deadremains.removeitem")
 
-function player_meta:removeItem(inventory_id, unique, amount, x, y)
+function player_meta:removeItem(inventory_id, unique, x, y)
 	local inventory = self.dr_character.inventory[inventory_id]
 
 	if (inventory) then
@@ -289,29 +263,14 @@ function player_meta:removeItem(inventory_id, unique, amount, x, y)
 				local slot = inventory.slots[i]
 
 				if (slot.unique == item.unique and slot.x == x and slot.y == y) then
-					local difference = slot.amount -amount
+					table.remove(inventory.slots, i)
 
-					if (difference <= 0) then
-						net.Start("deadremains.removeitem")
-							net.WriteString(inventory_id)
-							net.WriteString(unique)
-							net.WriteUInt(slot.amount, 32)
-							net.WriteUInt(x, 32)
-							net.WriteUInt(y, 32)
-						net.Send(self)
-
-						table.remove(inventory.slots, i)
-					else
-						slot.amount = difference
-
-						net.Start("deadremains.removeitem")
-							net.WriteString(inventory_id)
-							net.WriteString(unique)
-							net.WriteUInt(amount, 32)
-							net.WriteUInt(x, 32)
-							net.WriteUInt(y, 32)
-						net.Send(self)
-					end
+					net.Start("deadremains.removeitem")
+						net.WriteString(inventory_id)
+						net.WriteString(unique)
+						net.WriteUInt(x, 32)
+						net.WriteUInt(y, 32)
+					net.Send(self)
 
 					break
 				end
@@ -325,8 +284,6 @@ end
 --		
 ----------------------------------------------------------------------
 
-util.AddNetworkString("deadremains.itemamount")
-
 function player_meta:moveItem(new_inventory_id, inventory_id, unique, x, y, move_x, move_y)
 	local inventory = self.dr_character.inventory[inventory_id]
 	local new_inventory = self.dr_character.inventory[new_inventory_id]
@@ -336,125 +293,44 @@ function player_meta:moveItem(new_inventory_id, inventory_id, unique, x, y, move
 
 		if (item) then
 
-			-- The slot where we want to move our moving slot.
+			-- The slot where we want to move our moving slot to.
 			local slot = self:getItemsAtArea(new_inventory, move_x +1, move_y +1, move_x +item.slots_horizontal *slot_size -2, move_y +item.slots_vertical *slot_size -2, true)
 			
 			-- The slot that we are moving.
 			local move_slot = self:getItemsAtArea(inventory, x +1, y +1, x +item.slots_horizontal *slot_size -2, y +item.slots_vertical *slot_size -2, true)
-			
+		
 			if (slot and slot != move_slot) then
 				local slot_item = deadremains.item.get(slot.unique)
 
 				if (slot_item) then
 
-					-- The item in the slot we want to move to is the same.
-					-- Let's fill it up.
-					if (slot_item.unique == item.unique) then
-						local left_over = math.max(slot.amount +(move_slot.amount -slot_item.stack), 0)
-
-						-- We have merged! Let's remove the item we moved.
-						if (left_over <= 0) then
-							self:removeItem(inventory_id, unique, move_slot.amount, x, y)
-
-							-- Fill up the slot that we're moving to.
-							slot.amount = slot.amount +(move_slot.amount -left_over)
-							
-							net.Start("deadremains.itemamount")
-								net.WriteString(new_inventory_id)
-								net.WriteString(slot_item.unique)
-								net.WriteUInt(move_x, 32)
-								net.WriteUInt(move_y, 32)
-								net.WriteUInt(slot.amount, 32)
-							net.Send(self)
-
-						-- Swap or fill up.
-						else
-
-							-- Let's fill it up
-							if (slot.amount < slot_item.stack) then
-
-								-- Set the amount on the slot that we are moving.
-								move_slot.amount = left_over
-
-								net.Start("deadremains.itemamount")
-									net.WriteString(inventory_id)
-									net.WriteString(unique)
-									net.WriteUInt(x, 32)
-									net.WriteUInt(y, 32)
-									net.WriteUInt(move_slot.amount, 32)
-								net.Send(self)
-
-								-- Fill up the slot we're moving to.
-								slot.amount = slot_item.stack
-
-								net.Start("deadremains.itemamount")
-									net.WriteString(new_inventory_id)
-									net.WriteString(slot_item.unique)
-									net.WriteUInt(move_x, 32)
-									net.WriteUInt(move_y, 32)
-									net.WriteUInt(slot.amount, 32)
-								net.Send(self)
-
-							-- Swap positions.
-							else
-								-- Remove the item that we are moving from.
-								self:removeItem(inventory_id, unique, move_slot.amount, x, y)
-								
-								-- Add the item that we are moving to, to the moving slots position.
-								self:addItem(inventory_id, slot.unique, slot.amount, x, y)
-								
-								-- Remove the item that we are moving to.
-								self:removeItem(new_inventory_id, slot.unique, slot.amount, move_x, move_y)
-	
-								-- Add the item that we are moving to that slot.
-								self:addItem(new_inventory_id, unique, move_slot.amount, move_x, move_y)
-							end
-						end
-						
 					-- Let's see if we can swap the positions of the slots.
+					if (item.slots_horizontal == slot_item.slots_horizontal and item.slots_vertical == slot_item.slots_vertical) then
+
+						-- Remove the item that we are moving from.
+						self:removeItem(inventory_id, unique, x, y)
+
+						-- Add the item that we are moving to, to the moving slots position.
+						self:addItem(inventory_id, slot.unique, x, y)
+
+						-- Remove the item that we are moving to.
+						self:removeItem(new_inventory_id, slot.unique, move_x, move_y)
+
+						-- Add the item that we are moving to that slot.
+						self:addItem(new_inventory_id, unique, move_x, move_y)
 					else
-						if (item.slots_horizontal == slot_item.slots_horizontal and item.slots_vertical == slot_item.slots_vertical) then
-
-							-- Remove the item that we are moving from.
-							self:removeItem(inventory_id, unique, move_slot.amount, x, y)
-
-							-- Add the item that we are moving to, to the moving slots position.
-							self:addItem(inventory_id, slot.unique, slot.amount, x, y)
-
-							-- Remove the item that we are moving to.
-							self:removeItem(new_inventory_id, slot.unique, slot.amount, move_x, move_y)
-
-							-- Add the item that we are moving to that slot.
-							self:addItem(new_inventory_id, unique, move_slot.amount, move_x, move_y)
-						else
-							return false, "Can't swap these items."
-						end
+						return false, "Can't swap these items."
 					end
 				end
 
-			-- We are moving to an empty area.
+			-- We are moving to an empty area.	
 			else
-
-				self:removeItem(inventory_id, unique, move_slot.amount, x, y)
-				self:addItem(new_inventory_id, unique, move_slot.amount, move_x, move_y)
+				self:removeItem(inventory_id, unique, x, y)
+				self:addItem(new_inventory_id, unique, move_x, move_y)
 			end
 		end
 	end
 end
-
-----------------------------------------------------------------------
--- Purpose:
---		
-----------------------------------------------------------------------
-
-net.Receive("deadremains.getitem", function(bits, player)
-	local inventory_id = net.ReadString()
-	local unique = net.ReadString()
-	local x = net.ReadUInt(32)
-	local y = net.ReadUInt(32)
-
-	player:addItem(inventory_id, unique, amount, x, y)
-end)
 
 ----------------------------------------------------------------------
 -- Purpose:

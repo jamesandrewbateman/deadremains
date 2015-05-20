@@ -93,13 +93,12 @@ end
 --		
 ----------------------------------------------------------------------
  
-function panel:addItem(item, amount, x, y)
+function panel:addItem(item, x, y)
 	if (x and y) then
 		local slot = self:Add("deadremains.slot")
 		slot:SetPos(x, y)
 		slot:SetSize(item.slots_horizontal *slot_size, item.slots_vertical *slot_size)
 		slot:setItem(item)
-		slot:setAmount(amount)
 		slot:setInventoryID(self.inventory_id)
 
 		self:addSlot(slot)
@@ -117,7 +116,6 @@ function panel:addItem(item, amount, x, y)
 						slot:SetPos(start_x, start_y)
 						slot:SetSize(item.slots_horizontal *slot_size, item.slots_vertical *slot_size)
 						slot:setItem(item)
-						slot:setAmount(amount)
 						slot:setInventoryID(self.inventory_id)
 
 						self:addSlot(slot)
@@ -134,34 +132,14 @@ end
 -- Purpose:
 --		
 ----------------------------------------------------------------------
- 
-function panel:removeItem(item, amount, x, y)
+
+function panel:removeItem(item, x, y)
 	local slot = self:getItemsAtArea(x +1, y +1, x +item.slots_horizontal *slot_size -2, y +item.slots_vertical *slot_size -2, true)
 
 	if (slot) then
-		local slot_amount = slot:getAmount()
-		local difference = slot_amount -amount
+		self:removeSlot(slot)
 
-		if (difference <= 0) then
-			self:removeSlot(slot)
-
-			slot:Remove()
-		else
-			slot:setAmount(difference)
-		end
-	end
-end
-
-----------------------------------------------------------------------
--- Purpose:
---		
-----------------------------------------------------------------------
-
-function panel:setItemAmount(item, x, y, amount)
-	local slot = self:getItemsAtArea(x +1, y +1, x +item.slots_horizontal *slot_size -2, y +item.slots_vertical *slot_size -2, true)
-
-	if (slot) then
-		slot:setAmount(amount)
+		slot:Remove()
 	end
 end
 
@@ -294,8 +272,6 @@ local panel = {}
 
 function panel:Init()
 	self:SetCursor("hand")
-
-	self.amount = 0
 end
 
 ----------------------------------------------------------------------
@@ -314,24 +290,6 @@ end
 
 function panel:getInventoryID()
 	return self.inventory_id
-end
-
-----------------------------------------------------------------------
--- Purpose:
---		
-----------------------------------------------------------------------
-
-function panel:setAmount(amount)
-	self.amount = amount
-end
-
-----------------------------------------------------------------------
--- Purpose:
---		
-----------------------------------------------------------------------
-
-function panel:getAmount()
-	return self.amount
 end
 
 ----------------------------------------------------------------------
@@ -460,8 +418,6 @@ end
 
 function panel:Paint(w, h)
 	--draw.simpleRect(0, 0, w, h, Color(255, 255, 255, 10))
-
-	draw.SimpleText(self.amount, "DermaDefault", w -4, h -4, panel_color_text, TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP)
 end
 
 vgui.Register("deadremains.slot", panel, "EditablePanel")
