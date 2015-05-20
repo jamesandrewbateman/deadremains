@@ -202,7 +202,7 @@ end
 ----------------------------------------------------------------------
 
 function panel:Paint(w, h)
-	Derma_DrawBackgroundBlur(self)
+	--Derma_DrawBackgroundBlur(self)
 	
 	draw.RoundedBox(2, 0, 0, w, 80, panel_color_background)
 
@@ -237,7 +237,7 @@ function panel:Init()
 
 	self.inventory_primary = self:Add("deadremains.inventory")
 	self.inventory_primary:setInventory("primary", data.primary)
-	
+
 	self.inventory_secondary = self:Add("deadremains.inventory")
 	self.inventory_secondary:setInventory("secondary", data.secondary)
 
@@ -390,13 +390,27 @@ local character_icon = Material("icon16/user.png")
 
 main_menu:addCategory("a", character_icon, function(base)
 	local character_panel = main_menu:getPanel("character_panel")
-	
+	local inventory_panel = main_menu:getPanel("inventory_panel")
+
 	if (!IsValid(character_panel)) then
 		character_panel = main_menu:addPanel(base, "character_panel", "deadremains.equipment")
 		character_panel:Dock(FILL)
-		--character_panel:DockPadding(4, 4, 4, 4)
+
+		local data = deadremains.settings.get("default_inventories")
+
+		inventory_panel = vgui.Create("deadremains.inventory.external")
+		inventory_panel:SetSize(0, 800)
+		inventory_panel:setWatch(character_panel)
+		inventory_panel:SetDrawOnTop(true)
+		inventory_panel:setInventory("hunting_backpack", data.hunting_backpack)
+
+		main_menu:addPanel(nil, "inventory_panel", inventory_panel)
+
+		inventory_panel:SetPos(0, ScrH() *0.5 -400)
+		inventory_panel:MoveRightOf(main_menu, 35)
 	end
 	
+	inventory_panel:SetVisible(true)
 	--next_frame(function()
 	--	storePanel:rebuild()
 		
@@ -427,25 +441,4 @@ main_menu:addCategory("b", skills_icon, function(base)
 	--end)
 
 end)
-
---main_menu:openCategory("a")
-
-net.Receive("deadremains.getitem", function(bits)
-	local inventory_id = net:ReadString()
-	local unique = net.ReadString()
-	local x = net.ReadUInt(8)
-	local y = net.ReadUInt(8)
-
-	local item = deadremains.item.get(unique)
-
-	if (item) then
-		local character_panel = main_menu:getPanel("character_panel")
-	
-		if (IsValid(character_panel)) then
-			character_panel.inventory_back:addItem(item, x, y)
-		end
-	end
-end)
-
-
 

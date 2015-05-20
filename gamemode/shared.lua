@@ -16,3 +16,11 @@ gender_female = 2
 
 -- The size of a single rectangle.
 slot_size = 60
+
+inventory_type_feet = 1
+inventory_type_legs = 2
+inventory_type_head = 3
+inventory_type_back = 4
+inventory_type_chest = 5
+inventory_type_primary = 6
+inventory_type_secondary = 7

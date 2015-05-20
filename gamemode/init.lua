@@ -7,6 +7,7 @@ AddCSLuaFile("modules/sh_log.lua")
 AddCSLuaFile("modules/sh_settings.lua")
 AddCSLuaFile("modules/sh_item.lua")
 AddCSLuaFile("sh_loader.lua")
+AddCSLuaFile("modules/cl_inventory.lua")
 
 AddCSLuaFile("panels/button.lua")
 AddCSLuaFile("panels/combo_box.lua")

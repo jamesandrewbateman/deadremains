@@ -128,6 +128,86 @@ end
 
 if (CLIENT) then
 
+----------------------------------------------------------------------
+-- Purpose:
+--		A ghetto way to replace the scrollbar.
+----------------------------------------------------------------------
+
+function util.ReplaceScrollbar(panel)
+	panel.VBar:SetWide(8)
+	panel.VBar:Dock(NODOCK)
+	panel.VBar.btnUp:Remove()
+	panel.VBar.btnDown:Remove()
+	
+	function panel.VBar:Paint(w, h) end
+	
+	function panel.VBar.btnGrip:Paint(w, h)
+		local parent = self:GetParent():GetParent()
+		local x, y = parent:ScreenToLocal(gui.MousePos())
+		local w2, h2 = parent:GetSize()
+		
+		if (x >= w2 -8 and x <= w2 +8 and y >= 0 and y <= h2) then
+			if (self.Depressed) then
+				draw.RoundedBox(2, 0, 0, w, h, color_white)
+			elseif (self.Hovered) then
+				draw.RoundedBox(2, 0, 0, w, h, Color(191, 192, 193, 255))
+			else
+				draw.RoundedBox(2, 0, 0, w, h, Color(221, 222, 223, 255))
+			end
+		end
+	end
+	
+	function panel.VBar:OnCursorMoved(x, y)
+		if (!self.Enabled) then return end
+		if (!self.Dragging) then return end
+	
+		local x = 0
+		local y = gui.MouseY()
+		local x, y = self:ScreenToLocal(x, y)
+		
+		y = y -self.HoldPos
+		
+		local TrackSize = self:GetTall() -self:GetWide() *2 -self.btnGrip:GetTall()
+		
+		y = y /TrackSize
+		
+		self:SetScroll(y *self.CanvasSize)	
+	end
+	
+	function panel.VBar:PerformLayout()
+		local Scroll = self:GetScroll() /self.CanvasSize
+		local BarSize = math.max(self:BarScale() *self:GetTall(), 0)
+		local Track = self:GetTall() -BarSize
+		
+		Track = Track +1
+		Scroll = Scroll *Track
+		
+		self.btnGrip:SetPos(0, Scroll)
+		self.btnGrip:SetSize(self:GetWide(), BarSize)
+	end
+	
+	function panel:PerformLayout()
+		local width, height = self:GetSize()
+	
+		self:Rebuild()
+	
+		self.VBar:SetUp(height, self.pnlCanvas:GetTall())
+		self.VBar:SetPos(width -6, 2)
+		self.VBar:SetTall(height -4)
+		
+		if (self.VBar.Enabled) then
+			self.pnlCanvas:SetWide(width)
+			self.pnlCanvas:SetPos(0, self.VBar:GetOffset())
+		else
+			self.pnlCanvas:SetWide(width)
+			self.pnlCanvas:SetPos(0, 0)
+		
+			self.VBar:SetScroll(self.pnlCanvas:GetTall())
+		end
+	
+		self:Rebuild()
+	end
+end
 
 ----------------------------------------------------------------------
 -- Purpose:

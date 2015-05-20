@@ -1,5 +1,3 @@
--- The size of a single rectangle.
-local slot_size = 60
 local color_line = Color(255, 255, 255, 25)
 
 local panel = {}
@@ -21,22 +19,41 @@ end
 --		
 ----------------------------------------------------------------------
 
-function panel:getSlotsAtArea(start_x, start_y, end_x, end_y)
+function panel:setInventoryID(inventory_id)
+	self.inventory_id = inventory_id
+end
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+
+function panel:getInventoryID()
+	return self.inventory_id
+end
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+
+function panel:getSlotsAtArea(start_x, start_y, end_x, end_y, return_one)
 	local result = {}
 
 	for y = 1, self.rows do
 		for x = 1, self.columns do
 			local slot_x, slot_y = x *slot_size -slot_size, y *slot_size -slot_size
-			local width, height = slot_size, slot_size
-			
-			--width, height = width -1, height -1
-	
-			if (start_x > slot_x +width) then continue end
-			if (start_y > slot_y +height) then continue end
+
+			if (start_x > slot_x +slot_size) then continue end
+			if (start_y > slot_y +slot_size) then continue end
 			if (slot_x > end_x) then continue end
 			if (slot_y > end_y) then continue end
 	
-			table.insert(result, {x = slot_x, y = slot_y})
+			if (return_one) then
+				return {x = slot_x, y = slot_y}
+			else
+				table.insert(result, {x = slot_x, y = slot_y})
+			end
 		end
 	end
 
@@ -47,8 +64,8 @@ end
 -- Purpose:
 --		
 ----------------------------------------------------------------------
-   
-function panel:getItemsAtArea(start_x, start_y, end_x, end_y)
+
+function panel:getItemsAtArea(start_x, start_y, end_x, end_y, return_one)
 	local result = {}
 
 	for i = 1, #self.slots do
@@ -56,14 +73,16 @@ function panel:getItemsAtArea(start_x, start_y, end_x, end_y)
 		local slot_x, slot_y = slot:GetPos()
 		local width, height = slot:GetSize()
 		
-		width, height = width -1, height -1
-
 		if (start_x > slot_x +width) then continue end
 		if (start_y > slot_y +height) then continue end
 		if (slot_x > end_x) then continue end
 		if (slot_y > end_y) then continue end
 
-		table.insert(result, slot)
+		if (return_one) then
+			return slot
+		else
+			table.insert(result, slot)
+		end
 	end
 
 	return result
@@ -74,14 +93,16 @@ end
 --		
 ----------------------------------------------------------------------
  
-function panel:addItem(item, x, y)
+function panel:addItem(item, amount, x, y)
 	if (x and y) then
 		local slot = self:Add("deadremains.slot")
 		slot:SetPos(x, y)
 		slot:SetSize(item.slots_horizontal *slot_size, item.slots_vertical *slot_size)
 		slot:setItem(item)
-		
-		table.insert(self.slots, slot)
+		slot:setAmount(amount)
+		slot:setInventoryID(self.inventory_id)
+
+		self:addSlot(slot)
 	else
 		for y = 1, self.rows do
 			for x = 1, self.columns do
@@ -96,8 +117,10 @@ function panel:addItem(item, x, y)
 						slot:SetPos(start_x, start_y)
 						slot:SetSize(item.slots_horizontal *slot_size, item.slots_vertical *slot_size)
 						slot:setItem(item)
-		
-						table.insert(self.slots, slot)
+						slot:setAmount(amount)
+						slot:setInventoryID(self.inventory_id)
+
+						self:addSlot(slot)
 		
 						return
 					end
@@ -106,7 +129,42 @@ function panel:addItem(item, x, y)
 		end
 	end
 end
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
  
+function panel:removeItem(item, amount, x, y)
+	local slot = self:getItemsAtArea(x +1, y +1, x +item.slots_horizontal *slot_size -2, y +item.slots_vertical *slot_size -2, true)
+
+	if (slot) then
+		local slot_amount = slot:getAmount()
+		local difference = slot_amount -amount
+
+		if (difference <= 0) then
+			self:removeSlot(slot)
+
+			slot:Remove()
+		else
+			slot:setAmount(difference)
+		end
+	end
+end
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+
+function panel:setItemAmount(item, x, y, amount)
+	local slot = self:getItemsAtArea(x +1, y +1, x +item.slots_horizontal *slot_size -2, y +item.slots_vertical *slot_size -2, true)
+
+	if (slot) then
+		slot:setAmount(amount)
+	end
+end
+
 ----------------------------------------------------------------------
 -- Purpose:
 --		
@@ -151,6 +209,16 @@ end
 local moving_slot = nil
 local moving_slot_receiver = nil
 
+local function isWithin(slot, target_slot)
+	local slot_x, slot_y = target_slot:GetParent():ScreenToLocal(slot:GetPos())
+	local slot_width, slot_height = slot:GetSize()
+
+	local target_slot_x, target_slot_y = target_slot:GetPos()
+	local target_slot_width, target_slot_height = target_slot:GetSize()
+	
+	return slot_x +slot_width *0.1 >= target_slot_x and slot_x +slot_width *0.9 <= target_slot_x +target_slot_width and slot_y +slot_height *0.1 >= target_slot_y and slot_y +slot_height *0.9 <= target_slot_y +target_slot_height
+end
+
 function panel:Paint(w, h)
 	draw.simpleRect(0, 0, w, h, Color(0, 0, 30, 200))
 	draw.simpleOutlined(0, 0, w, h, color_line)
@@ -169,7 +237,7 @@ function panel:Paint(w, h)
 		local moving_x, moving_y = moving_slot:GetPos()
 		local parent_x, parent_y = self:LocalToScreen(0, 0)
 		local width, height = moving_slot:GetSize()
-		
+	
 		if (moving_x >= parent_x -width *0.5 and moving_x +width *0.5 <= parent_x +w and moving_y >= parent_y -height *0.5 and moving_y +height *0.5 <= parent_y +h) then
 			local x, y = self:ScreenToLocal(moving_x, moving_y)
 			local slots = self:getSlotsAtArea(x +slot_size *0.5, y +slot_size *0.5, x +width -slot_size *0.5, y +height -slot_size *0.5)
@@ -177,11 +245,18 @@ function panel:Paint(w, h)
 
 			for i = 1, #slots do
 				local items = self:getItemsAtArea(slots[i].x +1, slots[i].y +1, slots[i].x +slot_size -2, slots[i].y +slot_size -2)
-
+			
 				if (#items <= 0) then
 					table.insert(slots_free, i)
 				else
-					draw.simpleRect(slots[i].x, slots[i].y, slot_size, slot_size, Color(255, 0, 0, 20))
+					local within = isWithin(moving_slot, items[1])
+
+					if (within and moving_slot.size == items[1].size) then
+						table.insert(slots_free, i)
+					else
+						draw.simpleRect(slots[i].x, slots[i].y, slot_size, slot_size, Color(255, 0, 0, 20))
+					end
+					
 				end
 			end
 			
@@ -206,26 +281,6 @@ function panel:Paint(w, h)
 			end
 		end
 	end
-
-	--local mouse_x, mouse_y = self:LocalCursorPos()
-
-	--if (mouse_x >= 0 and mouse_y >= 0) then
-	--	local slots = self:getSlotsAtArea(mouse_x, mouse_y, mouse_x +slot_size *2, mouse_y)
-	
-	--	for i = 1, #slots do
-	--		draw.simpleRect(slots[i].x, slots[i].y, slot_size, slot_size, Color(255, 255, 255, 100))
-	--	end
-	--end
-	
-	--[[
-	for y = 1, self.rows do
-		for x = 1, self.columns do
-			if (mouse_x >= x *slot_size -slot_size and mouse_x <= (x *slot_size) *2 and mouse_y >= y *slot_size -slot_size and mouse_y <= y *slot_size) then
-				draw.simpleRect(x *slot_size -slot_size, y *slot_size -slot_size, slot_size, slot_size, Color(255, 255, 255, 100))
-			end
-		end
-	end
-	]]
 end
 
 vgui.Register("deadremains.slots", panel, "EditablePanel")
@@ -239,6 +294,44 @@ local panel = {}
 
 function panel:Init()
 	self:SetCursor("hand")
+
+	self.amount = 0
+end
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+
+function panel:setInventoryID(inventory_id)
+	self.inventory_id = inventory_id
+end
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+
+function panel:getInventoryID()
+	return self.inventory_id
+end
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+
+function panel:setAmount(amount)
+	self.amount = amount
+end
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+
+function panel:getAmount()
+	return self.amount
 end
 
 ----------------------------------------------------------------------
@@ -247,7 +340,7 @@ end
 ----------------------------------------------------------------------
 
 function panel:setItem(item)
-	self.size = item.slots_vertical +item.slots_horizontal
+	self.size = item.slots_vertical *item.slots_horizontal
 	self.unique = item.unique
 	self.slots_vertical = item.slots_vertical
 	self.slots_horizontal = item.slots_horizontal
@@ -285,7 +378,7 @@ function panel:OnMousePressed(code)
 		local parent = self:GetParent()
 
 		self.origin = {parent = parent, x = self.x, y = self.y}
-	
+
 		self:SetParent(nil)
 		self:SetDrawOnTop(true)
 		self:MouseCapture(true)
@@ -305,17 +398,39 @@ function panel:OnMouseReleased(code)
 			self:MouseCapture(false)
 
 			if (moving_slot_receiver) then
-				self.origin.parent:removeSlot(self)
-
-				moving_slot_receiver.parent:addSlot(self)
-
-				self:SetParent(moving_slot_receiver.parent)
-				self:SetPos(moving_slot_receiver.x, moving_slot_receiver.y)
-			else
-				self:SetParent(self.origin.parent)
-				self:SetPos(self.origin.x, self.origin.y)
+				local inventory_id = moving_slot_receiver.parent:getInventoryID()
+				
+				net.Start("deadremains.moveitem")
+					net.WriteString(inventory_id) -- In what inventory we want to put this item.
+					net.WriteString(self.inventory_id) -- In what inventory we are currently.
+					net.WriteString(self.unique) -- The item that we have.
+					net.WriteUInt(self.origin.x, 32) -- Where we come from.
+					net.WriteUInt(self.origin.y, 32) -- Where we come from.
+					net.WriteUInt(moving_slot_receiver.x, 32) -- Where we want to go.
+					net.WriteUInt(moving_slot_receiver.y, 32) -- Where we want to go.
+				net.SendToServer()
 			end
 			
+			--if (moving_slot_receiver) then
+			--	self.origin.parent:removeSlot(self)
+
+			--	moving_slot_receiver.parent:addSlot(self)
+
+			--	self:SetParent(moving_slot_receiver.parent)
+			--	self:SetPos(moving_slot_receiver.x, moving_slot_receiver.y)
+			--else
+				self:SetParent(self.origin.parent)
+				self:SetPos(self.origin.x, self.origin.y)
+				self:SetVisible(false)
+
+				timer.Simple(LocalPlayer():Ping() *0.001, function()
+					if (IsValid(self)) then
+						self:SetVisible(true)
+					end
+				end)
+
+			--end
+
 			self.origin = nil
 
 			moving_slot = nil
@@ -345,6 +460,8 @@ end
 
 function panel:Paint(w, h)
 	--draw.simpleRect(0, 0, w, h, Color(255, 255, 255, 10))
+
+	draw.SimpleText(self.amount, "DermaDefault", w -4, h -4, panel_color_text, TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP)
 end
 
 vgui.Register("deadremains.slot", panel, "EditablePanel")

@@ -6,6 +6,7 @@ include("modules/sh_log.lua")
 include("modules/sh_settings.lua")
 include("modules/sh_item.lua")
 include("sh_loader.lua")
+include("modules/cl_inventory.lua")
 
 include("panels/button.lua")
 include("panels/combo_box.lua")

@@ -61,13 +61,15 @@ deadremains.settings.new("female_models", models)
 ----------------------------------------------------------------------
 
 local inventories = {
-	feet = {name = "Feet", horizontal = 2, vertical = 2},
-	legs = {name = "Legs", horizontal = 2, vertical = 2},
-	head = {name = "Head", horizontal = 2, vertical = 2},
-	back = {name = "Back", horizontal = 2, vertical = 4},
-	chest = {name = "Chest", horizontal = 2, vertical = 2},
-	primary = {name = "Primary", horizontal = 5, vertical = 2},
-	secondary = {name = "Secondary", horizontal = 3, vertical = 2}
+	feet = {name = "Feet", horizontal = 2, vertical = 2, type = inventory_type_gear},
+	legs = {name = "Legs", horizontal = 2, vertical = 2, type = inventory_type_gear},
+	head = {name = "Head", horizontal = 2, vertical = 2, type = inventory_type_gear},
+	back = {name = "Back", horizontal = 2, vertical = 4, type = inventory_type_gear},
+	chest = {name = "Chest", horizontal = 2, vertical = 2, type = inventory_type_gear},
+	primary = {name = "Primary", horizontal = 5, vertical = 2, type = inventory_type_primary},
+	secondary = {name = "Secondary", horizontal = 3, vertical = 2, type = inventory_type_secondary},
+
+	hunting_backpack = {name = "Hunting Backpack", horizontal = 9, vertical = 9}
 }
 
 deadremains.settings.new("default_inventories", inventories)
