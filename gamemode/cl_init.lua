@@ -6,6 +6,7 @@ include("modules/sh_log.lua")
 include("modules/sh_settings.lua")
 include("modules/sh_item.lua")
 include("sh_loader.lua")
+include("modules/sh_inventory.lua")
 include("modules/cl_inventory.lua")
 
 include("panels/button.lua")
@@ -25,6 +26,8 @@ deadremains.loader.initialize()
 ----------------------------------------------------------------------
 
 function GM:InitPostEntity()
+	net.Start("deadremains.player.initalize")
+	net.SendToServer()
 end
 
 ----------------------------------------------------------------------
@@ -33,12 +36,6 @@ end
 ----------------------------------------------------------------------
 
 function GM:OnEntityCreated(entity)
-	if (IsValid(entity)) then
-		if (entity == LocalPlayer()) then
-			net.Start("deadremains.player.initalize")
-			net.SendToServer()
-		end
-	end
 end
 
 ----------------------------------------------------------------------

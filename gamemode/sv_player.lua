@@ -18,9 +18,15 @@ local function default(self)
 
 	local inventories = deadremains.settings.get("default_inventories")
 
-	for unique, data in pairs(inventories) do
-		self:createInventory(unique, data.horizontal, data.vertical)
+	for _, info in pairs(inventories) do
+		local data = deadremains.inventory.get(info.unique)
+
+		if (data) then
+			self:createInventory(data.unique, data.horizontal, data.vertical, info.inventory_index)
+		end
 	end
+
+	self.dr_character.max_weight = 20
 end
 
 function player_meta:reset()
@@ -115,8 +121,23 @@ end)
 --		
 ----------------------------------------------------------------------
 
-function player_meta:createInventory(unique, slots_horizontal, slots_vertical)
-	self.dr_character.inventory[unique] = {slots_horizontal = slots_horizontal, slots_vertical = slots_vertical, slots = {}}
+util.AddNetworkString("deadremains.createinventory")
+
+function player_meta:createInventory(unique, slots_horizontal, slots_vertical, index)
+	local index = index
+
+	if (index) then
+		self.dr_character.inventory[index] = self.dr_character.inventory[index] or {unique = unique, slots_horizontal = slots_horizontal, slots_vertical = slots_vertical, slots = {}}
+	else
+		index = table.insert(self.dr_character.inventory, {unique = unique, slots_horizontal = slots_horizontal, slots_vertical = slots_vertical, slots = {}})
+	end
+
+	self.dr_character.inventory[index].inventory_index = index
+
+	net.Start("deadremains.createinventory")
+		net.WriteUInt(index, 8)
+		net.WriteString(unique)
+	net.Send(self)
 end
 
 ----------------------------------------------------------------------
@@ -156,88 +177,129 @@ end
 --		
 ----------------------------------------------------------------------
 
+function player_meta:equipItem(inventory_data, item)
+	local inventory_data = deadremains.inventory.get(inventory_data.unique)
+	local is_equip_slot = inventory_data:isEquipInventory()
+
+	-- We're equipping something.
+	if (is_equip_slot) then
+		local can_equip, message = inventory_data:canEquip(self, item)
+
+		if (can_equip) then
+			inventory_data:equip(self, item)
+
+			return true
+		else
+			return can_equip, message
+		end
+	end
+
+	return true
+end
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+
+
+function player_meta:unEquipItem(inventory_data, item)
+	inventory_data:unEquip(self, item)
+end
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+
 util.AddNetworkString("deadremains.getitem")
 
-function player_meta:addItem(inventory_id, unique, x, y)
-	local inventory = self.dr_character.inventory[inventory_id]
+function player_meta:addItem(inventory_index, unique, x, y)
+	local inventory = self.dr_character.inventory[inventory_index]
 
 	if (inventory) then
 		local item = deadremains.item.get(unique)
 
 		if (item) then
-			if (inventory.type and item.type and inventory.type != item.type) then
-				return false, "You can't equip that item there."
-			end
+			local inventory_data = deadremains.inventory.get(inventory.unique)
 
-			if (x and y) then
-				if (x +item.slots_horizontal *slot_size -2 <= inventory.slots_horizontal *slot_size and y +item.slots_vertical *slot_size -2 <= inventory.slots_vertical *slot_size) then
-					local items = self:getItemsAtArea(inventory, x +1, y +1, x +item.slots_horizontal *slot_size -2, y +item.slots_vertical *slot_size -2)
-					
-					if (#items <= 0) then
-	
-						-- Clamp it to the closest slot.
-						for y2 = 1, inventory.slots_vertical do
-							for x2 = 1, inventory.slots_horizontal do
-								local slot_x, slot_y = x2 *slot_size -slot_size, y2 *slot_size -slot_size
-				
-								if (x +1 > slot_x +slot_size) then continue end
-								if (y +1 > slot_y +slot_size) then continue end
-								if (slot_x > x +1) then continue end
-								if (slot_y > y +1) then continue end
-								
-								table.insert(inventory.slots, {unique = unique, x = slot_x, y = slot_y})
-	
-								net.Start("deadremains.getitem")
-									net.WriteString(inventory_id)
-									net.WriteString(unique)
-									net.WriteUInt(slot_x, 32)
-									net.WriteUInt(slot_y, 32)
-								net.Send(self)
-
-								return true
-							end
-						end
-					else
-						return false, "Can't put that there."
-					end
-				end
-			else
-				local found = false
-
-				for y = 1, inventory.slots_vertical do
-					for x = 1, inventory.slots_horizontal do
-						local start_x, start_y = x *slot_size -slot_size +1, y *slot_size -slot_size +1
-						local end_x, end_y = start_x +item.slots_horizontal *slot_size -2, start_y +item.slots_vertical *slot_size -2
+			if (inventory_data) then
+				if (x and y) then
+					if (x +item.slots_horizontal *slot_size -2 <=inventory_data.slots_horizontal *slot_size and y +item.slots_vertical *slot_size -2 <= inventory_data.slots_vertical *slot_size) then
+						local items = self:getItemsAtArea(inventory, x +1, y +1, x +item.slots_horizontal *slot_size -2, y +item.slots_vertical *slot_size -2)
 						
-						-- Don't search outside the inventory bounds.
-						if (end_x <= inventory.slots_horizontal *slot_size and end_y <= inventory.slots_vertical *slot_size) then
-							local slots = self:getItemsAtArea(inventory, start_x, start_y, end_x, end_y)
-							
-							if (#slots <= 0) then
+						if (#items <= 0) then
+							local can_equip, message = self:equipItem(inventory_data, item)
 
-								-- We search 1 pixel inside the slot, reset that.
-								start_x, start_y = start_x -1, start_y -1
-
-								table.insert(inventory.slots, {unique = unique, x = start_x, y = start_y})
-
-								net.Start("deadremains.getitem")
-									net.WriteString(inventory_id)
-									net.WriteString(unique)
-									net.WriteUInt(start_x, 32)
-									net.WriteUInt(start_y, 32)
-								net.Send(self)
-
-								found = true
-
-								return true
+							if (!can_equip) then
+								return can_equip, message
 							else
-								
+
+								-- Clamp it to the closest slot.
+								for y2 = 1, inventory_data.slots_vertical do
+									for x2 = 1, inventory_data.slots_horizontal do
+										local slot_x, slot_y = x2 *slot_size -slot_size, y2 *slot_size -slot_size
+						
+										if (x +1 > slot_x +slot_size) then continue end
+										if (y +1 > slot_y +slot_size) then continue end
+										if (slot_x > x +1) then continue end
+										if (slot_y > y +1) then continue end
+										
+										table.insert(inventory.slots, {unique = unique, x = slot_x, y = slot_y})
+			
+										net.Start("deadremains.getitem")
+											net.WriteUInt(inventory.inventory_index, 8)
+											net.WriteString(unique)
+											net.WriteUInt(slot_x, 32)
+											net.WriteUInt(slot_y, 32)
+										net.Send(self)
+										
+										return true
+									end
+								end
+							end
+						else
+							return false, "Can't put that there."
+						end
+					end
+				else
+					for y = 1, inventory_data.slots_vertical do
+						for x = 1, inventory_data.slots_horizontal do
+							local start_x, start_y = x *slot_size -slot_size +1, y *slot_size -slot_size +1
+							local end_x, end_y = start_x +item.slots_horizontal *slot_size -2, start_y +item.slots_vertical *slot_size -2
+							
+							-- Don't search outside the inventory bounds.
+							if (end_x <= inventory_data.slots_horizontal *slot_size and end_y <= inventory_data.slots_vertical *slot_size) then
+								local slots = self:getItemsAtArea(inventory, start_x, start_y, end_x, end_y)
+
+								if (#slots <= 0) then
+									local can_equip, message = self:equipItem(inventory_data, item)
+		
+									if (!can_equip) then
+										return can_equip, message
+									else
+
+										-- We search 1 pixel inside the slot, reset that.
+										start_x, start_y = start_x -1, start_y -1
+		
+										table.insert(inventory.slots, {unique = unique, x = start_x, y = start_y})
+		
+										net.Start("deadremains.getitem")
+											net.WriteUInt(inventory.inventory_index, 8)
+											net.WriteString(unique)
+											net.WriteUInt(start_x, 32)
+											net.WriteUInt(start_y, 32)
+										net.Send(self)
+									
+										return true
+									end
+								else
+									return false, "Can't fit that there."
+								end
 							end
 						end
 					end
-				end
-
-				if (!found) then
+	
 					return false, "Can't fit that item into any inventory."
 				end
 			end
@@ -263,10 +325,21 @@ function player_meta:removeItem(inventory_id, unique, x, y)
 				local slot = inventory.slots[i]
 
 				if (slot.unique == item.unique and slot.x == x and slot.y == y) then
+					local inventory_data = deadremains.inventory.get(inventory.unique)
+
+					if (inventory_data) then
+						local is_equip_slot = inventory_data:isEquipInventory()
+	
+						-- We're unequipping something.
+						if (is_equip_slot) then
+							self:unEquipItem(inventory_data, item)
+						end
+					end
+					
 					table.remove(inventory.slots, i)
 
 					net.Start("deadremains.removeitem")
-						net.WriteString(inventory_id)
+						net.WriteUInt(inventory.inventory_index, 8)
 						net.WriteString(unique)
 						net.WriteUInt(x, 32)
 						net.WriteUInt(y, 32)
@@ -288,6 +361,9 @@ function player_meta:moveItem(new_inventory_id, inventory_id, unique, x, y, move
 	local inventory = self.dr_character.inventory[inventory_id]
 	local new_inventory = self.dr_character.inventory[new_inventory_id]
 
+	local inventory_data = deadremains.inventory.get(inventory.unique)
+	local inventory_data_new = deadremains.inventory.get(new_inventory.unique)
+
 	if (inventory and new_inventory) then
 		local item = deadremains.item.get(unique)
 
@@ -306,18 +382,26 @@ function player_meta:moveItem(new_inventory_id, inventory_id, unique, x, y, move
 
 					-- Let's see if we can swap the positions of the slots.
 					if (item.slots_horizontal == slot_item.slots_horizontal and item.slots_vertical == slot_item.slots_vertical) then
+						local can_equip, message = self:equipItem(inventory_data_new, item)
 
-						-- Remove the item that we are moving from.
-						self:removeItem(inventory_id, unique, x, y)
+						if (!can_equip) then
+							return can_equip, message
+						else
 
-						-- Add the item that we are moving to, to the moving slots position.
-						self:addItem(inventory_id, slot.unique, x, y)
-
-						-- Remove the item that we are moving to.
-						self:removeItem(new_inventory_id, slot.unique, move_x, move_y)
-
-						-- Add the item that we are moving to that slot.
-						self:addItem(new_inventory_id, unique, move_x, move_y)
+							-- Remove the item that we are moving from.
+							self:removeItem(inventory_id, unique, x, y)
+	
+							-- Add the item that we are moving to, to the moving slots position.
+							self:addItem(inventory_id, slot.unique, x, y)
+	
+							-- Remove the item that we are moving to.
+							self:removeItem(new_inventory_id, slot.unique, move_x, move_y)
+	
+							-- Add the item that we are moving to that slot.
+							self:addItem(new_inventory_id, unique, move_x, move_y)
+	
+							return true
+						end
 					else
 						return false, "Can't swap these items."
 					end
@@ -325,8 +409,16 @@ function player_meta:moveItem(new_inventory_id, inventory_id, unique, x, y, move
 
 			-- We are moving to an empty area.	
 			else
-				self:removeItem(inventory_id, unique, x, y)
-				self:addItem(new_inventory_id, unique, move_x, move_y)
+				local can_equip, message = self:equipItem(inventory_data_new, item)
+
+				if (!can_equip) then
+					return can_equip, message
+				else
+					self:removeItem(inventory_id, unique, x, y)
+					self:addItem(new_inventory_id, unique, move_x, move_y)
+
+					return true
+				end
 			end
 		end
 	end
@@ -340,13 +432,17 @@ end
 util.AddNetworkString("deadremains.moveitem")
 
 net.Receive("deadremains.moveitem", function(bits, player)
-	local new_inventory_id = net.ReadString() -- In what inventory we want to put this item.
-	local inventory_id = net.ReadString() -- In what inventory we are currently.
+	local new_inventory_id = net.ReadUInt(8) -- In what inventory we want to put this item.
+	local inventory_id = net.ReadUInt(8) -- In what inventory we are currently.
 	local unique = net.ReadString()
 	local x = net.ReadUInt(32) -- Where the item comes from.
 	local y = net.ReadUInt(32) -- Where the item comes from.
 	local move_x = net.ReadUInt(32) -- Where we want to move the item.
 	local move_y = net.ReadUInt(32) -- Where we want to move the item.
 
-	player:moveItem(new_inventory_id, inventory_id, unique, x, y, move_x, move_y)
+	local success, message = player:moveItem(new_inventory_id, inventory_id, unique, x, y, move_x, move_y)
+
+	if (!success) then
+		player:ChatPrint(message)
+	end
 end)

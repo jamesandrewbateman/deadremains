@@ -224,28 +224,40 @@ local panel = {}
 ----------------------------------------------------------------------
 
 function panel:Init()
-	local data = deadremains.settings.get("default_inventories")
+	local data = deadremains.inventory.get("head")
 
 	self.inventory_head = self:Add("deadremains.inventory")
-	self.inventory_head:setInventory("head", data.head)
+	self.inventory_head:setInventory(inventory_index_head, data)
+
+	data = deadremains.inventory.get("chest")
 
 	self.inventory_chest = self:Add("deadremains.inventory")
-	self.inventory_chest:setInventory("chest", data.chest)
+	self.inventory_chest:setInventory(inventory_index_chest, data)
+
+	data = deadremains.inventory.get("feet")
 
 	self.inventory_feet = self:Add("deadremains.inventory")
-	self.inventory_feet:setInventory("feet", data.feet)
+	self.inventory_feet:setInventory(inventory_index_feet, data)
+
+	data = deadremains.inventory.get("primary")
 
 	self.inventory_primary = self:Add("deadremains.inventory")
-	self.inventory_primary:setInventory("primary", data.primary)
+	self.inventory_primary:setInventory(inventory_index_primary, data)
+
+	data = deadremains.inventory.get("secondary")
 
 	self.inventory_secondary = self:Add("deadremains.inventory")
-	self.inventory_secondary:setInventory("secondary", data.secondary)
+	self.inventory_secondary:setInventory(inventory_index_secondary, data)
+
+	data = deadremains.inventory.get("back")
 
 	self.inventory_back = self:Add("deadremains.inventory")
-	self.inventory_back:setInventory("back", data.back)
+	self.inventory_back:setInventory(inventory_index_back, data)
+
+	data = deadremains.inventory.get("legs")
 
 	self.inventory_legs = self:Add("deadremains.inventory")
-	self.inventory_legs:setInventory("legs", data.legs)
+	self.inventory_legs:setInventory(inventory_index_legs, data)
 
 	self.model = self:Add("DModelPanel")
 	self.model:SetModel("models/humans/group01/male_01.mdl")
@@ -402,7 +414,6 @@ main_menu:addCategory("a", character_icon, function(base)
 		inventory_panel:SetSize(0, 800)
 		inventory_panel:setWatch(character_panel)
 		inventory_panel:SetDrawOnTop(true)
-		inventory_panel:setInventory("hunting_backpack", data.hunting_backpack)
 
 		main_menu:addPanel(nil, "inventory_panel", inventory_panel)
 

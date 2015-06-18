@@ -60,16 +60,22 @@ deadremains.settings.new("female_models", models)
 --		The default inventories.
 ----------------------------------------------------------------------
 
-local inventories = {
-	feet = {name = "Feet", horizontal = 2, vertical = 2, type = inventory_type_gear},
-	legs = {name = "Legs", horizontal = 2, vertical = 2, type = inventory_type_gear},
-	head = {name = "Head", horizontal = 2, vertical = 2, type = inventory_type_gear},
-	back = {name = "Back", horizontal = 2, vertical = 4, type = inventory_type_gear},
-	chest = {name = "Chest", horizontal = 2, vertical = 2, type = inventory_type_gear},
-	primary = {name = "Primary", horizontal = 5, vertical = 2, type = inventory_type_primary},
-	secondary = {name = "Secondary", horizontal = 3, vertical = 2, type = inventory_type_secondary},
+inventory_index_feet = 1
+inventory_index_legs = 2
+inventory_index_head = 3
+inventory_index_back = 4
+inventory_index_chest = 5
+inventory_index_primary = 6
+inventory_index_secondary = 7
 
-	hunting_backpack = {name = "Hunting Backpack", horizontal = 9, vertical = 9}
+local inventories = {
+	{unique = "feet", inventory_index = inventory_index_feet},
+	{unique = "legs", inventory_index = inventory_index_legs},
+	{unique = "head", inventory_index = inventory_index_head},
+	{unique = "back", inventory_index = inventory_index_back},
+	{unique = "chest", inventory_index = inventory_index_chest},
+	{unique = "primary", inventory_index = inventory_index_primary},
+	{unique = "secondary", inventory_index = inventory_index_secondary}
 }
 
 deadremains.settings.new("default_inventories", inventories)

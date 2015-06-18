@@ -16,18 +16,24 @@ end
 --		
 ----------------------------------------------------------------------
 
-function panel:setInventory(unique, data)
+function panel:setInventory(inventory_index, data)
+	print(inventory_index)
 	self.slots = self:Add("deadremains.slots")
 	self.slots:SetPos(0, 32)
-	self.slots:createSlots(data.horizontal, data.vertical)
-	self.slots:setInventoryID(unique)
-	
+	self.slots:createSlots(data.slots_horizontal, data.slots_vertical)
+	self.slots:setInventoryID(data.unique)
+	self.slots:setInventoryIndex(inventory_index)
+
 	self:setName(data.name)
 
 	self:InvalidateLayout(true)
 	self:SizeToChildren(true, true)
 
-	deadremains.inventory.add(unique, self.slots)
+	local inventory = deadremains.inventory.getc(inventory_index)
+
+	inventory:setPanel(self.slots)
+
+	self.slots:rebuild()
 end
 
 ----------------------------------------------------------------------
@@ -114,6 +120,11 @@ end
 
 vgui.Register("deadremains.inventory", panel, "EditablePanel")
 
+
+
+
+
+
 ----------------------------------------------------------------------
 -- Purpose:
 --		
@@ -144,11 +155,11 @@ end
 --		
 ----------------------------------------------------------------------
 
-function panel:setInventory(unique, data)
+function panel:setInventory(inventory_index, data)
 	local inventory = self.list:Add("deadremains.inventory")
 	inventory:Dock(TOP)
 	inventory:DockMargin(0, 0, 0, 25)
-	inventory:setInventory(unique, data)
+	inventory:setInventory(inventory_index, data)
 	inventory:setExternal(true)
 
 	local width = data.horizontal *slot_size

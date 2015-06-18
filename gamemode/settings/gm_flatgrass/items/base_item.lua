@@ -27,10 +27,5 @@ item.type = inventory_type_head
 -- How much this item weighs.
 item.weight = 8
 
-----------------------------------------------------------------------
--- Purpose:
---		
-----------------------------------------------------------------------
-
-function item:use()
-end
+-- What equipment slot this item can be placed in.
+item.equip_slot = inventory_equip_head
