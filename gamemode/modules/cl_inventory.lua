@@ -22,16 +22,24 @@ function deadremains.inventory.create(inventory_index, inventory_id)
 	inventory.width = inventory.columns *slot_size
 	inventory.height = inventory.rows *slot_size
 
+	stored[inventory_index] = inventory
+
 	-- If an inventory already exists at that inventory_index, we need to clear it.
 	local panel = inventory:getPanel()
 
 	if (IsValid(panel)) then
 		panel:clear()
+
+	-- Create the inventory panel. (only external inventories)
+	else
+		if (data.external) then
+			local inventory_panel = main_menu:getPanel("inventory_panel")
+
+			if (IsValid(inventory_panel)) then
+				inventory_panel:setInventory(inventory_index, data)
+			end
+		end
 	end
-
-	-- Create the inventory panel.
-
-	stored[inventory_index] = inventory
 end
 
 ----------------------------------------------------------------------
@@ -57,9 +65,26 @@ end
 --		
 ----------------------------------------------------------------------
 
+function deadremains.inventory.remove(inventory_index)
+	local inventory = stored[inventory_index]
+
+	if (inventory) then
+		inventory:remove()
+	end
+end
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+
 function meta_table:remove()
 	if (IsValid(self.panel)) then
-		self.panel:Remove()
+		local parent = self.panel:GetParent()
+
+		if (IsValid(parent)) then
+			parent:Remove()
+		end
 	end
 
 	stored[self.inventory_index] = nil
@@ -92,6 +117,10 @@ end
 
 function meta_table:setPanel(panel)
 	self.panel = panel
+
+	for i = 1, #self.slots do
+		self.slots[i].parent = panel
+	end
 end
 
 ----------------------------------------------------------------------
@@ -113,17 +142,19 @@ function meta_table:getSlotsAtArea(start_x, start_y, end_x, end_y, return_one)
 
 	for y = 1, self.rows do
 		for x = 1, self.columns do
-			local slot_x, slot_y = x *slot_size -slot_size, y *slot_size -slot_size
-
-			if (start_x > slot_x +slot_size) then continue end
-			if (start_y > slot_y +slot_size) then continue end
-			if (slot_x > end_x) then continue end
-			if (slot_y > end_y) then continue end
-			
-			if (return_one) then
-				return {x = slot_x, y = slot_y}
-			else
-				table.insert(result, {x = slot_x, y = slot_y})
+			if (isnumber(x) and isnumber(y)) then -- what the fuck?!?!
+				local slot_x, slot_y = x *slot_size -slot_size, y *slot_size -slot_size
+	
+				if (start_x > slot_x +slot_size) then continue end
+				if (start_y > slot_y +slot_size) then continue end
+				if (slot_x > end_x) then continue end
+				if (slot_y > end_y) then continue end
+				
+				if (return_one) then
+					return {x = slot_x, y = slot_y}
+				else
+					table.insert(result, {x = slot_x, y = slot_y})
+				end
 			end
 		end
 	end
@@ -259,57 +290,6 @@ function meta_table:removeSlot(slot)
 	end
 end
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-----------------------------------------------------------------------
--- Purpose:
---		
-----------------------------------------------------------------------
-
---function deadremains.inventory.add(inventory_id, panel)
---	stored[inventory_id] = panel
---end
-
-----------------------------------------------------------------------
--- Purpose:
---		
-----------------------------------------------------------------------
-
---function deadremains.inventory.hide(inventory_id)
---	local panel = stored[inventory_id]
-
---	if (IsValid(panel)) then
---		panel.old_parent = panel.old_parent or panel:GetParent()
-
---		panel:SetParent(nil)
---		panel:SetVisible(false)
---	end
---end
-
-----------------------------------------------------------------------
--- Purpose:
---		
-----------------------------------------------------------------------
-
-function deadremains.inventory.remove(inventory_index)
-	local inventory = stored[inventory_index]
-
-	if (IsValid(inventory)) then
-		inventory:remove()
-	end
-end
-
 ----------------------------------------------------------------------
 -- Purpose:
 --		
@@ -375,4 +355,22 @@ net.Receive("deadremains.removeinventory", function(bits)
 	local inventory_index = net.ReadUInt(8)
 
 	deadremains.inventory.remove(inventory_index)
+end)
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+
+net.Receive("deadremains.networkinventory", function(bits)
+	local inventory_index = net.ReadUInt(8)
+	local inventory_id = net.ReadString()
+
+	local inventory = stored[inventory_index]
+
+	if (!inventory) then
+		deadremains.inventory.create(inventory_index, inventory_id)
+	end
+
+	-- add item
 end)

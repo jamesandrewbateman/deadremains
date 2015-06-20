@@ -60,6 +60,7 @@ deadremains.settings.new("female_models", models)
 --		The default inventories.
 ----------------------------------------------------------------------
 
+-- These are the default static ones.
 inventory_index_feet = 1
 inventory_index_legs = 2
 inventory_index_head = 3

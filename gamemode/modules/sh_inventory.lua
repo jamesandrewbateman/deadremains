@@ -53,12 +53,13 @@ end
 ----------------------------------------------------------------------
 
 function meta_table:canEquip(player, item)
-	print(self.unique,item.equip_slot,self.equip_slot)
+	print("canEquip:",self.unique,item.equip_slot,self.equip_slot)
+
 	if (item.equip_slot != self.equip_slot) then
 		return false, "You can't equip that item in this slot."
 	end
 
-	return 1
+	return true
 end
 
 ----------------------------------------------------------------------
@@ -67,9 +68,24 @@ end
 ----------------------------------------------------------------------
 
 function meta_table:equip(player, item)
+	local item_data = deadremains.item.get(item.unique)
+
 	print("equipped item:", item.unique, "in the inventory", self.unique)
 
-	
+	-- Create the inventory if the item has one.
+	if (item_data.inventory_type) then
+
+		-- Let's check if this item has an inventory already.
+		if (item.inventory_index) then
+			player:networkInventory(item_data.inventory_index)
+
+		-- Create a new inventory.
+		else
+			local inventory_data = deadremains.inventory.get(item_data.inventory_type)
+
+			item.inventory_index = player:createInventory(item_data.inventory_type, inventory_data.slots_horizontal, inventory_data.slots_vertical)
+		end
+	end
 end
 
 ----------------------------------------------------------------------
@@ -77,8 +93,15 @@ end
 --		Called when you unequip an item in this inventory.
 ----------------------------------------------------------------------
 
-function meta_table:unEquip(player, item)
-	print("unequipped item:", item.unique, "in the inventory", self.unique)
+function meta_table:unEquip(player, item, dropped_item)
+	local item_data = deadremains.item.get(item.unique)
+
+	print("unequipped item:", item.unique, "in the inventory", self.unique, "dropped_item:",dropped_item)
+
+	-- Remove the inventory if the item has one.
+	if (item_data.inventory_type and item.inventory_index) then
+		player:removeInventory(item.inventory_index, dropped_item)
+	end
 end
 
 
@@ -219,5 +242,28 @@ inventory.slots_horizontal = 9
 
 -- How many vertical slots this inventory has.
 inventory.slots_vertical = 3
+
+-- Is this inventory external?
+inventory.external = true
+
+deadremains.inventory.register(inventory)
+
+
+
+local inventory = {}
+
+inventory.unique = "bike_armor"
+
+-- A nice name for this inventory.
+inventory.name = "Bike Armor"
+
+-- How many horizontal slots this inventory has.
+inventory.slots_horizontal = 9
+
+-- How many vertical slots this inventory has.
+inventory.slots_vertical = 1
+
+-- Is this inventory external?
+inventory.external = true
 
 deadremains.inventory.register(inventory)

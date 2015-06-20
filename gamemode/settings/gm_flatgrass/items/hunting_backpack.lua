@@ -1,4 +1,4 @@
-item.unique = "test"
+item.unique = "hunting_backpack"
 
 -- The model that this item should have.
 item.model = "models/captainbigbutt/skeyler/hats/cowboyhat.mdl"
@@ -21,14 +21,14 @@ item.fov = 20
 -- How much the entity in the DModelPanel should be rotated (yaw).
 item.rotate = 45
 
--- What type of inventory this item fits in.
-item.type = inventory_type_head
-
 -- How much this item weighs.
 item.weight = 4
 
 -- What equipment slot this item can be placed in.
 item.equip_slot = inventory_equip_back
+
+-- What type of inventory this item creates.
+item.inventory_type = "hunting_backpack"
 
 ----------------------------------------------------------------------
 -- Purpose:

@@ -407,9 +407,7 @@ main_menu:addCategory("a", character_icon, function(base)
 	if (!IsValid(character_panel)) then
 		character_panel = main_menu:addPanel(base, "character_panel", "deadremains.equipment")
 		character_panel:Dock(FILL)
-
-		local data = deadremains.settings.get("default_inventories")
-
+		
 		inventory_panel = vgui.Create("deadremains.inventory.external")
 		inventory_panel:SetSize(0, 800)
 		inventory_panel:setWatch(character_panel)
@@ -422,11 +420,6 @@ main_menu:addCategory("a", character_icon, function(base)
 	end
 	
 	inventory_panel:SetVisible(true)
-	--next_frame(function()
-	--	storePanel:rebuild()
-		
-	--end)
-
 end)
 
 local skills_icon = Material("icon16/user_add.png")
@@ -437,7 +430,6 @@ main_menu:addCategory("b", skills_icon, function(base)
 	if (!IsValid(skills_panel)) then
 		skills_panel = main_menu:addPanel(base, "skills_panel", "deadremains.skills")
 		skills_panel:Dock(FILL)
-		--character_panel:DockPadding(4, 4, 4, 4)
 
 		skills_panel:addCategory("Combat")
 		skills_panel:addCategory("Crafting")
@@ -445,11 +437,5 @@ main_menu:addCategory("b", skills_icon, function(base)
 		skills_panel:addCategory("Medical")
 		skills_panel:addCategory("Spec")
 	end
-	
-	--next_frame(function()
-	--	storePanel:rebuild()
-		
-	--end)
-
 end)
 

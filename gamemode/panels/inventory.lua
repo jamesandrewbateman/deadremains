@@ -17,7 +17,6 @@ end
 ----------------------------------------------------------------------
 
 function panel:setInventory(inventory_index, data)
-	print(inventory_index)
 	self.slots = self:Add("deadremains.slots")
 	self.slots:SetPos(0, 32)
 	self.slots:createSlots(data.slots_horizontal, data.slots_vertical)
@@ -25,7 +24,6 @@ function panel:setInventory(inventory_index, data)
 	self.slots:setInventoryIndex(inventory_index)
 
 	self:setName(data.name)
-
 	self:InvalidateLayout(true)
 	self:SizeToChildren(true, true)
 
@@ -148,6 +146,10 @@ function panel:Init()
 	self.list:Dock(FILL)
 
 	util.ReplaceScrollbar(self.list)
+
+	timer.Simple(0.1, function()
+		self:rebuild()
+	end)
 end
 
 ----------------------------------------------------------------------
@@ -162,10 +164,29 @@ function panel:setInventory(inventory_index, data)
 	inventory:setInventory(inventory_index, data)
 	inventory:setExternal(true)
 
-	local width = data.horizontal *slot_size
+	local width = data.slots_horizontal *slot_size
 
 	if (width > self:GetWide()) then
 		self:SetWide(width +2)
+	end
+end
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+
+function panel:rebuild()
+	self.list:Clear()
+
+	local inventories = deadremains.inventory.getStoredC()
+
+	for index, data in pairs(inventories) do
+		local inventory_data = deadremains.inventory.get(data.unique)
+
+		if (inventory_data.external) then
+			self:setInventory(data.inventory_index, inventory_data)
+		end
 	end
 end
 
