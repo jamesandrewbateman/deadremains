@@ -29,6 +29,55 @@ deadremains.settings.new("characteristics", characteristics)
 
 ----------------------------------------------------------------------
 -- Purpose:
+--		The default skills.
+----------------------------------------------------------------------
+
+local skills = {
+	fortification = {unique = "fortification", name = "Fortification", type = "crafting", icon = "materials/deadremains/skills/craftingskill_fortification.png"},
+	mechanics = {unique = "mechanics", name = "Mechanics", type = "crafting", icon = "materials/deadremains/skills/craftingskill_mechanics.png"},
+	woodwork = {unique = "woodwork", name = "Woodwork", type = "crafting", icon = "materials/deadremains/skills/craftingskill_woodwork.png"},
+
+	heal = {unique = "heal", name = "Heal", type = "medical", icon = "materials/deadremains/skills/medicalskill_heal.png"},
+	something = {unique = "something", name = "Something", type = "medical", icon = "materials/deadremains/skills/medicalskill_something.png"},
+	surgeon = {unique = "surgeon", name = "Surgeon", type = "medical", icon = "materials/deadremains/skills/medicalskill_surgeon.png"},
+
+	chemistry = {unique = "chemistry", name = "Chemistry", type = "special", icon = "materials/deadremains/skills/specialskill_chemistry.png"},
+	electronics = {unique = "electronics", name = "Electronics", type = "special", icon = "materials/deadremains/skills/specialskill_electronics.png"},
+
+	campcraft = {unique = "campcraft", name = "Campcraft", type = "survival", icon = "materials/deadremains/skills/survivalskill_campcraft.png"},
+	fire = {unique = "fire", name = "Fire", type = "survival", icon = "materials/deadremains/skills/survivalskill_fire.png"},
+	hunting = {unique = "hunting", name = "Hunting", type = "survival", icon = "materials/deadremains/skills/survivalskill_hunting.png"},
+
+	weapon_1 = {unique = "weapon_1", name = "Weapon 1", type = "weapon", icon = "materials/deadremains/skills/weaponskill_1.png"},
+	weapon_2 = {unique = "weapon_2", name = "Weapon 2", type = "weapon", icon = "materials/deadremains/skills/weaponskill_2.png"},
+	weapon_3 = {unique = "weapon_3", name = "Weapon 3", type = "weapon", icon = "materials/deadremains/skills/weaponskill_3.png"}
+}
+
+deadremains.settings.new("skills", skills)
+
+local skill_types = {"crafting", "medical", "special", "survival", "weapon"}
+
+deadremains.settings.new("skill_types", skill_types)
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+
+function deadremains.getSkillByType(type)
+	local result = {}
+
+	for unique, data in pairs(skills) do
+		if (data.type == type) then
+			table.insert(result, data)
+		end
+	end
+
+	return result
+end
+
+----------------------------------------------------------------------
+-- Purpose:
 --		The default male character models.
 ----------------------------------------------------------------------
 

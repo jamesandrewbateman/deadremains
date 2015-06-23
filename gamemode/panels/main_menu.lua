@@ -11,12 +11,23 @@ function panel:Init()
 	self.panels = {}
 	self.categories = {}
 
+	self.title = ""
+
 	self:DockPadding(0, 82, 0, 0)
 
 	self.list = self:Add("Panel")
 	self.list:Dock(LEFT)
 	self.list:DockMargin(0, 0, 1, 0)
 	self.list:SetWide(100)
+end
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+
+function panel:setTitle(title)
+	self.title = title
 end
 
 ----------------------------------------------------------------------
@@ -206,7 +217,7 @@ function panel:Paint(w, h)
 	
 	draw.RoundedBox(2, 0, 0, w, 80, panel_color_background)
 
-	draw.SimpleText("EQUIPMENT", "deadremains.button", w *0.5, 80 *0.5, panel_color_text, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+	draw.SimpleText(self.title, "deadremains.button", w *0.5, 80 *0.5, panel_color_text, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 end
 
 vgui.Register("deadremains.main_menu", panel, "EditablePanel")
@@ -351,13 +362,61 @@ end
 --		
 ----------------------------------------------------------------------
 
-function panel:addCategory(name)
+local skill_circle = Material("materials/deadremains/skills/circle.png")
+
+function panel:addCategory(name, type)
 	local panel = self:Add("Panel")
 	panel:Dock(LEFT)
+	panel:DockPadding(0, 64, 0, 0)
 	panel:SetWide(116)
 
 	function panel:Paint(w, h)
-		draw.SimpleText(name, "deadremains.button", 0, 0, panel_color_text, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
+		draw.SimpleText(name, "deadremains.button", w *0.5, 0, panel_color_text, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
+
+		draw.simpleOutlined(0,0,w,h,color_red)
+	end
+
+	local skills = deadremains.settings.get("skills")
+
+	local y = 64
+
+	for unique, data in pairs(skills) do
+		if (data.type == type) then
+			local icon = panel:Add("DImage")
+			icon:SetImage(data.icon)
+			icon:SetSize(64, 64)
+			icon:SetPos(116 *0.5 -40, y)
+			icon:SetMouseInputEnabled(true)
+
+			function icon:Paint(w, h)
+				local alpha = self:GetAlpha()
+				local has_skill = LocalPlayer():hasSkill(unique)
+
+				if (has_skill) then
+
+					if (self.Hovered) then
+						draw.material(0, 0, w, h, color_white, skill_circle)
+						draw.material(4, 4, w -8, h -8, Color(240, 155, 28), skill_circle)
+					else
+						draw.material(0, 0, w, h, Color(85, 161, 63), skill_circle)
+					end
+					
+					if (alpha != 255) then
+						self:SetAlpha(255)
+					end
+				else
+					draw.material(0, 0, w, h, Color(255, 255, 255, 80), skill_circle)
+
+					if (alpha != 80) then
+						self:SetAlpha(80)
+					end
+				end
+
+				DImage.Paint(self, w, h)
+			end
+			
+			y = y +64 +32
+		end
 	end
 end
 
@@ -420,6 +479,8 @@ main_menu:addCategory("a", character_icon, function(base)
 	end
 	
 	inventory_panel:SetVisible(true)
+
+	main_menu:setTitle("EQUIPMENT")
 end)
 
 local skills_icon = Material("icon16/user_add.png")
@@ -431,11 +492,23 @@ main_menu:addCategory("b", skills_icon, function(base)
 		skills_panel = main_menu:addPanel(base, "skills_panel", "deadremains.skills")
 		skills_panel:Dock(FILL)
 
-		skills_panel:addCategory("Combat")
-		skills_panel:addCategory("Crafting")
-		skills_panel:addCategory("Survival")
-		skills_panel:addCategory("Medical")
-		skills_panel:addCategory("Spec")
+		skills_panel:addCategory("Combat", "weapon")
+		skills_panel:addCategory("Crafting", "crafting")
+		skills_panel:addCategory("Survival", "survival")
+		skills_panel:addCategory("Medical", "medical")
+		skills_panel:addCategory("Spec", "special")
 	end
+
+	main_menu:setTitle("SKILLS")
 end)
 
+main_menu:addCategory("c", skills_icon, function(base)
+	local map_panel = main_menu:getPanel("map_panel")
+	
+	if (!IsValid(skills_panel)) then
+		map_panel = main_menu:addPanel(base, "map_panel", "Panel")
+		map_panel:Dock(FILL)
+	end
+
+	main_menu:setTitle("MAP")
+end)

@@ -35,5 +35,5 @@ item.inventory_type = "bike_armor"
 --		
 ----------------------------------------------------------------------
 
-function item:use()
+function item:use(player)
 end

@@ -325,6 +325,11 @@ function panel:OnMouseReleased(code)
 			moving_slot = nil
 			moving_slot_receiver = nil
 		end
+	elseif (code == MOUSE_RIGHT) then
+		local item = deadremains.item.get(self.unique)
+
+		local context_menu = vgui.Create("deadremains.slot.context.menu")
+		context_menu:populate(item, self)
 	end
 end
 

@@ -34,3 +34,62 @@ end
 
 function meta_table:use()
 end
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+
+item_action_use = 1
+item_action_drop = 2
+item_action_destroy = 3
+item_action_consume = 4
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+
+if (CLIENT) then
+
+item_function_use = {name = "Use", callback = function(slot)
+	net.Start("deadremains.itemaction")
+		net.WriteUInt(slot.inventory_index, 8)
+		net.WriteString(slot.unique)
+		net.WriteUInt(slot.x, 32)
+		net.WriteUInt(slot.y, 32)
+		net.WriteUInt(item_action_use, 8)
+	net.SendToServer()
+end}
+
+item_function_drop = {name = "Drop", callback = function(slot)
+	net.Start("deadremains.itemaction")
+		net.WriteUInt(slot.inventory_index, 8)
+		net.WriteString(slot.unique)
+		net.WriteUInt(slot.x, 32)
+		net.WriteUInt(slot.y, 32)
+		net.WriteUInt(item_action_drop, 8)
+	net.SendToServer()
+end}
+
+item_function_destroy = {name = "Destroy", callback = function(slot)
+	net.Start("deadremains.itemaction")
+		net.WriteUInt(slot.inventory_index, 8)
+		net.WriteString(slot.unique)
+		net.WriteUInt(slot.x, 32)
+		net.WriteUInt(slot.y, 32)
+		net.WriteUInt(item_action_destroy, 8)
+	net.SendToServer()
+end}
+
+item_function_consume = {name = "Consume", callback = function(slot)
+	net.Start("deadremains.itemaction")
+		net.WriteUInt(slot.inventory_index, 8)
+		net.WriteString(slot.unique)
+		net.WriteUInt(slot.x, 32)
+		net.WriteUInt(slot.y, 32)
+		net.WriteUInt(item_action_consume, 8)
+	net.SendToServer()
+end}
+
+end

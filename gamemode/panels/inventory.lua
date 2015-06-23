@@ -195,6 +195,17 @@ end
 --		
 ----------------------------------------------------------------------
 
+function panel:resize()
+	local canvas = self.list:GetCanvas()
+
+	canvas:InvalidateLayout()
+end
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+
 function panel:setWatch(panel)
 	self.watch_panel = panel
 
@@ -211,7 +222,7 @@ end
 ----------------------------------------------------------------------
 
 function panel:PerformLayout()
-	local w, h = self:GetSize()
+	--local w, h = self:GetSize()
 end
 
 ----------------------------------------------------------------------

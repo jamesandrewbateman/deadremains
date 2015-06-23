@@ -35,5 +35,5 @@ item.inventory_type = "hunting_backpack"
 --		
 ----------------------------------------------------------------------
 
-function item:use()
+function item:use(player)
 end

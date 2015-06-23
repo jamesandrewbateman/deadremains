@@ -77,7 +77,7 @@ function meta_table:equip(player, item)
 
 		-- Let's check if this item has an inventory already.
 		if (item.inventory_index) then
-			player:networkInventory(item_data.inventory_index)
+			player:networkInventory(item.inventory_index)
 
 		-- Create a new inventory.
 		else

@@ -3,6 +3,8 @@
 --		
 ----------------------------------------------------------------------
 
+util.AddNetworkString("deadremains.getskill")
+
 local function default(self)
 	local needs = deadremains.settings.get("needs")
 	
@@ -26,10 +28,40 @@ local function default(self)
 		end
 	end
 
+	local skill_types = deadremains.settings.get("skill_types")
+	local randomized = {}
+
+	for _, type in pairs(skill_types) do
+		local sorted = deadremains.getSkillByType(type)
+
+		table.insert(randomized, sorted[math.random(1, #sorted)])
+	end
+
+	for i = 1, #randomized do
+		local data = randomized[i]
+
+		self.dr_character.skills[data.unique] = true
+	end
+
+	net.Start("deadremains.getskill")
+		net.WriteUInt(#randomized, 8)
+
+		for i = 1, #randomized do
+			net.WriteString(randomized[i].unique)
+		end
+	net.Send(self)
+
 	self.dr_character.max_weight = 20
 end
 
 function player_meta:reset()
+	self.dr_character = {}
+
+	self.dr_character.needs = {}
+	self.dr_character.skills = {}
+	self.dr_character.inventory = {}
+	self.dr_character.characteristics = {}
+
 	default(self)
 end
 ----------------------------------------------------------------------
@@ -150,7 +182,6 @@ end
 util.AddNetworkString("deadremains.removeinventory")
 
 function player_meta:removeInventory(inventory_index, remove_contents)
-	print(remove_contents)
 	if (remove_contents) then
 		self.dr_character.inventory[inventory_index] = nil
 	end
@@ -168,6 +199,23 @@ end
 util.AddNetworkString("deadremains.networkinventory")
 
 function player_meta:networkInventory(inventory_index)
+	local inventory = self.dr_character.inventory[inventory_index]
+
+	net.Start("deadremains.networkinventory")
+		net.WriteUInt(inventory_index, 8)
+		net.WriteString(inventory.unique)
+
+		net.WriteUInt(#inventory.slots, 8)
+
+		-- This might result in too much data...use a streaming module?
+		for i = 1, #inventory.slots do
+			local slot = inventory.slots[i]
+
+			net.WriteString(slot.unique)
+			net.WriteUInt(slot.x, 32)
+			net.WriteUInt(slot.y, 32)
+		end
+	net.Send(self)
 end
 
 ----------------------------------------------------------------------
@@ -409,6 +457,15 @@ function player_meta:removeItem(inventory_index, unique, x, y, dropped_item)
 						end
 					end
 					
+					-- Remove the inventory.
+					if (dropped_item) then
+						if (slot.inventory_index) then
+							self:removeInventory(slot.inventory_index, true)
+						end
+
+						
+					end
+					
 					table.remove(inventory.slots, i)
 
 					net.Start("deadremains.removeitem")
@@ -458,8 +515,14 @@ function player_meta:moveItem(new_inventory_id, inventory_id, unique, x, y, move
 	
 						-- Let's see if we can swap the positions of the slots.
 						if (item.slots_horizontal == slot_item.slots_horizontal and item.slots_vertical == slot_item.slots_vertical) then
+							local can_equip, message = self:canEquipItem(inventory_data, slot_item)
+
+							if (!can_equip) then
+								return can_equip, "You can't swap these items."
+							end
+							
 							local can_equip, message = self:canEquipItem(inventory_data_new, item)
-	
+							
 							if (!can_equip) then
 								return can_equip, message
 							else
@@ -531,6 +594,44 @@ end
 --		
 ----------------------------------------------------------------------
 
+function player_meta:destroyItem(inventory_index, unique, x, y)
+	local inventory = self.dr_character.inventory[inventory_index]
+
+	if (inventory) then
+		local item = deadremains.item.get(unique)
+		local slot = self:getItemsAtArea(inventory, x +1, y +1, x +item.slots_horizontal *slot_size -2, y +item.slots_vertical *slot_size -2, true)
+
+		if (slot) then
+			self:removeItem(inventory_index, unique, x, y, true)
+		end
+	end
+end
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+
+function player_meta:useItem(inventory_index, unique, x, y)
+	local inventory = self.dr_character.inventory[inventory_index]
+
+	if (inventory) then
+		local item = deadremains.item.get(unique)
+		local slot = self:getItemsAtArea(inventory, x +1, y +1, x +item.slots_horizontal *slot_size -2, y +item.slots_vertical *slot_size -2, true)
+
+		if (slot) then
+			if (item.use) then
+				item:use(self)
+			end
+		end
+	end
+end
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+
 util.AddNetworkString("deadremains.moveitem")
 
 net.Receive("deadremains.moveitem", function(bits, player)
@@ -554,13 +655,22 @@ end)
 --		
 ----------------------------------------------------------------------
 
-util.AddNetworkString("deadremains.dropitem")
+util.AddNetworkString("deadremains.itemaction")
 
-net.Receive("deadremains.dropitem", function(bits, player)
+net.Receive("deadremains.itemaction", function(bits, player)
 	local inventory_index = net.ReadUInt(8)
 	local unique = net.ReadString()
 	local x = net.ReadUInt(32)
 	local y = net.ReadUInt(32)
+	local action = net.ReadUInt(8)
 
-	player:dropItem(inventory_index, unique, x, y)
+	if (action == item_action_use) then
+		player:useItem(inventory_index, unique, x, y)
+	elseif (action == item_action_drop) then
+		player:dropItem(inventory_index, unique, x, y)
+	elseif (action == item_action_destroy) then
+		player:destroyItem(inventory_index, unique, x, y)
+	elseif (action == item_action_consume) then
+
+	end
 end)

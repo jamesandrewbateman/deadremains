@@ -40,6 +40,8 @@ function deadremains.inventory.create(inventory_index, inventory_id)
 			end
 		end
 	end
+
+	return inventory
 end
 
 ----------------------------------------------------------------------
@@ -83,7 +85,15 @@ function meta_table:remove()
 		local parent = self.panel:GetParent()
 
 		if (IsValid(parent)) then
+			local parent_slots = parent:GetParent():GetParent():GetParent() -- LOL
+
 			parent:Remove()
+
+			nextFrame(function()
+				if (IsValid(parent_slots)) then
+					parent_slots:resize()
+				end
+			end)
 		end
 	end
 
@@ -369,8 +379,18 @@ net.Receive("deadremains.networkinventory", function(bits)
 	local inventory = stored[inventory_index]
 
 	if (!inventory) then
-		deadremains.inventory.create(inventory_index, inventory_id)
+		inventory = deadremains.inventory.create(inventory_index, inventory_id)
 	end
 
-	-- add item
+	local len = net.ReadUInt(8)
+
+	for i = 1, len do
+		local unique = net.ReadString()
+		local x = net.ReadUInt(32)
+		local y = net.ReadUInt(32)
+
+		local item = deadremains.item.get(unique)
+
+		inventory:addItem(item, x, y)
+	end
 end)
