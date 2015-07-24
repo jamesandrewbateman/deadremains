@@ -340,9 +340,12 @@ function player_meta:addItem(inventory_index, unique, x, y, move_item_data)
 										if (slot_x > x +1) then continue end
 										if (slot_y > y +1) then continue end
 										
-										local item_data = move_item_data
+										local item_data
 
 										if (move_item_data) then
+
+											-- Maybe reuse the item table??
+											item_data = table.Copy(move_item_data)
 											item_data.x = slot_x
 											item_data.y = slot_y
 										else
@@ -390,9 +393,12 @@ function player_meta:addItem(inventory_index, unique, x, y, move_item_data)
 										-- We search 1 pixel inside the slot, reset that.
 										start_x, start_y = start_x -1, start_y -1
 										
-										local item_data = move_item_data
+										local item_data
 
 										if (move_item_data) then
+
+											-- Maybe reuse the item table??
+											item_data = table.Copy(move_item_data)
 											item_data.x = start_x
 											item_data.y = start_y
 										else
@@ -414,8 +420,8 @@ function player_meta:addItem(inventory_index, unique, x, y, move_item_data)
 									
 										return true
 									end
-								else
-									return false, "Can't fit that there."
+								--else
+									--return false, "Can't fit that there."
 								end
 							end
 						end
@@ -444,7 +450,7 @@ function player_meta:removeItem(inventory_index, unique, x, y, dropped_item)
 		if (item) then
 			for i = 1, #inventory.slots do
 				local slot = inventory.slots[i]
-
+				
 				if (slot.unique == item.unique and slot.x == x and slot.y == y) then
 					local inventory_data = deadremains.inventory.get(inventory.unique)
 
@@ -532,7 +538,7 @@ function player_meta:moveItem(new_inventory_id, inventory_id, unique, x, y, move
 		
 								-- Add the item that we are moving to, to the moving slots position.
 								self:addItem(inventory_id, slot.unique, x, y, slot)
-		
+								
 								-- Remove the item that we are moving to.
 								self:removeItem(new_inventory_id, slot.unique, move_x, move_y)
 		

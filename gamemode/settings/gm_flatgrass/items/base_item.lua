@@ -4,10 +4,10 @@ item.unique = "base"
 item.model = "models/captainbigbutt/skeyler/hats/bear_hat.mdl"
 
 -- How many horizontal slots this item should take.
-item.slots_horizontal = 2
+item.slots_horizontal = 1
 
 -- How many vertical slots this item should take.
-item.slots_vertical = 2
+item.slots_vertical = 1
 
 -- Used the modify the position of the camera on DModelPanel.
 item.cam_pos = Vector(45, 45, 5)
