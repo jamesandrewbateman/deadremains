@@ -138,6 +138,7 @@ local panel = {}
 ----------------------------------------------------------------------
 
 function panel:Init()
+	self:SetWide(0)
 	self:DockPadding(0, 25, 0, 25)
 
 	self.name = ""
@@ -168,6 +169,11 @@ function panel:setInventory(inventory_index, data)
 
 	if (width > self:GetWide()) then
 		self:SetWide(width +2)
+
+		nextFrame(function()
+			main_menu:InvalidateLayout(true)
+			main_menu:SizeToChildren(true, false)
+		end)
 	end
 end
 
@@ -198,31 +204,16 @@ end
 function panel:resize()
 	local canvas = self.list:GetCanvas()
 
-	canvas:InvalidateLayout()
-end
+	canvas:InvalidateLayout(true)
 
-----------------------------------------------------------------------
--- Purpose:
---		
-----------------------------------------------------------------------
-
-function panel:setWatch(panel)
-	self.watch_panel = panel
-
-	local parent = panel:GetParent()
-
-	function parent.OnRemove()
-		self:Remove()
-	end
-end
-
-----------------------------------------------------------------------
--- Purpose:
---		
-----------------------------------------------------------------------
-
-function panel:PerformLayout()
-	--local w, h = self:GetSize()
+	nextFrame(function()
+		if (#canvas:GetChildren() <= 0) then
+			self:SetWide(0)
+		end
+		
+		main_menu:InvalidateLayout(true)
+		main_menu:SizeToChildren(true, false)
+	end)
 end
 
 ----------------------------------------------------------------------
@@ -231,12 +222,10 @@ end
 ----------------------------------------------------------------------
 
 function panel:Think()
-	if (IsValid(self.watch_panel)) then
-		local parent = self.watch_panel:GetParent()
+	local panel = main_menu:getPanel("character_panel"):GetParent()
 
-		if (!parent:IsVisible() and self:IsVisible()) then
-			self:SetVisible(false)
-		end
+	if (!panel:IsVisible()) then
+		self:SetVisible(false)
 	end
 end
 

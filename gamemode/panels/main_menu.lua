@@ -19,6 +19,9 @@ function panel:Init()
 	self.list:Dock(LEFT)
 	self.list:DockMargin(0, 0, 1, 0)
 	self.list:SetWide(100)
+
+	self.left = self:Add("Panel")
+	self.left:Dock(LEFT)
 end
 
 ----------------------------------------------------------------------
@@ -36,7 +39,7 @@ end
 ----------------------------------------------------------------------
 
 function panel:getPanel(name)
-	return self.panels[name]
+	return self.panels[string.lower(name)]
 end
 
 ----------------------------------------------------------------------
@@ -102,7 +105,7 @@ end
 ----------------------------------------------------------------------
 
 function panel:parent()
-	local panel = self:Add("EditablePanel")
+	local panel = self.left:Add("EditablePanel")
 	panel:Dock(FILL)
 	panel:SetVisible(false)
 	
@@ -127,8 +130,11 @@ function panel:addCategory(name, icon, callback, no_parent)
 	panel:DockMargin(0, 0, 0, 2)
 	panel:SetCursor("hand")
 	
-	function panel.OnMousePressed()
-		self:switchParent(parent, callback)
+	panel.category_parent = parent
+	panel.category_callback = callback
+
+	function panel.OnMousePressed(_self)
+		self:switchParent(_self.category_parent, _self.category_callback)
 	end
 	
 	function panel:Paint(w, h)
@@ -203,8 +209,22 @@ end
 function panel:PerformLayout()
 	--local w, h = self:GetSize()
 	
+	self.left:SetWide(600)
+
 	--self.list:SetWide(100)
 	--self.list:SetPos(0, 35)
+end
+
+----------------------------------------------------------------------
+-- Purpose:
+--		TextEntry only works when you have the panel do MakePopup (???).
+-- 		So we need this to make F1 available.
+----------------------------------------------------------------------
+
+function panel:OnKeyCodePressed(code)
+	if (code == KEY_F1) then
+		self:SetVisible(false)
+	end
 end
 
 ----------------------------------------------------------------------
@@ -325,12 +345,14 @@ function panel:PerformLayout()
 
 	self.model:SetPos(w *0.5 -self.model:GetWide() *0.5, 25)
 end
+
 ----------------------------------------------------------------------
 -- Purpose:
 --		
 ----------------------------------------------------------------------
 
 function panel:Paint(w, h)
+	a=self
 	draw.RoundedBox(2, 0, 0, w, h, panel_color_background)
 end
 
@@ -354,7 +376,7 @@ local panel = {}
 ----------------------------------------------------------------------
 
 function panel:Init()
-	self:DockPadding(25, 25, 25, 25)
+	--self:DockPadding(25, 25, 25, 25)
 end
 
 ----------------------------------------------------------------------
@@ -364,16 +386,15 @@ end
 
 local skill_circle = Material("materials/deadremains/skills/circle.png")
 
+surface.CreateFont("deadremains.skill", {font = "Bebas Neue", size = 36, weight = 400})
+
 function panel:addCategory(name, type)
 	local panel = self:Add("Panel")
-	panel:Dock(LEFT)
-	panel:DockPadding(0, 64, 0, 0)
-	panel:SetWide(116)
 
 	function panel:Paint(w, h)
-		draw.SimpleText(name, "deadremains.button", w *0.5, 0, panel_color_text, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
+		draw.SimpleText(name, "deadremains.skill", w *0.5, 0, panel_color_text, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
 
-		draw.simpleOutlined(0,0,w,h,color_red)
+		--draw.simpleOutlined(0,0,w,h,color_red)
 	end
 
 	local skills = deadremains.settings.get("skills")
@@ -415,7 +436,7 @@ function panel:addCategory(name, type)
 				DImage.Paint(self, w, h)
 			end
 			
-			y = y +64 +32
+			y = y +64 +48
 		end
 	end
 end
@@ -427,7 +448,14 @@ end
 
 function panel:PerformLayout()
 	local w, h = self:GetSize()
+	local children = self:GetChildren()
 
+	for k, child in pairs(children) do
+		local width = math.Round(math.ceil(w /5 -25 *0.5))
+
+		child:SetPos(width *(k -1) +25, 25)
+		child:SetSize(width, h -25 *2)
+	end
 end
 
 ----------------------------------------------------------------------
@@ -445,13 +473,13 @@ vgui.Register("deadremains.skills", panel, "EditablePanel")
 
 
 
-
+concommand.Add("inventory",function()
 if (IsValid(main_menu)) then main_menu:Remove() end
 
 --STORE_SCALE = math.Clamp(ScrW() /2560, 0.87, 1)
 
 main_menu = vgui.Create("deadremains.main_menu")
-main_menu:SetSize(670, 800)
+main_menu:SetSize(664, 756)
 main_menu:Center()
 main_menu.x=200
 main_menu:MakePopup()
@@ -467,15 +495,16 @@ main_menu:addCategory("a", character_icon, function(base)
 		character_panel = main_menu:addPanel(base, "character_panel", "deadremains.equipment")
 		character_panel:Dock(FILL)
 		
-		inventory_panel = vgui.Create("deadremains.inventory.external")
-		inventory_panel:SetSize(0, 800)
-		inventory_panel:setWatch(character_panel)
-		inventory_panel:SetDrawOnTop(true)
+		inventory_panel = main_menu:Add("deadremains.inventory.external")
+		inventory_panel:Dock(LEFT)
+		inventory_panel:DockMargin(2, 0, 0, 0)
 
 		main_menu:addPanel(nil, "inventory_panel", inventory_panel)
 
-		inventory_panel:SetPos(0, ScrH() *0.5 -400)
-		inventory_panel:MoveRightOf(main_menu, 35)
+		nextFrame(function()
+			main_menu:InvalidateLayout(true)
+			main_menu:SizeToChildren(true, false)
+		end)
 	end
 	
 	inventory_panel:SetVisible(true)
@@ -501,14 +530,89 @@ main_menu:addCategory("b", skills_icon, function(base)
 
 	main_menu:setTitle("SKILLS")
 end)
-
+end)
+--[[
 main_menu:addCategory("c", skills_icon, function(base)
 	local map_panel = main_menu:getPanel("map_panel")
 	
 	if (!IsValid(skills_panel)) then
 		map_panel = main_menu:addPanel(base, "map_panel", "Panel")
 		map_panel:Dock(FILL)
+
+		local cam_vector = LocalPlayer():EyePos()--Vector(0, 0, 0)
+		local last_x, last_y
+		local camHeight = 100--30500
+
+		function map_panel:OnMouseWheeled(delta)
+			camHeight = camHeight -600 *delta
+		end
+		
+		local drawing_map = false
+		hook.Add("PreDrawSkyBox","asd",function()
+			if (drawing_map) then
+				return drawing_map
+			end
+		end)
+
+		function map_panel:Paint(w, h)
+			if (draw) then
+				local x, y = self:LocalToScreen()
+
+				drawing_map = true
+
+				render.RenderView({
+				    x = x,
+				    y = y,
+				    w = w,
+				    h = h,
+				    dopostprocess = false,
+				    drawhud = false,
+				    drawmonitors = false,
+				    drawviewmodel = false,
+				    ortho = true,
+				    ortholeft = -camHeight/2,
+				    orthobottom = camHeight/2,
+				    orthoright = camHeight/2,
+				    orthotop = -camHeight/2,
+				    origin = cam_vector,
+				    angles = Angle(90, 0, 0),
+				    aspectratio = 1,
+				   -- znear = -camHeight,
+				   -- zfar = camHeight
+				})
+
+			 	drawing_map = false
+
+				if (self.Hovered and input.IsMouseDown(MOUSE_LEFT)) then
+					local mouseX, mouseY = gui.MousePos()
+					local x, y = self:ScreenToLocal(mouseX, mouseY)
+
+					last_x = last_x or x
+
+					local delta = x -last_x
+					
+					if (math.abs(delta) > 0) then
+						cam_vector.y = cam_vector.y +delta *100
+					end
+					
+					last_x = x
+
+					last_y = last_y or y
+
+					local delta = y -last_y
+					
+					if (math.abs(delta) > 0) then
+						cam_vector.x = cam_vector.x +delta *100
+					end
+					
+					last_y = y
+				else
+					last_x, last_y = nil, nil
+				end
+			end
+		end
 	end
 
 	main_menu:setTitle("MAP")
 end)
+]]

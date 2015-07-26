@@ -3,14 +3,110 @@
 --		
 ----------------------------------------------------------------------
 
+function player_meta:getHunger()
+	return self.dr_character.needs["hunger"]
+end
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+
+function player_meta:setHunger(hunger)
+	self.dr_character.needs["hunger"] = hunger
+
+	self:SetNetworkedInt("dr_hunger", self.dr_character.needs["hunger"])
+end
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+
+function player_meta:increaseHunger(amount)
+	self.dr_character.needs["hunger"] = math.max(100, self.dr_character.needs["hunger"] +amount)
+
+	self:SetNetworkedInt("dr_hunger", self.dr_character.needs["hunger"])
+end
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+
+function player_meta:decreaseHunger(amount)
+	self.dr_character.needs["hunger"] = math.max(0, self.dr_character.needs["hunger"] -amount)
+
+	self:SetNetworkedInt("dr_hunger", self.dr_character.needs["hunger"])
+end
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+
+function player_meta:getThirst()
+	return self.dr_character.needs["thirst"]
+end
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+
+function player_meta:setThirst(thirst)
+	self.dr_character.needs["thirst"] = thirst
+
+	self:SetNetworkedInt("dr_thirst", self.dr_character.needs["thirst"])
+end
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+
+function player_meta:increaseThirst(amount)
+	self.dr_character.needs["thirst"] = math.max(100, self.dr_character.needs["thirst"] +amount)
+
+	self:SetNetworkedInt("dr_thirst", self.dr_character.needs["thirst"])
+end
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+
+function player_meta:decreaseThirst(amount)
+	self.dr_character.needs["thirst"] = math.max(0, self.dr_character.needs["thirst"] -amount)
+
+	self:SetNetworkedInt("dr_thirst", self.dr_character.needs["thirst"])
+end
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+
 util.AddNetworkString("deadremains.getskill")
 
 local function default(self)
 	local needs = deadremains.settings.get("needs")
 	
 	for unique, data in pairs (needs) do
-		self.dr_character.needs[unique] = data.default
+		if (unique == "health") then
+			self.dr_character.needs[unique] = data.default
+		else
+			self["set" .. string.capitalize(unique)](self, data.default)
+		end
 	end
+
+	timer.Create("dr.thirst." .. self:UniqueID(), 15, 100, function()
+		self:decreaseThirst(1)
+	end)
+
+	timer.Create("dr.hunger." .. self:UniqueID(), 30, 100, function()
+		self:decreaseHunger(1)
+	end)
 
 	local characteristics = deadremains.settings.get("characteristics")
 	
@@ -64,6 +160,7 @@ function player_meta:reset()
 
 	default(self)
 end
+
 ----------------------------------------------------------------------
 -- Purpose:
 --		
@@ -147,6 +244,59 @@ net.Receive("deadremains.player.initalize", function(bits, player)
 		player.dr_loaded = true
 	end
 end)
+
+----------------------------------------------------------------------
+-- Purpose:
+--		Finds a suitable inventory to use for the item.
+----------------------------------------------------------------------
+
+function player_meta:findSuitableInventory(unique)
+	local item = deadremains.item.get(unique)
+
+	if (item) then
+		if (item.equip_slot) then
+			local success, message
+
+			for _, data in pairs(self.dr_character.inventory) do
+				if (bit.band(bit.lshift(1, data.inventory_index), item.equip_slot) != 0 and #data.slots <= 0) then
+					success, message = self:addItem(data.inventory_index, unique)
+
+					if (success) then
+						return true
+					end
+				end
+			end
+
+			if (success == false and message) then
+				return success, message
+			end
+
+			if (!success) then
+				return false, "Could not find any suitable inventory."
+			end
+		else
+			local success, message
+
+			if (#self.dr_character.inventory > inventory_equip_maximum) then
+				for inventory_index = inventory_equip_maximum +1, #self.dr_character.inventory do
+					success, message = self:addItem(inventory_index, unique)
+	
+					if (success) then
+						return true
+					end
+				end
+	
+				if (success == false and message) then
+					return success, message
+				end
+			end
+			
+			if (!success) then
+				return false, "Could not find any suitable inventory."
+			end
+		end
+	end
+end
 
 ----------------------------------------------------------------------
 -- Purpose:
@@ -378,14 +528,14 @@ function player_meta:addItem(inventory_index, unique, x, y, move_item_data)
 						for x = 1, inventory_data.slots_horizontal do
 							local start_x, start_y = x *slot_size -slot_size +1, y *slot_size -slot_size +1
 							local end_x, end_y = start_x +item.slots_horizontal *slot_size -2, start_y +item.slots_vertical *slot_size -2
-							
+						
 							-- Don't search outside the inventory bounds.
 							if (end_x <= inventory_data.slots_horizontal *slot_size and end_y <= inventory_data.slots_vertical *slot_size) then
 								local slots = self:getItemsAtArea(inventory, start_x, start_y, end_x, end_y)
 
 								if (#slots <= 0) then
 									local can_equip, message = self:canEquipItem(inventory_data, item)
-		
+
 									if (!can_equip) then
 										return can_equip, message
 									else

@@ -25,7 +25,7 @@ item.rotate = 45
 item.weight = 8
 
 -- What equipment slot this item can be placed in.
---item.equip_slot = inventory_equip_back
+--item.equip_slot = bit.lshift(1, inventory_equip_back)
 
 -- What type of inventory this item creates.
 --item.inventory_type = "hunting_backpack"
@@ -35,8 +35,48 @@ item.context_menu = {item_function_drop, item_function_destroy}
 
 ----------------------------------------------------------------------
 -- Purpose:
---		
+--		Called when a player uses an item from the UI.
+--
+--		player - the player using it
 ----------------------------------------------------------------------
 
 --function item:use(player)
+--end
+
+----------------------------------------------------------------------
+-- Purpose:
+--		Called when a player uses E on the entity.
+--
+--		player - the player using it
+--		entity - the item entity
+----------------------------------------------------------------------
+
+function item:worldUse(player, entity)
+	local success, message = player:findSuitableInventory(self.unique)
+
+	if (!success) then
+		player:ChatPrint(message)
+	else
+		entity:Remove()
+	end
+end
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+--
+--		player - the player 
+----------------------------------------------------------------------
+
+--function item:equip(player)
+--end
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+--
+--		player - the player 
+----------------------------------------------------------------------
+
+--function item:unEquip(player)
 --end

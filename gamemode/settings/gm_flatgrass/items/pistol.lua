@@ -1,10 +1,10 @@
-item.unique = "bike_armor"
+item.unique = "pistol"
 
 -- The model that this item should have.
-item.model = "models/captainbigbutt/skeyler/hats/cowboyhat.mdl"
+item.model = "models/weapons/w_pistol.mdl"
 
 -- How many horizontal slots this item should take.
-item.slots_horizontal = 2
+item.slots_horizontal = 3
 
 -- How many vertical slots this item should take.
 item.slots_vertical = 2
@@ -25,10 +25,7 @@ item.rotate = 45
 item.weight = 4
 
 -- What equipment slot this item can be placed in.
-item.equip_slot = bit.lshift(1, inventory_equip_chest)
-
--- What type of inventory this item creates.
-item.inventory_type = "bike_armor"
+item.equip_slot = bit.bor(bit.lshift(1, inventory_equip_primary), bit.lshift(1, inventory_equip_secondary))
 
 ----------------------------------------------------------------------
 -- Purpose:
@@ -36,4 +33,27 @@ item.inventory_type = "bike_armor"
 ----------------------------------------------------------------------
 
 function item:use(player)
+end
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+--
+--		player - the player 
+----------------------------------------------------------------------
+
+function item:equip(player)
+	player:Give("weapon_pistol")
+	player:GiveAmmo(100, "pistol")
+end
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+--
+--		player - the player 
+----------------------------------------------------------------------
+
+function item:unEquip(player)
+	player:StripWeapon("weapon_pistol")
 end

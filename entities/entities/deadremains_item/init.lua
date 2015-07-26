@@ -8,6 +8,7 @@ function ENT:Initialize()
 	self:SetMoveType(MOVETYPE_VPHYSICS)
 	self:SetSolid(SOLID_VPHYSICS)
 	self:SetUseType(SIMPLE_USE)
+
 	self:PhysWake()
 end
 
@@ -18,9 +19,13 @@ function ENT:Think()
 end
 
 function ENT:Use(player)
-	--if (self.itemData and self.itemData.WorldUse) then
-	--	self.itemData:WorldUse(player, self)
-	--end
+	if (self.item) then
+		local item = deadremains.item.get(self.item)
+
+		if (item.worldUse) then
+			item:worldUse(player, self)
+		end
+	end
 end
 
 function ENT:StartTouch(entity)

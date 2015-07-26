@@ -17,6 +17,11 @@ end
 net.Receive("deadremains.getskill", function(bits)
 	local len = net.ReadUInt(8)
 
+	-- Clear all the skills.
+	if (len > 1) then
+		skills = {}
+	end
+
 	for i = 1, len do
 		local skill = net.ReadString()
 

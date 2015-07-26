@@ -315,6 +315,7 @@ function panel:OnMouseReleased(code)
 			self:SetVisible(false)
 
 			timer.Simple(LocalPlayer():Ping() *0.001, function()
+				print(self)
 				if (IsValid(self)) then
 					self:SetVisible(true)
 				end

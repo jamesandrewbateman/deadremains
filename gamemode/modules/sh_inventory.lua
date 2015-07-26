@@ -55,7 +55,7 @@ end
 function meta_table:canEquip(player, item)
 	print("canEquip:",self.unique,item.equip_slot,self.equip_slot)
 
-	if (item.equip_slot != self.equip_slot) then
+	if (bit.band(bit.lshift(1, self.equip_slot), item.equip_slot) == 0) then
 		return false, "You can't equip that item in this slot."
 	end
 
@@ -86,6 +86,10 @@ function meta_table:equip(player, item)
 			item.inventory_index = player:createInventory(item_data.inventory_type, inventory_data.slots_horizontal, inventory_data.slots_vertical)
 		end
 	end
+
+	if (item_data.equip) then
+		item_data:equip(player)
+	end
 end
 
 ----------------------------------------------------------------------
@@ -101,6 +105,10 @@ function meta_table:unEquip(player, item, dropped_item)
 	-- Remove the inventory if the item has one.
 	if (item_data.inventory_type and item.inventory_index) then
 		player:removeInventory(item.inventory_index, dropped_item)
+	end
+
+	if (item_data.unEquip) then
+		item_data:unEquip(player)
 	end
 end
 

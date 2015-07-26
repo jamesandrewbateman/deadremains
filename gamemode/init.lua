@@ -9,6 +9,7 @@ AddCSLuaFile("modules/sh_item.lua")
 AddCSLuaFile("sh_loader.lua")
 AddCSLuaFile("modules/sh_inventory.lua")
 AddCSLuaFile("modules/cl_inventory.lua")
+AddCSLuaFile("modules/cl_gear.lua")
 
 AddCSLuaFile("panels/button.lua")
 AddCSLuaFile("panels/combo_box.lua")
@@ -64,3 +65,7 @@ function GM:PlayerSpawn(player)
 	self.BaseClass:PlayerSpawn(player)
 
 end 
+
+function GM:ShowHelp(player)
+	player:ConCommand("inventory")
+end

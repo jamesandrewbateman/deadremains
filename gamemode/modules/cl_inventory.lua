@@ -32,7 +32,7 @@ function deadremains.inventory.create(inventory_index, inventory_id)
 
 	-- Create the inventory panel. (only external inventories)
 	else
-		if (data.external) then
+		if (data.external and IsValid(main_menu) and main_menu:IsVisible()) then
 			local inventory_panel = main_menu:getPanel("inventory_panel")
 
 			if (IsValid(inventory_panel)) then

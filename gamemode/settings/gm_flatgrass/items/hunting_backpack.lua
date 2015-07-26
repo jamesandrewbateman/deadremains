@@ -1,7 +1,7 @@
 item.unique = "hunting_backpack"
 
 -- The model that this item should have.
-item.model = "models/captainbigbutt/skeyler/hats/cowboyhat.mdl"
+item.model = "models/lamps/torch.mdl"
 
 -- How many horizontal slots this item should take.
 item.slots_horizontal = 2
@@ -25,7 +25,7 @@ item.rotate = 45
 item.weight = 4
 
 -- What equipment slot this item can be placed in.
-item.equip_slot = inventory_equip_back
+item.equip_slot = bit.lshift(1, inventory_equip_back)
 
 -- What type of inventory this item creates.
 item.inventory_type = "hunting_backpack"
