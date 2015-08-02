@@ -82,14 +82,6 @@ item_function_destroy = {name = "Destroy", callback = function(slot)
 	net.SendToServer()
 end}
 
-item_function_consume = {name = "Consume", callback = function(slot)
-	net.Start("deadremains.itemaction")
-		net.WriteUInt(slot.inventory_index, 8)
-		net.WriteString(slot.unique)
-		net.WriteUInt(slot.x, 32)
-		net.WriteUInt(slot.y, 32)
-		net.WriteUInt(item_action_consume, 8)
-	net.SendToServer()
-end}
+item_function_consume = {name = "Consume", callback = item_function_use.callback}
 
 end

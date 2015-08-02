@@ -4,7 +4,7 @@
 ----------------------------------------------------------------------
 
 function player_meta:getHunger()
-	return self.dr_character.needs["hunger"]
+	return self.dr_character.needs.hunger
 end
 
 ----------------------------------------------------------------------
@@ -13,9 +13,9 @@ end
 ----------------------------------------------------------------------
 
 function player_meta:setHunger(hunger)
-	self.dr_character.needs["hunger"] = hunger
+	self.dr_character.needs.hunger = hunger
 
-	self:SetNetworkedInt("dr_hunger", self.dr_character.needs["hunger"])
+	self:SetNetworkedInt("dr_hunger", self.dr_character.needs.hunger)
 end
 
 ----------------------------------------------------------------------
@@ -24,9 +24,9 @@ end
 ----------------------------------------------------------------------
 
 function player_meta:increaseHunger(amount)
-	self.dr_character.needs["hunger"] = math.max(100, self.dr_character.needs["hunger"] +amount)
+	self.dr_character.needs.hunger = math.max(100, self.dr_character.needs.hunger +amount)
 
-	self:SetNetworkedInt("dr_hunger", self.dr_character.needs["hunger"])
+	self:SetNetworkedInt("dr_hunger", self.dr_character.needs.hunger)
 end
 
 ----------------------------------------------------------------------
@@ -35,9 +35,9 @@ end
 ----------------------------------------------------------------------
 
 function player_meta:decreaseHunger(amount)
-	self.dr_character.needs["hunger"] = math.max(0, self.dr_character.needs["hunger"] -amount)
+	self.dr_character.needs.hunger = math.max(0, self.dr_character.needs.hunger -amount)
 
-	self:SetNetworkedInt("dr_hunger", self.dr_character.needs["hunger"])
+	self:SetNetworkedInt("dr_hunger", self.dr_character.needs.hunger)
 end
 
 ----------------------------------------------------------------------
@@ -46,7 +46,7 @@ end
 ----------------------------------------------------------------------
 
 function player_meta:getThirst()
-	return self.dr_character.needs["thirst"]
+	return self.dr_character.needs.thirst
 end
 
 ----------------------------------------------------------------------
@@ -55,9 +55,9 @@ end
 ----------------------------------------------------------------------
 
 function player_meta:setThirst(thirst)
-	self.dr_character.needs["thirst"] = thirst
+	self.dr_character.needs.thirst = thirst
 
-	self:SetNetworkedInt("dr_thirst", self.dr_character.needs["thirst"])
+	self:SetNetworkedInt("dr_thirst", self.dr_character.needs.thirst)
 end
 
 ----------------------------------------------------------------------
@@ -66,9 +66,9 @@ end
 ----------------------------------------------------------------------
 
 function player_meta:increaseThirst(amount)
-	self.dr_character.needs["thirst"] = math.max(100, self.dr_character.needs["thirst"] +amount)
+	self.dr_character.needs.thirst = math.max(100, self.dr_character.needs.thirst +amount)
 
-	self:SetNetworkedInt("dr_thirst", self.dr_character.needs["thirst"])
+	self:SetNetworkedInt("dr_thirst", self.dr_character.needs.thirst)
 end
 
 ----------------------------------------------------------------------
@@ -77,9 +77,9 @@ end
 ----------------------------------------------------------------------
 
 function player_meta:decreaseThirst(amount)
-	self.dr_character.needs["thirst"] = math.max(0, self.dr_character.needs["thirst"] -amount)
+	self.dr_character.needs.thirst = math.max(0, self.dr_character.needs.thirst -amount)
 
-	self:SetNetworkedInt("dr_thirst", self.dr_character.needs["thirst"])
+	self:SetNetworkedInt("dr_thirst", self.dr_character.needs.thirst)
 end
 
 ----------------------------------------------------------------------
@@ -213,7 +213,7 @@ function player_meta:initializeCharacter()
 				query = query .. "characteristic_" .. unique .. ", "
 			end
 
-			query = string.sub(query, 0, #query -2) .. ") VALUES(".. steam_id .. ", "
+			query = string.sub(query, 0, #query -2) .. ", gender) VALUES(".. steam_id .. ", "
 			
 			for unique, value in pairs(self.dr_character.needs) do
 				query = query .. value .. ", "
@@ -223,7 +223,7 @@ function player_meta:initializeCharacter()
 				query = query .. value .. ", "
 			end
 
-			query = string.sub(query, 0, #query -2) .. ")"
+			query = string.sub(query, 0, #query -2) .. ", 1)"
 
 			deadremains.sql.query(database_main, query)
 		end
@@ -826,7 +826,5 @@ net.Receive("deadremains.itemaction", function(bits, player)
 		player:dropItem(inventory_index, unique, x, y)
 	elseif (action == item_action_destroy) then
 		player:destroyItem(inventory_index, unique, x, y)
-	elseif (action == item_action_consume) then
-
 	end
 end)

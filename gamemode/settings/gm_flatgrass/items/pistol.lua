@@ -10,7 +10,7 @@ item.slots_horizontal = 3
 item.slots_vertical = 2
 
 -- Used the modify the position of the camera on DModelPanel.
-item.cam_pos = Vector(50, 30, -2)
+item.cam_pos = Vector(50, 30, 0)
 
 -- Used to change the angle at which the camera views the model.
 item.look_at = Vector(0, 0, 0)
@@ -19,7 +19,7 @@ item.look_at = Vector(0, 0, 0)
 item.fov = 20
 
 -- How much the entity in the DModelPanel should be rotated (yaw).
-item.rotate = 45
+item.rotate = 90
 
 -- How much this item weighs.
 item.weight = 4
@@ -57,3 +57,4 @@ end
 function item:unEquip(player)
 	player:StripWeapon("weapon_pistol")
 end
+
