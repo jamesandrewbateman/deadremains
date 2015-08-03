@@ -15,7 +15,7 @@ end
 function player_meta:setHunger(hunger)
 	self.dr_character.needs.hunger = hunger
 
-	self:SetNetworkedInt("dr_hunger", self.dr_character.needs.hunger)
+	self:SetNWInt("dr_hunger", self.dr_character.needs.hunger)
 end
 
 ----------------------------------------------------------------------
@@ -26,7 +26,7 @@ end
 function player_meta:increaseHunger(amount)
 	self.dr_character.needs.hunger = math.max(100, self.dr_character.needs.hunger +amount)
 
-	self:SetNetworkedInt("dr_hunger", self.dr_character.needs.hunger)
+	self:SetNWInt("dr_hunger", self.dr_character.needs.hunger)
 end
 
 ----------------------------------------------------------------------
@@ -37,7 +37,7 @@ end
 function player_meta:decreaseHunger(amount)
 	self.dr_character.needs.hunger = math.max(0, self.dr_character.needs.hunger -amount)
 
-	self:SetNetworkedInt("dr_hunger", self.dr_character.needs.hunger)
+	self:SetNWInt("dr_hunger", self.dr_character.needs.hunger)
 end
 
 ----------------------------------------------------------------------
@@ -57,7 +57,7 @@ end
 function player_meta:setThirst(thirst)
 	self.dr_character.needs.thirst = thirst
 
-	self:SetNetworkedInt("dr_thirst", self.dr_character.needs.thirst)
+	self:SetNWInt("dr_thirst", self.dr_character.needs.thirst)
 end
 
 ----------------------------------------------------------------------
@@ -68,7 +68,7 @@ end
 function player_meta:increaseThirst(amount)
 	self.dr_character.needs.thirst = math.max(100, self.dr_character.needs.thirst +amount)
 
-	self:SetNetworkedInt("dr_thirst", self.dr_character.needs.thirst)
+	self:SetNWInt("dr_thirst", self.dr_character.needs.thirst)
 end
 
 ----------------------------------------------------------------------
@@ -79,7 +79,7 @@ end
 function player_meta:decreaseThirst(amount)
 	self.dr_character.needs.thirst = math.max(0, self.dr_character.needs.thirst -amount)
 
-	self:SetNetworkedInt("dr_thirst", self.dr_character.needs.thirst)
+	self:SetNWInt("dr_thirst", self.dr_character.needs.thirst)
 end
 
 ----------------------------------------------------------------------
