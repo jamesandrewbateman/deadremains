@@ -101,11 +101,15 @@ local function default(self)
 	end
 
 	timer.Create("dr.thirst." .. self:UniqueID(), 15, 100, function()
-		self:decreaseThirst(1)
+		if IsValid(self) and self.decreaseThirst then
+			self:decreaseThirst(1)
+		end
 	end)
 
 	timer.Create("dr.hunger." .. self:UniqueID(), 30, 100, function()
-		self:decreaseHunger(1)
+		if IsValid(self) and self.decreaseHunger then
+			self:decreaseHunger(1)
+		end
 	end)
 
 	local characteristics = deadremains.settings.get("characteristics")
