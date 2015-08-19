@@ -82,6 +82,11 @@ function player_meta:decreaseThirst(amount)
 	self:SetNWInt("dr_thirst", self.dr_character.needs.thirst)
 end
 
+----------------------------------------------------------------------
+-- Purpose:
+-- Send all the data required on both client/server sides.
+----------------------------------------------------------------------
+
 function player_meta:updateNetworkedVars()
 	self:setHunger(self.dr_character.needs.hunger)
 	self:setThirst(self.dr_character.needs.thirst)

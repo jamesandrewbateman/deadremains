@@ -41,7 +41,7 @@ function deadremains.sql.savePlayer(player)
 		characteristic_sight = ]] .. player.dr_character.characteristics["sight"] .. [[,
 		gender = 1 WHERE steam_id = ']] .. player:SteamID() .. [[';]]);
 end
-concommand.Add("saveply", deadremains.sql.savePlayer)
+concommand.Add("dr_saveply", deadremains.sql.savePlayer)
 
 ----------------------------------------------------------------------
 -- Purpose:
