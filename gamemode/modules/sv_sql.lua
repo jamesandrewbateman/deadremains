@@ -25,6 +25,13 @@ end
 
 ----------------------------------------------------------------------
 -- Purpose:
+-- Save entire player information to the DB.
+----------------------------------------------------------------------
+function deadremains.sql.savePlayer()
+end
+
+----------------------------------------------------------------------
+-- Purpose:
 --		
 ----------------------------------------------------------------------
 
@@ -86,6 +93,8 @@ function deadremains.sql.intialize(name, hostname, username, password, database,
 		
 		timer.Simple(20, function() deadremains.sql.intialize(name, hostname, username, password, database, port, unixSocketPath, clientFlags) end)
 	end
+
+	deadremains.sql.setupTables()
 end
 
 ----------------------------------------------------------------------
@@ -120,6 +129,33 @@ function deadremains.sql.query(name, query, callback_success, callback_failed)
 		end
 	end
 end
+
+----------------------------------------------------------------------
+-- Purpose:
+--	Ensures the tables are present in the database.	
+----------------------------------------------------------------------
+function deadremains.sql.setupTables()
+	if (!database_main) then
+		error("Could not find database in store.")
+		return
+	end
+
+	-- users table
+	deadremains.sql.query(database_main,
+		[[CREATE TABLE users (
+		steam_id VARCHAR(255) PRIMARY KEY,
+		need_health DECIMAL(65),
+		need_thirst DECIMAL(65),
+		need_hunger DECIMAL(65),
+		characteristic_strength DECIMAL(65),
+		characteristic_thirst DECIMAL(65),
+		characteristic_hunger DECIMAL(65),
+		characteristic_health DECIMAL(65),
+		characteristic_sight DECIMAL(65),
+		gender INT(2)
+		);]])
+end
+
 
 ----------------------------------------------------------------------
 -- Purpose:
