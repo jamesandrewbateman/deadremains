@@ -27,8 +27,21 @@ end
 -- Purpose:
 -- Save entire player information to the DB.
 ----------------------------------------------------------------------
-function deadremains.sql.savePlayer()
+function deadremains.sql.savePlayer(player)
+	deadremains.log.write(deadremains.log.mysql, "Saving player: " .. player:Nick())
+
+	deadremains.sql.query(database_main, [[UPDATE users SET
+		need_health = ]] .. player:Health() .. [[,
+		need_thirst = ]] .. player:getThirst() .. [[,
+		need_hunger = ]] .. player:getHunger() .. [[,
+		characteristic_strength = ]] .. player.dr_character.characteristics["strength"] .. [[,
+		characteristic_thirst = ]] .. player.dr_character.characteristics["thirst"] .. [[,
+		characteristic_hunger = ]] .. player.dr_character.characteristics["hunger"] .. [[,
+		characteristic_health = ]] .. player.dr_character.characteristics["health"] .. [[,
+		characteristic_sight = ]] .. player.dr_character.characteristics["sight"] .. [[,
+		gender = 1 WHERE steam_id = ']] .. player:SteamID() .. [[';]]);
 end
+concommand.Add("saveply", deadremains.sql.savePlayer)
 
 ----------------------------------------------------------------------
 -- Purpose:

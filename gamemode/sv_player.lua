@@ -170,6 +170,11 @@ end
 --		
 ----------------------------------------------------------------------
 
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+
 function player_meta:initializeCharacter()
 	local steam_id = deadremains.sql.escape(database_main, self:SteamID())
 
@@ -188,6 +193,7 @@ function player_meta:initializeCharacter()
 	deadremains.sql.query(database_main, "SELECT * FROM `users` WHERE `steam_id` = " .. steam_id, function(data, affected, last_id)
 		if (data and data[1]) then
 			data = data[1]
+			deadremains.log.write(deadremains.log.mysql, "Data found in database for player.")
 
 			for unique, _ in pairs (needs) do
 				local info = data["need_" .. unique]
@@ -207,6 +213,8 @@ function player_meta:initializeCharacter()
 
 		-- No data, let's create a new profile.
 		else
+			deadremains.log.write(deadremains.log.mysql, "No data in database for player.")
+			
 			local query = "INSERT INTO users(steam_id, "
 
 			for unique, value in pairs(self.dr_character.needs) do

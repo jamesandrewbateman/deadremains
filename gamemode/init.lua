@@ -71,3 +71,8 @@ end
 function GM:ShowHelp(player)
 	player:ConCommand("inventory")
 end
+
+function GM:PlayerDisconnect(player)
+	deadremains.sql.savePlayer(player)
+	self.BaseClass:PlayerDisconnect(player)
+end
