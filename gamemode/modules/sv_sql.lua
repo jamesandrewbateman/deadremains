@@ -1,15 +1,27 @@
-local ok, status = pcall(require, "tmysql4")
-
-if (!ok) then
-	deadremains.log.write(deadremains.log.mysql, "Could not load tmysql4: " .. tostring(status))
-	
-	error("Could not load tmysql4: " .. tostring(status) .. "\n")
-end
-
 deadremains.sql = {}
 deadremains.sql.stored = {}
-
+deadremains.sql.tmysql = nil
 local queue = {}
+local modules_loaded = false
+
+----------------------------------------------------------------------
+-- Purpose:
+--	Include the correct c++ modules for tmysql4.
+--  Path: garrysmod/lua/bin/gmsv_tmysql4.dll
+----------------------------------------------------------------------
+function deadremains.sql.setupModules()
+	if modules_loaded then return end;
+
+	local tmysql_file = file.Exists("bin/gmsv_tmysql4_*.dll", "LUA");
+	if not tmysql_file then
+		deadremains.log.write(deadremains.log.mysql, "Could not find gmsv_tmysql4_*.dll")
+		error("Could not find suitable tmysql4 module.")
+	end
+
+	require("tmysql4")
+	deadremains.sql.tmysql = tmsql_file
+	modules_loaded = true
+end
 
 ----------------------------------------------------------------------
 -- Purpose:

@@ -44,6 +44,7 @@ database_main = "deadremains"
 ----------------------------------------------------------------------
 
 function GM:Initialize()
+	deadremains.sql.setupModules()
 	deadremains.sql.intialize(database_main, "localhost", "root", "", "deadremains", 3306)
 end
 
