@@ -82,6 +82,11 @@ function player_meta:decreaseThirst(amount)
 	self:SetNWInt("dr_thirst", self.dr_character.needs.thirst)
 end
 
+function player_meta:updateNetworkedVars()
+	self:setHunger(self.dr_character.needs.hunger)
+	self:setThirst(self.dr_character.needs.thirst)
+end
+
 ----------------------------------------------------------------------
 -- Purpose:
 --		
@@ -193,11 +198,10 @@ function player_meta:initializeCharacter()
 	deadremains.sql.query(database_main, "SELECT * FROM `users` WHERE `steam_id` = " .. steam_id, function(data, affected, last_id)
 		if (data and data[1]) then
 			data = data[1]
-			deadremains.log.write(deadremains.log.mysql, "Data found in database for player.")
+			deadremains.log.write(deadremains.log.mysql, "Data found in database for player, loading...")
 
 			for unique, _ in pairs (needs) do
 				local info = data["need_" .. unique]
-
 				if (info) then
 					self.dr_character.needs[unique] = info
 				end
@@ -211,6 +215,7 @@ function player_meta:initializeCharacter()
 				end
 			end
 
+			self:updateNetworkedVars()
 		-- No data, let's create a new profile.
 		else
 			deadremains.log.write(deadremains.log.mysql, "No data in database for player.")
