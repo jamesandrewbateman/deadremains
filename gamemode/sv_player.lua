@@ -36,6 +36,10 @@ end
 
 function player_meta:decreaseHunger(amount)
 	self.dr_character.needs.hunger = math.max(0, self.dr_character.needs.hunger -amount)
+	if (self.dr_character.needs.hunger < 0) then
+		self:setHunger(0)
+		self:SetHealth(self:Health() - 0.5)
+	end
 
 	self:SetNWInt("dr_hunger", self.dr_character.needs.hunger)
 end
@@ -78,6 +82,11 @@ end
 
 function player_meta:decreaseThirst(amount)
 	self.dr_character.needs.thirst = math.max(0, self.dr_character.needs.thirst -amount)
+
+	if (self.dr_character.needs.thirst <= 0) then
+		self:setThirst(0)
+		self:SetHealth(self:Health() - 0.25)
+	end
 
 	self:SetNWInt("dr_thirst", self.dr_character.needs.thirst)
 end

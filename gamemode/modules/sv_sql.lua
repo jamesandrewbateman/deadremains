@@ -207,7 +207,7 @@ function deadremains.sql.savePlayer(player)
 		WHERE steam_id = ']] .. steam_id .. [[';]])
 
 	deadremains.sql.query(database_main,
-		[[UPDATE user_skills SET ]] .. player:getMysqlString() ..
+		[[UPDATE user_skills SET ]] .. player:getSkillsMysqlString() ..
 		[[ WHERE steam_id = ']] .. steam_id .. [[';]])
 
 end
@@ -243,7 +243,7 @@ function deadremains.sql.newPlayer(player)
 
 	deadremains.sql.query(database_main, query)
 
-	
+
 
 	-- `user_skills` table.
 	query = "INSERT INTO user_skills ("
@@ -292,4 +292,35 @@ end
 
 function deadremains.sql.getQueue()
 	return queue
+end
+
+-- UTILS --
+
+----------------------------------------------------------------------
+-- Purpose:
+--	Used by sv_sql.lua to get the players skills in a specific format
+--  to be queried.	
+----------------------------------------------------------------------
+
+function player_meta:getSkillsMysqlString()
+	local format = ""
+	local skills = deadremains.settings.get("skills")
+
+	-- find out how many skills there are in the array.
+	local count = 0
+	for _, skill in pairs(skills) do count = count + 1 end
+
+	local c = 0
+	for _, skill in pairs(skills) do
+		-- if we are at the last entry in the array.
+		if (c == count - 1) then
+			format = format .. skill.unique .. " = " .. self:hasSkill(skill.unique)
+		else	
+			format = format .. skill.unique .. " = " .. self:hasSkill(skill.unique) .. ", "
+		end
+
+		c = c + 1
+	end
+
+	return format
 end
