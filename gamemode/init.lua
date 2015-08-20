@@ -46,7 +46,7 @@ database_main = "deadremains"
 function GM:Initialize()
 	deadremains.sql.setupModules()
 	-- stored[name], username, password, database, port, (Optional) unixsocketpath, (Optional) clientflags
-	deadremains.sql.intialize(database_main, "localhost", "root", "root", "deadremains", 3306)
+	deadremains.sql.intialize(database_main, "localhost", "root", "_debug", "deadremains", 3306)
 end
 
 ----------------------------------------------------------------------

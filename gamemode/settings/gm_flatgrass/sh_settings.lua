@@ -48,9 +48,9 @@ local skills = {
 	fire = {unique = "fire", name = "Fire", type = "survival", icon = "materials/deadremains/skills/survivalskill_fire.png"},
 	hunting = {unique = "hunting", name = "Hunting", type = "survival", icon = "materials/deadremains/skills/survivalskill_hunting.png"},
 
-	weapon_1 = {unique = "wep1", name = "Weapon 1", type = "weapon", icon = "materials/deadremains/skills/weaponskill_1.png"},
-	weapon_2 = {unique = "wep2", name = "Weapon 2", type = "weapon", icon = "materials/deadremains/skills/weaponskill_2.png"},
-	weapon_3 = {unique = "wep3", name = "Weapon 3", type = "weapon", icon = "materials/deadremains/skills/weaponskill_3.png"}
+	wep1 = {unique = "wep1", name = "Weapon 1", type = "weapon", icon = "materials/deadremains/skills/weaponskill_1.png"},
+	wep2 = {unique = "wep2", name = "Weapon 2", type = "weapon", icon = "materials/deadremains/skills/weaponskill_2.png"},
+	wep3 = {unique = "wep3", name = "Weapon 3", type = "weapon", icon = "materials/deadremains/skills/weaponskill_3.png"}
 }
 
 deadremains.settings.new("skills", skills)

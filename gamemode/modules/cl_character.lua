@@ -24,7 +24,6 @@ net.Receive("deadremains.getskill", function(bits)
 
 	for i = 1, len do
 		local skill = net.ReadString()
-
 		skills[skill] = true
 	end
 end)

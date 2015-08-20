@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------
--- Purpose:
---		
+--! @file
+--! @brief serverside player class
 ----------------------------------------------------------------------
 
 function player_meta:getHunger()
@@ -36,6 +36,9 @@ end
 
 function player_meta:decreaseHunger(amount)
 	self.dr_character.needs.hunger = math.max(0, self.dr_character.needs.hunger -amount)
+	if (self.dr_character.needs.hunger <= 0) then
+		self:SetHealth(self:Health() - 0.5)
+	end
 
 	self:SetNWInt("dr_hunger", self.dr_character.needs.hunger)
 end
@@ -79,20 +82,80 @@ end
 function player_meta:decreaseThirst(amount)
 	self.dr_character.needs.thirst = math.max(0, self.dr_character.needs.thirst -amount)
 
+	if (self.dr_character.needs.thirst <= 0) then
+		self:SetHealth(self:Health() - 0.25)
+	end
+
 	self:SetNWInt("dr_thirst", self.dr_character.needs.thirst)
 end
 
 ----------------------------------------------------------------------
 -- Purpose:
--- Send all the data required on both client/server sides.
+--	So that the values can be loaded in from an sql result string.
 ----------------------------------------------------------------------
 
-function player_meta:updateNetworkedVars()
-	-- after data has been loaded from mysql.
-	self:setHunger(self.dr_character.needs.hunger)
-	self:setThirst(self.dr_character.needs.thirst)
+function player_meta:setNeed(need_unique, value)
+	local setNeedFunc = self["set" .. string.capitalize(need_unique)]
+
+	if (setNeedFunc ~= nil) then
+		setNeedFunc(self, value)
+	else
+		-- health function catch
+		if (need_unique == "health") then
+			self:SetHealth(value or 666)
+		else
+			error("Could not set " .. self:Nick() .. "'s need " .. need_unique)
+		end
+	end
 end
 
+function player_meta:getNeed(need_unique)
+	local getNeedFunc = self["get" .. string.capitalize(need_unique)]
+
+	if (getNeedFunc ~= nil) then
+		return getNeedFunc(self)
+	else
+		-- health function catch
+		if (need_unique == "health") then
+			return self:Health()
+		else
+			error("Could not get " .. self:Nick() .. "'s need " .. need_unique)
+			return 0
+		end
+	end
+end
+
+----------------------------------------------------------------------
+-- Purpose:
+--	So that the values can be loaded in from an sql result string.
+-- into Characteristics
+----------------------------------------------------------------------
+
+function player_meta:setChar(char_unique, value)
+	self.dr_character.characteristics[char_unique] = value
+end
+
+function player_meta:getChar(char_unique)
+	if (self.dr_character.characteristics[char_unique] ~= nil) then
+		return self.dr_character.characteristics[char_unique]
+	else
+		error("Could not get " .. self:Nick() .. "'s characteristic " .. char_unique)
+	end
+end
+
+function player_meta:setSkill(skill_unique, value)
+	if (value == nil) then value = 0 end
+
+	self.dr_character.skills[skill_unique] = value
+end
+
+function player_meta:getSkill(skill_unique)
+	local s = self.dr_character.skills[skill_unique]
+	if s == nil then return 0 end
+	if s == 0 then return 0 end
+
+	return s
+end
 ----------------------------------------------------------------------
 -- Purpose:
 --		
@@ -101,36 +164,18 @@ end
 util.AddNetworkString("deadremains.getskill")
 
 local function default(self)
+	-- loads all the default data into containers.
 	local needs = deadremains.settings.get("needs")
-	
 	for unique, data in pairs (needs) do
-		if (unique == "health") then
-			self.dr_character.needs[unique] = data.default
-		else
-			self["set" .. string.capitalize(unique)](self, data.default)
-		end
+		self:setNeed(unique, data.default)
 	end
 
-	timer.Create("dr.thirst." .. self:UniqueID(), 15, 100, function()
-		if IsValid(self) and self.decreaseThirst then
-			self:decreaseThirst(1)
-		end
-	end)
-
-	timer.Create("dr.hunger." .. self:UniqueID(), 30, 100, function()
-		if IsValid(self) and self.decreaseHunger then
-			self:decreaseHunger(1)
-		end
-	end)
-
 	local characteristics = deadremains.settings.get("characteristics")
-	
 	for unique, data in pairs (characteristics) do
-		self.dr_character.characteristics[unique] = data.default
+		self:setChar(unique, data.default)
 	end
 
 	local inventories = deadremains.settings.get("default_inventories")
-
 	for _, info in pairs(inventories) do
 		local data = deadremains.inventory.get(info.unique)
 
@@ -139,31 +184,93 @@ local function default(self)
 		end
 	end
 
-	-- generate random skill type
-	local skill_types = deadremains.settings.get("skill_types")
-	local randomized = {}
 
-	for _, type in pairs(skill_types) do
-		local sorted = deadremains.getSkillByType(type)
+	timer.Create("dr.thirst." .. self:UniqueID(), 15, 100, function()
+		if IsValid(self) and self.decreaseThirst then
+			self:decreaseThirst(1)
 
-		table.insert(randomized, sorted[math.random(1, #sorted)])
-	end
+			-- HYDRATED buff
+			if (self:getThirst() >= 80) then
+				self:SetHealth(math.min(100, self:Health() + 1))
+			end
 
-	for i = 1, #randomized do
-		local data = randomized[i]
-
-		self.dr_character.skills[data.unique] = true
-	end
-
-	net.Start("deadremains.getskill")
-		net.WriteUInt(#randomized, 8)
-
-		for i = 1, #randomized do
-			net.WriteString(randomized[i].unique)
+		elseif !IsValid(self) then
+			timer.Remove("dr.thirst." .. self:UniqueID())
 		end
-	net.Send(self)
+	end)
+
+	timer.Create("dr.hunger." .. self:UniqueID(), 30, 100, function()
+		if IsValid(self) and self.decreaseHunger then
+			self:decreaseHunger(1)
+
+			-- FULL buff
+			if (self:getHunger() >= 80) then
+				self:SetHealth(math.min(100, self:Health() + 1))
+			end
+
+		elseif !IsValid(self) then
+			timer.Remove("dr.hunger." .. self:UniqueID())
+		end
+	end)
 
 	self.dr_character.max_weight = 20
+end
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+
+local function mysql(self)
+	local mysql_found = false
+
+	local steam_id = deadremains.sql.escape(database_main, self:SteamID())
+	local needs = deadremains.settings.get("needs")
+	local skills = deadremains.settings.get("skills")
+	local characteristics = deadremains.settings.get("characteristics")
+
+	deadremains.sql.query(database_main, "SELECT * FROM `users` WHERE `steam_id` = " .. steam_id, function(data, affected, last_id)
+		if (data and data[1]) then
+			data = data[1]
+			deadremains.log.write(deadremains.log.mysql, "Data found in database for player, loading...")
+
+			for unique, _ in pairs (needs) do
+				self:setNeed(unique, data["need_" .. unique])
+			end
+
+			for unique, _ in pairs (characteristics) do
+				self:setChar(unique, data["characteristic_" .. unique])
+			end
+		else
+			deadremains.log.write(deadremains.log.mysql, "No data found in database, inserting new one...")
+			deadremains.sql.newPlayer(self)
+		end
+	end)
+
+	deadremains.sql.query(database_main, "SELECT * FROM `user_skills` WHERE `steam_id` = " .. steam_id, function(data, affected, last_id)
+		if (data and data[1]) then
+			data = data[1]
+
+			for unique, _ in pairs (skills) do
+				self:setSkill(unique, data[unique])
+			end
+
+			-- when finished setting skills
+			-- push loaded skills data to the client
+			-- needs are done automagically.
+			net.Start("deadremains.getskill")
+				net.WriteUInt(table.Count(skills), 32)
+				for k,v in pairs(skills) do
+					if self:getSkill(v.unique) == 1 then
+						net.WriteString(v.unique)
+					end
+				end
+			net.Send(self)
+		else
+			deadremains.log.write(deadremains.log.mysql, "No data found in database for user_skills, inserting new one...")
+		end
+	end)
+
 end
 
 function player_meta:reset()
@@ -175,12 +282,8 @@ function player_meta:reset()
 	self.dr_character.characteristics = {}
 
 	default(self)
+	mysql(self)
 end
-
-----------------------------------------------------------------------
--- Purpose:
---		
-----------------------------------------------------------------------
 
 ----------------------------------------------------------------------
 -- Purpose:
@@ -190,44 +293,7 @@ end
 function player_meta:initializeCharacter()
 	local steam_id = deadremains.sql.escape(database_main, self:SteamID())
 
-	self.dr_character = {}
-
-	self.dr_character.needs = {}
-	self.dr_character.skills = {}
-	self.dr_character.inventory = {}
-	self.dr_character.characteristics = {}
-
-	default(self)
-
-	local needs = deadremains.settings.get("needs")
-	local characteristics = deadremains.settings.get("characteristics")
-
-	deadremains.sql.query(database_main, "SELECT * FROM `users` WHERE `steam_id` = " .. steam_id, function(data, affected, last_id)
-		if (data and data[1]) then
-			data = data[1]
-			deadremains.log.write(deadremains.log.mysql, "Data found in database for player, loading...")
-
-			for unique, _ in pairs (needs) do
-				local info = data["need_" .. unique]
-				if (info) then
-					self.dr_character.needs[unique] = info
-				end
-			end
-
-			for unique, _ in pairs (characteristics) do
-				local info = data["characteristic_" .. unique]
-
-				if (info) then
-					self.dr_character.characteristics[unique] = info
-				end
-			end
-
-			self:updateNetworkedVars()
-		-- No data, let's create a new profile.
-		else
-			deadremains.sql.newPlayer(self)
-		end
-	end)
+	self:reset()
 end
 
 ----------------------------------------------------------------------
@@ -240,7 +306,6 @@ util.AddNetworkString("deadremains.player.initalize")
 net.Receive("deadremains.player.initalize", function(bits, player)
 	if (!player.dr_loaded) then
 		player:initializeCharacter()
-
 		player.dr_loaded = true
 	end
 end)
