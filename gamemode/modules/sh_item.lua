@@ -15,6 +15,7 @@ function deadremains.item.register(data)
 	
 	setmetatable(data, meta_table)
 
+	deadremains.log.write(deadremains.log.general, "Registered item: " .. data.unique)
 	stored[data.unique] = data
 end
 

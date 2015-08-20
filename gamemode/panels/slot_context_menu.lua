@@ -34,6 +34,7 @@ end
 ----------------------------------------------------------------------
 
 function panel:addOption(name, callback, slot)
+	PrintTable(util)
 	local width, height = util.GetTextSize("deadremains.slot.context.menu", name)
 
 	if (width > self.last_width) then

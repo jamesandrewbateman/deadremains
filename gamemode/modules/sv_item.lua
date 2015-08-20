@@ -3,8 +3,8 @@
 --		
 ----------------------------------------------------------------------
 
-function deadremains.item.spawn(player, unique)
-	local item = deadremains.item.get(unique)
+function deadremains.item.spawn(player, cmd, args)
+	local item = deadremains.item.get(args[1])
 
 	if (item) then
 		local trace = player:eyeTrace(192)
@@ -17,3 +17,4 @@ function deadremains.item.spawn(player, unique)
 		entity.item = item.unique
 	end
 end
+concommand.Add("dr_spawnitem", deadremains.item.spawn)

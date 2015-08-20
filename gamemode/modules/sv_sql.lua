@@ -193,22 +193,30 @@ function deadremains.sql.savePlayer(player)
 	end
 	local steam_id = deadremains.sql.escape(database_main, player:SteamID())
 
-	deadremains.sql.query(database_main,
-		[[UPDATE users SET
-			need_health = ]] .. player:Health() .. [[,
-			need_thirst = ]] .. player:getThirst() .. [[,
-			need_hunger = ]] .. player:getHunger() .. [[,
-			characteristic_strength = ]] .. player.dr_character.characteristics["strength"] .. [[,
-			characteristic_thirst = ]] .. player.dr_character.characteristics["thirst"] .. [[,
-			characteristic_hunger = ]] .. player.dr_character.characteristics["hunger"] .. [[,
-			characteristic_health = ]] .. player.dr_character.characteristics["health"] .. [[,
-			characteristic_sight = ]] .. player.dr_character.characteristics["sight"] .. [[,
-			gender = 1
-		WHERE steam_id = ']] .. steam_id .. [[';]])
+	-- create the section for all the needs.
+	local needs = deadremains.settings.get("needs")
+	local params = "UPDATE users SET "
 
-	deadremains.sql.query(database_main,
-		[[UPDATE user_skills SET ]] .. player:getSkillsMysqlString() ..
-		[[ WHERE steam_id = ']] .. steam_id .. [[';]])
+	for unique, data in pairs(needs) do
+		params = params .. "need_" .. unique .. " = " .. player:getNeed(unique) .. ", "
+	end
+
+	-- characteristics
+	local chars = deadremains.settings.get("characteristics")
+	for unique, data in pairs(chars) do
+		params = params .. "characteristic_" .. unique .. " = " .. player:getChar(unique) .. ", "
+	end
+
+	params = params .. "gender = 1 "
+	params = params .. "WHERE steam_id = " .. steam_id .. ";"
+	deadremains.sql.query(database_main, params);
+
+
+	params = ""
+	params = params .. "UPDATE user_skills SET "
+	params = params .. player:getSkillsMysqlString()
+	params = params .. " WHERE steam_id = " .. steam_id .. ";"
+	deadremains.sql.query(database_main, params)
 
 end
 concommand.Add("dr_saveply", deadremains.sql.savePlayer)
