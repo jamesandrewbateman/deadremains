@@ -88,6 +88,7 @@ end
 ----------------------------------------------------------------------
 
 function player_meta:updateNetworkedVars()
+	-- after data has been loaded from mysql.
 	self:setHunger(self.dr_character.needs.hunger)
 	self:setThirst(self.dr_character.needs.thirst)
 end
@@ -138,6 +139,7 @@ local function default(self)
 		end
 	end
 
+	-- generate random skill type
 	local skill_types = deadremains.settings.get("skill_types")
 	local randomized = {}
 
@@ -223,31 +225,7 @@ function player_meta:initializeCharacter()
 			self:updateNetworkedVars()
 		-- No data, let's create a new profile.
 		else
-			deadremains.log.write(deadremains.log.mysql, "No data in database for player.")
-			
-			local query = "INSERT INTO users(steam_id, "
-
-			for unique, value in pairs(self.dr_character.needs) do
-				query = query .. "need_" .. unique .. ", "
-			end
-
-			for unique, value in pairs(self.dr_character.characteristics) do
-				query = query .. "characteristic_" .. unique .. ", "
-			end
-
-			query = string.sub(query, 0, #query -2) .. ", gender) VALUES(".. steam_id .. ", "
-			
-			for unique, value in pairs(self.dr_character.needs) do
-				query = query .. value .. ", "
-			end
-
-			for unique, value in pairs(self.dr_character.characteristics) do
-				query = query .. value .. ", "
-			end
-
-			query = string.sub(query, 0, #query -2) .. ", 1)"
-
-			deadremains.sql.query(database_main, query)
+			deadremains.sql.newPlayer(self)
 		end
 	end)
 end
