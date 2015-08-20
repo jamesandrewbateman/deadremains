@@ -44,7 +44,9 @@ database_main = "deadremains"
 ----------------------------------------------------------------------
 
 function GM:Initialize()
-	deadremains.sql.intialize(database_main, "localhost", "root", "", "deadremains", 3306)
+	deadremains.sql.setupModules()
+	-- stored[name], username, password, database, port, (Optional) unixsocketpath, (Optional) clientflags
+	deadremains.sql.intialize(database_main, "localhost", "root", "root", "deadremains", 3306)
 end
 
 ----------------------------------------------------------------------
@@ -68,4 +70,9 @@ end
 
 function GM:ShowHelp(player)
 	player:ConCommand("inventory")
+end
+
+function GM:PlayerDisconnect(player)
+	deadremains.sql.savePlayer(player)
+	self.BaseClass:PlayerDisconnect(player)
 end

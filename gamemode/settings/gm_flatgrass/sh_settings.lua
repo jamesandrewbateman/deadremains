@@ -37,8 +37,8 @@ local skills = {
 	mechanics = {unique = "mechanics", name = "Mechanics", type = "crafting", icon = "materials/deadremains/skills/craftingskill_mechanics.png"},
 	woodwork = {unique = "woodwork", name = "Woodwork", type = "crafting", icon = "materials/deadremains/skills/craftingskill_woodwork.png"},
 
-	heal = {unique = "heal", name = "Heal", type = "medical", icon = "materials/deadremains/skills/medicalskill_heal.png"},
-	something = {unique = "something", name = "Something", type = "medical", icon = "materials/deadremains/skills/medicalskill_something.png"},
+	first_aid = {unique = "first_aid", name = "First Aid", type = "medical", icon = "materials/deadremains/skills/medicalskill_heal.png"},
+	medic = {unique = "medic", name = "Medic", type = "medical", icon = "materials/deadremains/skills/medicalskill_something.png"},
 	surgeon = {unique = "surgeon", name = "Surgeon", type = "medical", icon = "materials/deadremains/skills/medicalskill_surgeon.png"},
 
 	chemistry = {unique = "chemistry", name = "Chemistry", type = "special", icon = "materials/deadremains/skills/specialskill_chemistry.png"},
@@ -48,9 +48,9 @@ local skills = {
 	fire = {unique = "fire", name = "Fire", type = "survival", icon = "materials/deadremains/skills/survivalskill_fire.png"},
 	hunting = {unique = "hunting", name = "Hunting", type = "survival", icon = "materials/deadremains/skills/survivalskill_hunting.png"},
 
-	weapon_1 = {unique = "weapon_1", name = "Weapon 1", type = "weapon", icon = "materials/deadremains/skills/weaponskill_1.png"},
-	weapon_2 = {unique = "weapon_2", name = "Weapon 2", type = "weapon", icon = "materials/deadremains/skills/weaponskill_2.png"},
-	weapon_3 = {unique = "weapon_3", name = "Weapon 3", type = "weapon", icon = "materials/deadremains/skills/weaponskill_3.png"}
+	weapon_1 = {unique = "wep1", name = "Weapon 1", type = "weapon", icon = "materials/deadremains/skills/weaponskill_1.png"},
+	weapon_2 = {unique = "wep2", name = "Weapon 2", type = "weapon", icon = "materials/deadremains/skills/weaponskill_2.png"},
+	weapon_3 = {unique = "wep3", name = "Weapon 3", type = "weapon", icon = "materials/deadremains/skills/weaponskill_3.png"}
 }
 
 deadremains.settings.new("skills", skills)
@@ -74,7 +74,7 @@ function deadremains.getSkillByType(type)
 	end
 
 	return result
-end
+end 
 
 ----------------------------------------------------------------------
 -- Purpose:

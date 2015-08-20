@@ -84,6 +84,17 @@ end
 
 ----------------------------------------------------------------------
 -- Purpose:
+-- Send all the data required on both client/server sides.
+----------------------------------------------------------------------
+
+function player_meta:updateNetworkedVars()
+	-- after data has been loaded from mysql.
+	self:setHunger(self.dr_character.needs.hunger)
+	self:setThirst(self.dr_character.needs.thirst)
+end
+
+----------------------------------------------------------------------
+-- Purpose:
 --		
 ----------------------------------------------------------------------
 
@@ -128,6 +139,7 @@ local function default(self)
 		end
 	end
 
+	-- generate random skill type
 	local skill_types = deadremains.settings.get("skill_types")
 	local randomized = {}
 
@@ -170,6 +182,11 @@ end
 --		
 ----------------------------------------------------------------------
 
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+
 function player_meta:initializeCharacter()
 	local steam_id = deadremains.sql.escape(database_main, self:SteamID())
 
@@ -188,10 +205,10 @@ function player_meta:initializeCharacter()
 	deadremains.sql.query(database_main, "SELECT * FROM `users` WHERE `steam_id` = " .. steam_id, function(data, affected, last_id)
 		if (data and data[1]) then
 			data = data[1]
+			deadremains.log.write(deadremains.log.mysql, "Data found in database for player, loading...")
 
 			for unique, _ in pairs (needs) do
 				local info = data["need_" .. unique]
-
 				if (info) then
 					self.dr_character.needs[unique] = info
 				end
@@ -205,31 +222,10 @@ function player_meta:initializeCharacter()
 				end
 			end
 
+			self:updateNetworkedVars()
 		-- No data, let's create a new profile.
 		else
-			local query = "INSERT INTO users(steam_id, "
-
-			for unique, value in pairs(self.dr_character.needs) do
-				query = query .. "need_" .. unique .. ", "
-			end
-
-			for unique, value in pairs(self.dr_character.characteristics) do
-				query = query .. "characteristic_" .. unique .. ", "
-			end
-
-			query = string.sub(query, 0, #query -2) .. ", gender) VALUES(".. steam_id .. ", "
-			
-			for unique, value in pairs(self.dr_character.needs) do
-				query = query .. value .. ", "
-			end
-
-			for unique, value in pairs(self.dr_character.characteristics) do
-				query = query .. value .. ", "
-			end
-
-			query = string.sub(query, 0, #query -2) .. ", 1)"
-
-			deadremains.sql.query(database_main, query)
+			deadremains.sql.newPlayer(self)
 		end
 	end)
 end
