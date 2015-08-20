@@ -252,6 +252,7 @@ end
 ----------------------------------------------------------------------
 
 local function mysql(self)
+	local steam_id = deadremains.sql.escape(database_main, self:SteamID())
 	local needs = deadremains.settings.get("needs")
 	local characteristics = deadremains.settings.get("characteristics")
 
@@ -268,6 +269,7 @@ local function mysql(self)
 				self:setChar(unique, data["characteristic_" .. unique])
 			end
 		else
+			deadremains.log.write(deadremains.log.mysql, "No data found in database, inserting new one...")
 			deadremains.sql.newPlayer(self)
 		end
 	end)
