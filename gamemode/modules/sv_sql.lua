@@ -211,7 +211,7 @@ function deadremains.sql.savePlayer(player)
 	params = params .. "WHERE steam_id = " .. steam_id .. ";"
 	deadremains.sql.query(database_main, params);
 
-
+	-- skills
 	params = ""
 	params = params .. "UPDATE user_skills SET "
 	params = params .. player:getSkillsMysqlString()
@@ -255,6 +255,15 @@ function deadremains.sql.newPlayer(player)
 	deadremains.sql.query(database_main, query)
 
 
+	-- generate random skill type
+	local skill_types = deadremains.settings.get("skill_types")
+	local randomized = {}
+
+	for _, type in pairs(skill_types) do
+		local sorted = deadremains.getSkillByType(type)
+		table.insert(randomized, sorted[math.random(1, #sorted)])
+	end
+
 
 	-- `user_skills` table.
 	query = "INSERT INTO user_skills ("
@@ -264,18 +273,25 @@ function deadremains.sql.newPlayer(player)
 	end
 
 	query = string.sub(query, 0, #query -2); -- removes the last ", "
-
 	query = query .. ", steam_id) VALUES ("
 
 	for k,v in pairs(deadremains.settings.get("skills")) do
-		query = query .. "0, "
+		local out_var = 0
+
+		-- if we find it in our randomized table, enable it.
+		for i = 1, #randomized do
+			local data = randomized[i]
+			if (data.unique == v.unique) then out_var = 1 end
+		end
+
+		query = query .. out_var .. ", "
 	end
 
 	query = string.sub(query, 0, #query -2)
-
 	query = query .. ", " .. steam_id .. ")"
 
 	deadremains.sql.query(database_main, query)
+	player:reset()
 end
 
 
@@ -325,9 +341,9 @@ function player_meta:getSkillsMysqlString()
 	for _, skill in pairs(skills) do
 		-- if we are at the last entry in the array.
 		if (c == count - 1) then
-			format = format .. skill.unique .. " = " .. self:hasSkill(skill.unique)
+			format = format .. skill.unique .. " = " .. self:getSkill(skill.unique)
 		else	
-			format = format .. skill.unique .. " = " .. self:hasSkill(skill.unique) .. ", "
+			format = format .. skill.unique .. " = " .. self:getSkill(skill.unique) .. ", "
 		end
 
 		c = c + 1

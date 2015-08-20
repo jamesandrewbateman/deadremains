@@ -132,11 +132,7 @@ end
 ----------------------------------------------------------------------
 
 function player_meta:setChar(char_unique, value)
-	if (self.dr_character.characteristics ~= nil) then
-		self.dr_character.characteristics[char_unique] = value
-	else
-		error("Could not set " .. self:Nick() .. "'s characteristic " .. char_unique)
-	end
+	self.dr_character.characteristics[char_unique] = value
 end
 
 function player_meta:getChar(char_unique)
@@ -147,6 +143,19 @@ function player_meta:getChar(char_unique)
 	end
 end
 
+function player_meta:setSkill(skill_unique, value)
+	if (value == nil) then value = 0 end
+
+	self.dr_character.skills[skill_unique] = value
+end
+
+function player_meta:getSkill(skill_unique)
+	local s = self.dr_character.skills[skill_unique]
+	if s == nil then return 0 end
+	if s == 0 then return 0 end
+
+	return s
+end
 ----------------------------------------------------------------------
 -- Purpose:
 --		
@@ -204,33 +213,6 @@ local function default(self)
 		end
 	end)
 
-
-
-	-- generate random skill type
-	local skill_types = deadremains.settings.get("skill_types")
-	local randomized = {}
-
-	for _, type in pairs(skill_types) do
-		local sorted = deadremains.getSkillByType(type)
-
-		table.insert(randomized, sorted[math.random(1, #sorted)])
-	end
-
-	for i = 1, #randomized do
-		local data = randomized[i]
-
-		self.dr_character.skills[data.unique] = true
-	end
-
-	net.Start("deadremains.getskill")
-		net.WriteUInt(#randomized, 8)
-
-		for i = 1, #randomized do
-			net.WriteString(randomized[i].unique)
-		end
-	net.Send(self)
-
-
 	self.dr_character.max_weight = 20
 end
 
@@ -240,8 +222,11 @@ end
 ----------------------------------------------------------------------
 
 local function mysql(self)
+	local mysql_found = false
+
 	local steam_id = deadremains.sql.escape(database_main, self:SteamID())
 	local needs = deadremains.settings.get("needs")
+	local skills = deadremains.settings.get("skills")
 	local characteristics = deadremains.settings.get("characteristics")
 
 	deadremains.sql.query(database_main, "SELECT * FROM `users` WHERE `steam_id` = " .. steam_id, function(data, affected, last_id)
@@ -261,6 +246,31 @@ local function mysql(self)
 			deadremains.sql.newPlayer(self)
 		end
 	end)
+
+	deadremains.sql.query(database_main, "SELECT * FROM `user_skills` WHERE `steam_id` = " .. steam_id, function(data, affected, last_id)
+		if (data and data[1]) then
+			data = data[1]
+
+			for unique, _ in pairs (skills) do
+				self:setSkill(unique, data[unique])
+			end
+
+			-- when finished setting skills
+			-- push loaded skills data to the client
+			-- needs are done automagically.
+			net.Start("deadremains.getskill")
+				net.WriteUInt(table.Count(skills), 32)
+				for k,v in pairs(skills) do
+					if self:getSkill(v.unique) == 1 then
+						net.WriteString(v.unique)
+					end
+				end
+			net.Send(self)
+		else
+			deadremains.log.write(deadremains.log.mysql, "No data found in database for user_skills, inserting new one...")
+		end
+	end)
+
 end
 
 function player_meta:reset()
@@ -296,7 +306,6 @@ util.AddNetworkString("deadremains.player.initalize")
 net.Receive("deadremains.player.initalize", function(bits, player)
 	if (!player.dr_loaded) then
 		player:initializeCharacter()
-
 		player.dr_loaded = true
 	end
 end)
