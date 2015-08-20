@@ -249,7 +249,6 @@ local function mysql(self)
 			data = data[1]
 			deadremains.log.write(deadremains.log.mysql, "Data found in database for player, loading...")
 
-			PrintTable(data)
 			for unique, _ in pairs (needs) do
 				self:setNeed(unique, data["need_" .. unique])
 			end

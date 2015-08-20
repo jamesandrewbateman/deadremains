@@ -233,7 +233,6 @@ function deadremains.sql.newPlayer(player)
 	local query = "INSERT INTO users(steam_id, "
 
 	for unique, value in pairs(needs) do
-		print(unique)
 		query = query .. "need_" .. unique .. ", "
 	end
 
@@ -244,7 +243,6 @@ function deadremains.sql.newPlayer(player)
 	query = string.sub(query, 0, #query -2) .. ", gender) VALUES(".. steam_id .. ", "
 	
 	for unique, value in pairs(needs) do
-		print(player:getNeed(unique))
 		query = query .. player:getNeed(unique) .. ", "
 	end
 
