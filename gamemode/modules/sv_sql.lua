@@ -224,27 +224,32 @@ concommand.Add("dr_saveply", deadremains.sql.savePlayer)
 
 function deadremains.sql.newPlayer(player)
 	local steam_id = deadremains.sql.escape(database_main, player:SteamID())
+	local needs = deadremains.settings.get("needs")
+	local characteristics = deadremains.settings.get("characteristics")
+
 	deadremains.log.write(deadremains.log.mysql, "No data in database for player, inserting new values.")
-			
+
 	-- `users` table.
 	local query = "INSERT INTO users(steam_id, "
 
-	for unique, value in pairs(player.dr_character.needs) do
+	for unique, value in pairs(needs) do
+		print(unique)
 		query = query .. "need_" .. unique .. ", "
 	end
 
-	for unique, value in pairs(player.dr_character.characteristics) do
+	for unique, value in pairs(characteristics) do
 		query = query .. "characteristic_" .. unique .. ", "
 	end
 
 	query = string.sub(query, 0, #query -2) .. ", gender) VALUES(".. steam_id .. ", "
 	
-	for unique, value in pairs(player.dr_character.needs) do
-		query = query .. value .. ", "
+	for unique, value in pairs(needs) do
+		print(player:getNeed(unique))
+		query = query .. player:getNeed(unique) .. ", "
 	end
 
-	for unique, value in pairs(player.dr_character.characteristics) do
-		query = query .. value .. ", "
+	for unique, value in pairs(characteristics) do
+		query = query .. player:getChar(unique) .. ", "
 	end
 
 	query = string.sub(query, 0, #query -2) .. ", 1)"

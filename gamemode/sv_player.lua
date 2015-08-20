@@ -102,7 +102,7 @@ function player_meta:setNeed(need_unique, value)
 	else
 		-- health function catch
 		if (need_unique == "health") then
-			self:SetHealth(value)
+			self:SetHealth(value or 666)
 		else
 			error("Could not set " .. self:Nick() .. "'s need " .. need_unique)
 		end
@@ -234,6 +234,36 @@ local function default(self)
 	self.dr_character.max_weight = 20
 end
 
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+
+local function mysql(self)
+	local steam_id = deadremains.sql.escape(database_main, self:SteamID())
+	local needs = deadremains.settings.get("needs")
+	local characteristics = deadremains.settings.get("characteristics")
+
+	deadremains.sql.query(database_main, "SELECT * FROM `users` WHERE `steam_id` = " .. steam_id, function(data, affected, last_id)
+		if (data and data[1]) then
+			data = data[1]
+			deadremains.log.write(deadremains.log.mysql, "Data found in database for player, loading...")
+
+			PrintTable(data)
+			for unique, _ in pairs (needs) do
+				self:setNeed(unique, data["need_" .. unique])
+			end
+
+			for unique, _ in pairs (characteristics) do
+				self:setChar(unique, data["characteristic_" .. unique])
+			end
+		else
+			deadremains.log.write(deadremains.log.mysql, "No data found in database, inserting new one...")
+			deadremains.sql.newPlayer(self)
+		end
+	end)
+end
+
 function player_meta:reset()
 	self.dr_character = {}
 
@@ -251,49 +281,10 @@ end
 --		
 ----------------------------------------------------------------------
 
-local function mysql(self)
-	local steam_id = deadremains.sql.escape(database_main, self:SteamID())
-	local needs = deadremains.settings.get("needs")
-	local characteristics = deadremains.settings.get("characteristics")
-
-	deadremains.sql.query(database_main, "SELECT * FROM `users` WHERE `steam_id` = " .. steam_id, function(data, affected, last_id)
-		if (data and data[1]) then
-			data = data[1]
-			deadremains.log.write(deadremains.log.mysql, "Data found in database for player, loading...")
-
-			for unique, _ in pairs (needs) do
-				self:setNeed(unique, data["need_" .. unique])
-			end
-
-			for unique, _ in pairs (characteristics) do
-				self:setChar(unique, data["characteristic_" .. unique])
-			end
-		else
-			deadremains.log.write(deadremains.log.mysql, "No data found in database, inserting new one...")
-			deadremains.sql.newPlayer(self)
-		end
-	end)
-end
-
-----------------------------------------------------------------------
--- Purpose:
---		
-----------------------------------------------------------------------
-
 function player_meta:initializeCharacter()
 	local steam_id = deadremains.sql.escape(database_main, self:SteamID())
 
-	self.dr_character = {}
-
-	self.dr_character.needs = {}
-	self.dr_character.skills = {}
-	self.dr_character.inventory = {}
-	self.dr_character.characteristics = {}
-
-	-- here all the default values are set, then we overwrite them with 
-	-- queries to the mysql db.
-	default(self)
-	mysql(self)
+	self:reset()
 end
 
 ----------------------------------------------------------------------
