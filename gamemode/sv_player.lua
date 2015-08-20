@@ -36,7 +36,7 @@ end
 
 function player_meta:decreaseHunger(amount)
 	self.dr_character.needs.hunger = math.max(0, self.dr_character.needs.hunger -amount)
-	if (self.dr_character.needs.hunger < 0) then
+	if (self.dr_character.needs.hunger <= 0) then
 		self:setHunger(0)
 		self:SetHealth(self:Health() - 0.5)
 	end
@@ -126,7 +126,7 @@ local function default(self)
 
 			-- HYDRATED buff
 			if (self:getThirst() >= 80) then
-				self:SetHealth(math.max(100, self:Health() + 1))
+				self:SetHealth(math.min(100, self:Health() + 1))
 			end
 
 		elseif !IsValid(self) then
@@ -140,7 +140,7 @@ local function default(self)
 
 			-- FULL buff
 			if (self:getHunger() >= 80) then
-				self:SetHealth(math.max(100, self:Health() + 1))
+				self:SetHealth(math.min(100, self:Health() + 1))
 			end
 
 		elseif !IsValid(self) then
