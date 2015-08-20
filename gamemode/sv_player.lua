@@ -123,6 +123,12 @@ local function default(self)
 	timer.Create("dr.thirst." .. self:UniqueID(), 15, 100, function()
 		if IsValid(self) and self.decreaseThirst then
 			self:decreaseThirst(1)
+
+			-- HYDRATED buff
+			if (self:getThirst() >= 80) then
+				self:SetHealth(math.max(100, self:Health() + 1))
+			end
+
 		elseif !IsValid(self) then
 			timer.Remove("dr.thirst." .. self:UniqueID())
 		end
@@ -131,6 +137,12 @@ local function default(self)
 	timer.Create("dr.hunger." .. self:UniqueID(), 30, 100, function()
 		if IsValid(self) and self.decreaseHunger then
 			self:decreaseHunger(1)
+
+			-- FULL buff
+			if (self:getHunger() >= 80) then
+				self:SetHealth(math.max(100, self:Health() + 1))
+			end
+
 		elseif !IsValid(self) then
 			timer.Remove("dr.hunger." .. self:UniqueID())
 		end
