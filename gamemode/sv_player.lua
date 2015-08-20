@@ -123,12 +123,16 @@ local function default(self)
 	timer.Create("dr.thirst." .. self:UniqueID(), 15, 100, function()
 		if IsValid(self) and self.decreaseThirst then
 			self:decreaseThirst(1)
+		elseif !IsValid(self) then
+			timer.Remove("dr.thirst." .. self:UniqueID())
 		end
 	end)
 
 	timer.Create("dr.hunger." .. self:UniqueID(), 30, 100, function()
 		if IsValid(self) and self.decreaseHunger then
 			self:decreaseHunger(1)
+		elseif !IsValid(self) then
+			timer.Remove("dr.hunger." .. self:UniqueID())
 		end
 	end)
 
