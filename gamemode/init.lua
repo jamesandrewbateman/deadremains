@@ -66,16 +66,32 @@ end
 --		
 ----------------------------------------------------------------------
 
-function GM:PlayerSpawn(player) 
-	self.BaseClass:PlayerSpawn(player)
-
-end 
-
-function GM:ShowHelp(player)
-	player:ConCommand("inventory")
+function GM:ShowHelp(ply)
+	ply:ConCommand("inventory")
 end
 
-function GM:PlayerDisconnect(player)
-	deadremains.sql.savePlayer(player)
-	self.BaseClass:PlayerDisconnect(player)
+function GM:PlayerSpawn(ply)
+	ply.alive_timer = 0
+
+	timer.Create("dr_alive_timer" .. ply:UniqueID(), 1, 0, function()
+		if (IsValid(ply)) then
+			ply.alive_timer = ply.alive_timer + 1
+		end
+	end)
+end
+
+
+function GM:PlayerConnect(ply)
+
+end
+
+function GM:PlayerDisconnect(ply)
+	timer.Remove("dr_alive_timer" .. ply:UniqueID())
+
+	deadremains.sql.savePlayer(ply)
+	self.BaseClass:PlayerDisconnect(ply)
+end
+
+function GM:PostPlayerDeath(ply)
+	player.alive_timer = 0
 end

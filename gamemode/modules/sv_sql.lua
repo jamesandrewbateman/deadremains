@@ -176,6 +176,18 @@ function deadremains.sql.setupTables()
 	  `wep2` int(2) DEFAULT NULL,
 	  `wep3` int(2) DEFAULT NULL
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8]])
+
+	deadremains.sql.query(database_main,
+	[[
+	CREATE TABLE `user_meta` (
+	  `steam_id` varchar(255) DEFAULT NULL,
+	  `x` int(32) DEFAULT NULL,
+	  `y` int(32) DEFAULT NULL,
+	  `z` int(32) DEFAULT NULL,
+	  `name` varchar(255) DEFAULT NULL,
+	  `time_alive` int(32) DEFAULT NULL,
+	  `zombie_kill_count` int(32) DEFAULT NULL
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8]])
 end
 
 

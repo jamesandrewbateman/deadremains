@@ -36,6 +36,17 @@ function deadremains.sql.savePlayer(player)
 	params = params .. " WHERE steam_id = " .. steam_id .. ";"
 	deadremains.sql.query(database_main, params)
 
+	-- meta
+	params = ""
+	params = params .. "UPDATE user_meta SET "
+	params = params .. "x = " .. player:GetPos().x .. ", "
+	params = params .. "y = " .. player:GetPos().y .. ", "
+	params = params .. "z = " .. player:GetPos().z .. ", "
+	params = params .. "name = " .. deadremains.sql.escape(database_main, player:Nick()) .. ", "
+	params = params .. "time_alive = " .. player.alive_timer .. ", "
+	params = params .. "zombie_kill_count = " .. player.zombie_kill_count
+	params = params .. " WHERE steam_id = " .. steam_id .. ";"
+	deadremains.sql.query(database_main, params)
 end
 concommand.Add("dr_saveply", deadremains.sql.savePlayer)
 
@@ -113,6 +124,27 @@ function deadremains.sql.newPlayer(player)
 	query = query .. ", " .. steam_id .. ")"
 
 	deadremains.sql.query(database_main, query)
+
+	-- `user_meta` table
+	query = "INSERT INTO user_meta ("
+	query = query .. "steam_id, "
+	query = query .. "x, "
+	query = query .. "y, "
+	query = query .. "z, "
+	query = query .. "name, "
+	query = query .. "time_alive, "
+	query = query .. "zombie_kill_count)"
+
+	query = query .. " VALUES ("
+	query = query .. steam_id .. ", "
+	query = query .. player:GetPos().x .. ", "
+	query = query .. player:GetPos().y .. ", "
+	query = query .. player:GetPos().z .. ", "
+	query = query .. deadremains.sql.escape(database_main, player:Nick()) .. ", "
+	query = query .. 0 .. ", "
+	query = query .. 0 .. ")"
+ 	deadremains.sql.query(database_main, query)
+
 	player:reset()
 end
 

@@ -22,14 +22,3 @@ function deadremains.item.spawn(player, cmd, args)
 		entity.item = item.unique
 	end
 end
-
-function deadremains.item.persistSpawn(player, cmd, args)
-	if (args ~= nil) then
-		local item = deadremains.item.get(args[1])
-		local pos = player:GetPos() --player:eyeTrace(192)
-		deadremains.map_config.addItem(item, pos)
-	end
-
-	deadremains.item.spawn(player, cmd, args)
-end
-concommand.Add("dr_map_config_spawnitem", deadremains.item.persistSpawn)

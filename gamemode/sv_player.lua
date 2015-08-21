@@ -289,8 +289,6 @@ end
 ----------------------------------------------------------------------
 
 function player_meta:initializeCharacter()
-	local steam_id = deadremains.sql.escape(database_main, self:SteamID())
-
 	self:reset()
 end
 
