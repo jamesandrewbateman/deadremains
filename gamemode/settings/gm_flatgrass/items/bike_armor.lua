@@ -1,7 +1,7 @@
 item.unique = "bike_armor"
 
 -- The model that this item should have.
-item.model = "models/captainbigbutt/skeyler/hats/cowboyhat.mdl"
+item.model = "models/props_junk/TrafficCone001a.mdl"
 
 -- How many horizontal slots this item should take.
 item.slots_horizontal = 2

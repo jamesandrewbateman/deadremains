@@ -222,8 +222,6 @@ end
 ----------------------------------------------------------------------
 
 local function mysql(self)
-	local mysql_found = false
-
 	local steam_id = deadremains.sql.escape(database_main, self:SteamID())
 	local needs = deadremains.settings.get("needs")
 	local skills = deadremains.settings.get("skills")
@@ -805,7 +803,7 @@ function player_meta:dropItem(inventory_index, unique, x, y)
 			self:removeItem(inventory_index, unique, x, y, true)
 
 			-- apply item data and stuff
-			deadremains.item.spawn(self, unique)
+			deadremains.item.spawn(self, unique, nil)
 		end
 	end
 end

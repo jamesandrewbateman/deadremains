@@ -30,6 +30,7 @@ include("modules/sh_item.lua")
 include("modules/sv_item.lua")
 include("sh_loader.lua")
 include("modules/sv_sql.lua")
+include("modules/sv_map_config.lua")
 include("modules/sh_character.lua")
 include("modules/sv_character.lua")
 include("sv_player.lua")
@@ -45,8 +46,10 @@ database_main = "deadremains"
 
 function GM:Initialize()
 	deadremains.sql.setupModules()
+
 	-- stored[name], username, password, database, port, (Optional) unixsocketpath, (Optional) clientflags
 	deadremains.sql.intialize(database_main, "localhost", "root", "_debug", "deadremains", 3306)
+	deadremains.map_config.initialize(database_main, "gm_flatgrass")
 end
 
 ----------------------------------------------------------------------

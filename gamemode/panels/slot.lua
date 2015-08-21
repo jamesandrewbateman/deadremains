@@ -224,6 +224,7 @@ end
 
 function panel:setInventoryID(inventory_id)
 	self.inventory_id = inventory_id
+	print("Setting inv_id... " .. self.inventory_id)
 end
 
 ----------------------------------------------------------------------
@@ -310,16 +311,19 @@ function panel:OnMouseReleased(code)
 				net.SendToServer()
 			end
 			
+			self:SetVisible(false)
 			self:SetParent(self.origin.parent)
 			self:SetPos(self.origin.x, self.origin.y)
-			self:SetVisible(false)
 
+			
 			timer.Simple(LocalPlayer():Ping() *0.001, function()
 				print(self)
 				if (IsValid(self)) then
+					print("Reset to true")
 					self:SetVisible(true)
 				end
 			end)
+		
 
 			self.origin = nil
 

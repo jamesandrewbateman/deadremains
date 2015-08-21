@@ -49,8 +49,7 @@ function deadremains.loader.initialize()
 					end
 					
 					include(directory .. "/" .. folder .. "/" .. file)
-					
-					print(item)
+
 					deadremains.item.register(item)
 	
 					item = nil
