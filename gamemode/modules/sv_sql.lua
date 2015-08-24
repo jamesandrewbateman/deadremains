@@ -188,6 +188,16 @@ function deadremains.sql.setupTables()
 	  `time_alive` int(32) DEFAULT NULL,
 	  `zombie_kill_count` int(32) DEFAULT NULL
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8]])
+
+	deadremains.sql.query(database_main,
+	[[
+	CREATE TABLE `user_items` (
+		`steam_id` varchar(255) DEFAULT NULL,
+		`inventory_unique` varchar(255) DEFAULT NULL,
+		`item_unique` varchar(255) DEFAULT NULL,
+		`slot_x` int(32) DEFAULT NULL,
+		`slot_y` int(32) DEFAULT NULL
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8]])
 end
 
 

@@ -10,6 +10,7 @@ function deadremains.sql.savePlayer(player)
 		return
 	end
 	local steam_id = deadremains.sql.escape(database_main, player:SteamID())
+	print(steam_id)
 
 	-- create the section for all the needs.
 	local needs = deadremains.settings.get("needs")
@@ -47,6 +48,33 @@ function deadremains.sql.savePlayer(player)
 	params = params .. "zombie_kill_count = " .. player.zombie_kill_count
 	params = params .. " WHERE steam_id = " .. steam_id .. ";"
 	deadremains.sql.query(database_main, params)
+
+	local inventories = player.dr_character.inventory
+
+	-- before we do anything, we must clear the db of all saved values for this player.
+	params = ""
+	params = params .. "DELETE FROM user_items WHERE steam_id = " .. steam_id
+	deadremains.sql.query(database_main, params, function()
+		-- when we have cleared the database rows
+		-- insert new ones from the db.
+		-- TODO not sure on the performance of this section?
+		for key, data in pairs(inventories) do
+			if (data) then
+				if (#data.slots > 0) then
+					for k,v in pairs(data.slots) do
+						params = ""
+						params = params .. "INSERT INTO user_items (steam_id, inventory_unique, item_unique, slot_x, slot_y) VALUES ("
+						params = params .. steam_id .. ", "
+						params = params .. "'" .. data.unique .. "', "
+						params = params .. "'" .. v.unique .. "', "
+						params = params .. v.x .. ", "
+						params = params .. v.y .. ");"
+						deadremains.sql.query(database_main, params)
+					end
+				end
+			end
+		end
+	end)
 end
 concommand.Add("dr_saveply", deadremains.sql.savePlayer)
 
@@ -125,6 +153,7 @@ function deadremains.sql.newPlayer(player)
 
 	deadremains.sql.query(database_main, query)
 
+
 	-- `user_meta` table
 	query = "INSERT INTO user_meta ("
 	query = query .. "steam_id, "
@@ -144,6 +173,10 @@ function deadremains.sql.newPlayer(player)
 	query = query .. 0 .. ", "
 	query = query .. 0 .. ")"
  	deadremains.sql.query(database_main, query)
+
+
+ 	-- `user_items` table
+ 	-- items are inserted into the table if they cannot be updated in Save Player method.
 
 	player:reset()
 end
