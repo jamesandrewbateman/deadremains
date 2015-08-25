@@ -273,32 +273,21 @@ local function mysql(self)
 	-- to be added to the players inventory FIRST, so any items after can be placed
 	-- in the right inventory index.
 
-	-- items which provide inventory spaces
-	local inv_providers = {}
-	-- other items
-	local other_items = {}
-	-- items which provide the space name.
-	local inventory_uniques = {
-		"hunting_backpack",
-		"bike_armor"
-	}
-
 	deadremains.sql.query(database_main, "SELECT * FROM `user_items` WHERE `steam_id` = " .. steam_id, function(data)
 		if (data and data[1]) then
 
+			-- items which provide inventory spaces
+			local inv_providers = {}
+			-- other items
+			local other_items = {}
+
 			for k,v in pairs(data) do
-				local is_inventory_provider = false
+				item_type = deadremains.item.type(v.item_unique)
 
-				for _, inv_unique in pairs(inventory_uniques) do
-					if (inv_unique == v.item_unique) then
-						is_inventory_provider = true
-					end
-				end
-
-				if (is_inventory_provider) then
+				if (item_type == deadremains.item.types.inventory_provider) then
 					print("Added " .. v.item_unique .. " to inventory providers table.")
 					table.insert(inv_providers, v)
-				else
+				elseif (item_type == deadremains.item.types.normal) then
 					print("Added " .. v.item_unique .. " to the other items table.")
 					table.insert(other_items, v)
 				end
@@ -309,17 +298,16 @@ local function mysql(self)
 				print("Searching providers found... " .. v.item_unique)
 				local success, message = self:findSuitableInventory(v.item_unique)
 				print(success)
-				print(message)
 			end
 
 			for k,v in pairs(other_items) do
 				local inv_index = self:findInventoryIndex(v.inventory_unique)
-				local success, message self:addItem(inv_index, v.item_unique, v.slot_x, v.slot_y)
+				local success, message = self:addItem(inv_index, v.item_unique, v.slot_x, v.slot_y)
+				print(success)
 			end
 		end
 	end)
 end
-concommand.Add("dr_run_mysql", mysql)
 
 function player_meta:reset()
 	self.dr_character = {}
@@ -861,13 +849,46 @@ function player_meta:dropItem(inventory_index, unique, x, y)
 		local slot = self:getItemsAtArea(inventory, x +1, y +1, x +item.slots_horizontal *slot_size -2, y +item.slots_vertical *slot_size -2, true)
 
 		if (slot) then
-			self:removeItem(inventory_index, unique, x, y, true)
+			local t = deadremains.item.type(unique)
 
 			-- apply item data and stuff
-			deadremains.item.spawn(self, unique, nil)
+			local meta_data = {}
+			meta_data.items = {}
+
+			-- if we drop an inventory provider, we must make sure
+			-- the items inside are stored within it... somewhere...
+			-- somehow... someplace...
+			if (t == deadremains.item.types.inventory_provider) then
+				local item_inventory_index = self:findInventoryIndex(unique)
+				if (item_inventory_index) then
+					print("Dropping item with inv index " .. item_inventory_index)
+
+					-- this means that the item provides an inventory table.
+					-- get the contents of that inventory space
+					local item_inventory = self.dr_character.inventory[item_inventory_index]
+
+					for key, slot_data in pairs(item_inventory.slots) do
+						table.insert(meta_data.items, slot_data)	-- preserve the position of item in inv too.
+					end
+				else
+					print("Could not find inventory index for item " .. unique)
+				end
+			else
+				-- we don't need any other meta data YET...
+			end
+
+			self:removeItem(inventory_index, unique, x, y, true)
+			-- meta_data should contain a table full of items which were in it, serverside.
+			PrintTable(meta_data)
+			deadremains.item.spawn_meta(self, unique, meta_data)
 		end
 	end
 end
+
+function check(ply)
+	PrintTable(ply.dr_character.inventory)
+end
+concommand.Add("dr_check", check)
 
 ----------------------------------------------------------------------
 -- Purpose:
