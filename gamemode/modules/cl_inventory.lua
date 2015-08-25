@@ -182,18 +182,20 @@ function meta_table:getItemsAtArea(start_x, start_y, end_x, end_y, return_one)
 
 	for i = 1, #self.slots do
 		local slot = self.slots[i]
-		local slot_x, slot_y = slot.x, slot.y
-		local width, height = slot.width, slot.height
-		
-		if (start_x > slot_x +width) then continue end
-		if (start_y > slot_y +height) then continue end
-		if (slot_x > end_x) then continue end
-		if (slot_y > end_y) then continue end
+		if (slot) then
+			local slot_x, slot_y = slot.x, slot.y
+			local width, height = slot.width, slot.height
+			
+			if (start_x > slot_x +width) then continue end
+			if (start_y > slot_y +height) then continue end
+			if (slot_x > end_x) then continue end
+			if (slot_y > end_y) then continue end
 
-		if (return_one) then
-			return slot
-		else
-			table.insert(result, slot)
+			if (return_one) then
+				return slot
+			else
+				table.insert(result, slot)
+			end
 		end
 	end
 
