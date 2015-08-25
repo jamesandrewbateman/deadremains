@@ -269,7 +269,57 @@ local function mysql(self)
 		end
 	end)
 
+	-- ok so here is my hackery, i need the items which provide inventory space
+	-- to be added to the players inventory FIRST, so any items after can be placed
+	-- in the right inventory index.
+
+	-- items which provide inventory spaces
+	local inv_providers = {}
+	-- other items
+	local other_items = {}
+	-- items which provide the space name.
+	local inventory_uniques = {
+		"hunting_backpack",
+		"bike_armor"
+	}
+
+	deadremains.sql.query(database_main, "SELECT * FROM `user_items` WHERE `steam_id` = " .. steam_id, function(data)
+		if (data and data[1]) then
+
+			for k,v in pairs(data) do
+				local is_inventory_provider = false
+
+				for _, inv_unique in pairs(inventory_uniques) do
+					if (inv_unique == v.item_unique) then
+						is_inventory_provider = true
+					end
+				end
+
+				if (is_inventory_provider) then
+					print("Added " .. v.item_unique .. " to inventory providers table.")
+					table.insert(inv_providers, v)
+				else
+					print("Added " .. v.item_unique .. " to the other items table.")
+					table.insert(other_items, v)
+				end
+			end
+
+			-- loop through tables and control flow.
+			for k,v in pairs(inv_providers) do
+				print("Searching providers found... " .. v.item_unique)
+				local success, message = self:findSuitableInventory(v.item_unique)
+				print(success)
+				print(message)
+			end
+
+			for k,v in pairs(other_items) do
+				local inv_index = self:findInventoryIndex(v.inventory_unique)
+				local success, message self:addItem(inv_index, v.item_unique, v.slot_x, v.slot_y)
+			end
+		end
+	end)
 end
+concommand.Add("dr_run_mysql", mysql)
 
 function player_meta:reset()
 	self.dr_character = {}
@@ -305,6 +355,19 @@ net.Receive("deadremains.player.initalize", function(bits, player)
 		player.dr_loaded = true
 	end
 end)
+
+----------------------------------------------------------------------
+-- Purpose:
+--		Finds a suitable inventory to use for the item.
+----------------------------------------------------------------------
+
+function player_meta:findInventoryIndex(unique)
+	for k,v in pairs(self.dr_character.inventory) do
+		if (unique == v.unique) then
+			return v.inventory_index
+		end
+	end
+end
 
 ----------------------------------------------------------------------
 -- Purpose:

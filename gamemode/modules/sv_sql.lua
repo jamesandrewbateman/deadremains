@@ -196,7 +196,8 @@ function deadremains.sql.setupTables()
 		`inventory_unique` varchar(255) DEFAULT NULL,
 		`item_unique` varchar(255) DEFAULT NULL,
 		`slot_x` int(32) DEFAULT NULL,
-		`slot_y` int(32) DEFAULT NULL
+		`slot_y` int(32) DEFAULT NULL,
+		`equipped` int(2) DEFAULT NULL
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8]])
 end
 

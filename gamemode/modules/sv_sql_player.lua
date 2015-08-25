@@ -55,9 +55,6 @@ function deadremains.sql.savePlayer(player)
 	params = ""
 	params = params .. "DELETE FROM user_items WHERE steam_id = " .. steam_id
 	deadremains.sql.query(database_main, params, function()
-		-- when we have cleared the database rows
-		-- insert new ones from the db.
-		-- TODO not sure on the performance of this section?
 		for key, data in pairs(inventories) do
 			if (data) then
 				if (#data.slots > 0) then
