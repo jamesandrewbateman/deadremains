@@ -30,6 +30,7 @@ include("modules/sh_item.lua")
 include("modules/sv_item.lua")
 include("sh_loader.lua")
 include("modules/sv_sql.lua")
+include("modules/sv_map_config.lua")
 include("modules/sh_character.lua")
 include("modules/sv_character.lua")
 include("sv_player.lua")
@@ -45,8 +46,10 @@ database_main = "deadremains"
 
 function GM:Initialize()
 	deadremains.sql.setupModules()
-	-- stored[name], username, password, database, port, (Optional) unixsocketpath, (Optional) clientflags
+
+	-- stored[name], hostname, username, password, database, port, (Optional) unixsocketpath, (Optional) clientflags
 	deadremains.sql.intialize(database_main, "localhost", "root", "_debug", "deadremains", 3306)
+	deadremains.map_config.initialize(database_main, "gm_flatgrass")
 end
 
 ----------------------------------------------------------------------
@@ -55,6 +58,7 @@ end
 ----------------------------------------------------------------------
 
 function GM:PlayerInitialSpawn(player)
+	player.zombie_kill_count = 0
 	self.BaseClass:PlayerInitialSpawn(player)
 end 
 
@@ -63,16 +67,32 @@ end
 --		
 ----------------------------------------------------------------------
 
-function GM:PlayerSpawn(player) 
-	self.BaseClass:PlayerSpawn(player)
-
-end 
-
-function GM:ShowHelp(player)
-	player:ConCommand("inventory")
+function GM:ShowHelp(ply)
+	ply:ConCommand("inventory")
 end
 
-function GM:PlayerDisconnect(player)
-	deadremains.sql.savePlayer(player)
-	self.BaseClass:PlayerDisconnect(player)
+function GM:PlayerSpawn(ply)
+	ply.alive_timer = 0
+
+	timer.Create("dr_alive_timer" .. ply:UniqueID(), 1, 0, function()
+		if (IsValid(ply)) then
+			ply.alive_timer = ply.alive_timer + 1
+		end
+	end)
+end
+
+
+function GM:PlayerConnect(ply)
+
+end
+
+function GM:PlayerDisconnect(ply)
+	timer.Remove("dr_alive_timer" .. ply:UniqueID())
+
+	deadremains.sql.savePlayer(ply)
+	self.BaseClass:PlayerDisconnect(ply)
+end
+
+function GM:PostPlayerDeath(ply)
+	player.alive_timer = 0
 end

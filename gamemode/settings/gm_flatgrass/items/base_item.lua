@@ -24,6 +24,9 @@ item.rotate = 45
 -- How much this item weighs.
 item.weight = 8
 
+-- Data about data
+item.meta = {}
+
 -- What equipment slot this item can be placed in.
 --item.equip_slot = bit.lshift(1, inventory_equip_back)
 
@@ -52,7 +55,26 @@ item.context_menu = {item_function_drop, item_function_destroy}
 ----------------------------------------------------------------------
 
 function item:worldUse(player, entity)
+	-- adds the item to the inventory system too, if it is one.
 	local success, message = player:findSuitableInventory(self.unique)
+	print(self.unique)
+
+	if (entity.meta) then
+		PrintTable(entity.meta)
+
+		print("Entity picked up has meta data... loading.")
+		if (entity.meta.items) then
+			print("It also has items inside of it...")
+			-- find the index of the inventory we just picked up
+			local inv_index = player:findInventoryIndex(self.unique)
+
+			for k,v in pairs(entity.meta.items) do
+				local s, m = player:addItem(inv_index, v.unique, v.slot_x, v.slot_y)
+				print("Inserted item " .. v.unique .. " : " .. tostring(s) .. " : " .. tostring(m))
+			end
+		end
+	end
+
 
 	if (!success) then
 		player:ChatPrint(message)

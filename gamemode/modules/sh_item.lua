@@ -38,6 +38,32 @@ end
 
 ----------------------------------------------------------------------
 -- Purpose:
+--	Find out whether the item provides inventory expansion.	
+----------------------------------------------------------------------
+
+deadremains.item.types = {}
+deadremains.item.types.normal = 1
+deadremains.item.types.inventory_provider = 2
+
+function deadremains.item.type(unique)
+	local item = deadremains.item.get(unique)
+
+	-- items which provide the space name.
+	local inventory_uniques = {
+		"hunting_backpack",
+		"bike_armor"
+	}
+
+	for _, u in pairs(inventory_uniques) do
+		if (u == item.unique) then
+			return deadremains.item.types.inventory_provider
+		end
+	end
+
+	return deadremains.item.types.normal
+end
+----------------------------------------------------------------------
+-- Purpose:
 --		
 ----------------------------------------------------------------------
 

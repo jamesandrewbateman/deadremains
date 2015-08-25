@@ -473,11 +473,10 @@ vgui.Register("deadremains.skills", panel, "EditablePanel")
 
 
 
-concommand.Add("inventory",function()
+concommand.Add("inventory", function()
 if (IsValid(main_menu)) then main_menu:Remove() end
 
---STORE_SCALE = math.Clamp(ScrW() /2560, 0.87, 1)
-
+--STORE_SCALE = math.Clamp(ScrW() / 664, 0.87, 1.13)
 main_menu = vgui.Create("deadremains.main_menu")
 main_menu:SetSize(664, 756)
 main_menu:Center()
@@ -531,6 +530,7 @@ main_menu:addCategory("b", skills_icon, function(base)
 	main_menu:setTitle("SKILLS")
 end)
 end)
+
 --[[
 main_menu:addCategory("c", skills_icon, function(base)
 	local map_panel = main_menu:getPanel("map_panel")
@@ -614,5 +614,4 @@ main_menu:addCategory("c", skills_icon, function(base)
 	end
 
 	main_menu:setTitle("MAP")
-end)
-]]
+end)]]

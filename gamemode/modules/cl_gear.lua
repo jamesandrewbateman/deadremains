@@ -366,9 +366,7 @@ hook.Add("PreDrawOpaqueRenderables", "deadremains.gear.render", function()
 
 		if (!entity:Alive()) then
 			entity = entity:GetRagdollEntity()
-		end
-
-		if (validGear[entity]) then
+		elseif (validGear[entity]) then
 			validGear[entity] = false
 
 			-- Request full update.
@@ -467,7 +465,7 @@ hook.Add("PreDrawOpaqueRenderables", "deadremains.gear.render", function()
 					end
 				end
 			end
-
+			
 			deadremains.store.callItemHook(entity, "preDrawOpaqueRenderables", false, entity)
 		else
 			if (cache[steamID] and !cache[steamID].hidden) then
