@@ -472,6 +472,39 @@ vgui.Register("deadremains.skills", panel, "EditablePanel")
 
 
 
+local panel = {}
+
+
+----------------------------------------------------------------------
+-- Purpose:
+--		
+----------------------------------------------------------------------
+
+function panel:Init()
+	if not LocalPlayer():inTeam() then
+		self.create_button = self:Add("deadremains.button")
+		self.create_button:setName("Create")
+
+		function self.create_button:doClick()
+			deadremains.team.create()
+		end
+	end
+end
+
+function panel:PerformLayout()
+	local w, h = self:GetSize()
+
+	self.create_button:SetPos(10, 10)
+	self.create_button:SetSize(104, 30)
+end
+
+function panel:Paint(w, h)
+	draw.RoundedBox(2, 0, 0, w, h, Color(255, 0, 0, 255))
+end
+vgui.Register("deadremains.team", panel, "EditablePanel")
+
+
+
 
 concommand.Add("inventory", function()
 if (IsValid(main_menu)) then main_menu:Remove() end
@@ -529,6 +562,19 @@ main_menu:addCategory("b", skills_icon, function(base)
 
 	main_menu:setTitle("SKILLS")
 end)
+
+local teams_icon = Material("icon16/user_add.png")
+
+main_menu:addCategory("c", teams_icon, function(base)
+	local team_panel = main_menu:getPanel("team_panel")
+
+	if (!IsValid(team_panel)) then
+		team_panel = main_menu:addPanel(base, "team_panel", "deadremains.team")
+		team_panel:Dock(FILL)
+	end
+end)
+
+
 end)
 
 --[[

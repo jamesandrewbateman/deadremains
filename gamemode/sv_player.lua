@@ -3,6 +3,30 @@
 --! @brief serverside player class
 ----------------------------------------------------------------------
 
+----------------------------------------------------------------------
+-- Purpose:
+--	Networked team variables
+----------------------------------------------------------------------
+function player_meta:setTeam(team_id, is_gov)
+	self.dr_character.team.id = team_id
+	self.dr_character.team.is_gov = is_gov
+
+	self:SetNWInt("dr_team", self.dr_character.team.id)
+	self:SetNWInt("dr_team_gov", self.dr_character.team.is_gov)
+end
+
+function player_meta:getTeam()
+	return self.dr_character.team.id or 0
+end
+
+function player_meta:isGov()
+	return self.dr_character.team.is_gov == 1
+end
+
+function player_meta:inTeam()
+	return self:getTeam() > 0
+end
+
 function player_meta:getHunger()
 	return self.dr_character.needs.hunger
 end
@@ -184,6 +208,9 @@ local function default(self)
 		end
 	end
 
+	-- default to 0 (no team)
+	self:setTeam(0)
+
 
 	timer.Create("dr.thirst." .. self:UniqueID(), 15, 100, function()
 		if IsValid(self) and self.decreaseThirst then
@@ -221,94 +248,6 @@ end
 --		
 ----------------------------------------------------------------------
 
-local function mysql(self)
-	local steam_id = deadremains.sql.escape(database_main, self:SteamID())
-	local needs = deadremains.settings.get("needs")
-	local skills = deadremains.settings.get("skills")
-	local characteristics = deadremains.settings.get("characteristics")
-
-	deadremains.sql.query(database_main, "SELECT * FROM `users` WHERE `steam_id` = " .. steam_id, function(data, affected, last_id)
-		if (data and data[1]) then
-			data = data[1]
-			deadremains.log.write(deadremains.log.mysql, "Data found in database for player, loading...")
-
-			for unique, _ in pairs (needs) do
-				self:setNeed(unique, data["need_" .. unique])
-			end
-
-			for unique, _ in pairs (characteristics) do
-				self:setChar(unique, data["characteristic_" .. unique])
-			end
-		else
-			deadremains.log.write(deadremains.log.mysql, "No data found in database, inserting new one...")
-			deadremains.sql.newPlayer(self)
-		end
-	end)
-
-	deadremains.sql.query(database_main, "SELECT * FROM `user_skills` WHERE `steam_id` = " .. steam_id, function(data, affected, last_id)
-		if (data and data[1]) then
-			data = data[1]
-
-			for unique, _ in pairs (skills) do
-				self:setSkill(unique, data[unique])
-			end
-
-			-- when finished setting skills
-			-- push loaded skills data to the client
-			-- needs are done automagically.
-			net.Start("deadremains.getskill")
-				net.WriteUInt(table.Count(skills), 32)
-				for k,v in pairs(skills) do
-					if self:getSkill(v.unique) == 1 then
-						net.WriteString(v.unique)
-					end
-				end
-			net.Send(self)
-		else
-			deadremains.log.write(deadremains.log.mysql, "No data found in database for user_skills, inserting new one...")
-		end
-	end)
-
-	-- ok so here is my hackery, i need the items which provide inventory space
-	-- to be added to the players inventory FIRST, so any items after can be placed
-	-- in the right inventory index.
-
-	deadremains.sql.query(database_main, "SELECT * FROM `user_items` WHERE `steam_id` = " .. steam_id, function(data)
-		if (data and data[1]) then
-
-			-- items which provide inventory spaces
-			local inv_providers = {}
-			-- other items
-			local other_items = {}
-
-			for k,v in pairs(data) do
-				item_type = deadremains.item.type(v.item_unique)
-
-				if (item_type == deadremains.item.types.inventory_provider) then
-					print("Added " .. v.item_unique .. " to inventory providers table.")
-					table.insert(inv_providers, v)
-				elseif (item_type == deadremains.item.types.normal) then
-					print("Added " .. v.item_unique .. " to the other items table.")
-					table.insert(other_items, v)
-				end
-			end
-
-			-- loop through tables and control flow.
-			for k,v in pairs(inv_providers) do
-				print("Searching providers found... " .. v.item_unique)
-				local success, message = self:findSuitableInventory(v.item_unique)
-				print(success)
-			end
-
-			for k,v in pairs(other_items) do
-				local inv_index = self:findInventoryIndex(v.inventory_unique)
-				local success, message = self:addItem(inv_index, v.item_unique, v.slot_x, v.slot_y)
-				print(success)
-			end
-		end
-	end)
-end
-
 function player_meta:reset()
 	self.dr_character = {}
 
@@ -316,9 +255,9 @@ function player_meta:reset()
 	self.dr_character.skills = {}
 	self.dr_character.inventory = {}
 	self.dr_character.characteristics = {}
+	self.dr_character.team = {}
 
 	default(self)
-	mysql(self)
 end
 
 ----------------------------------------------------------------------
@@ -328,6 +267,10 @@ end
 
 function player_meta:initializeCharacter()
 	self:reset()
+
+	timer.Simple(2, function()
+		self:loadFromMysql()
+	end)
 end
 
 ----------------------------------------------------------------------
@@ -861,7 +804,7 @@ function player_meta:dropItem(inventory_index, unique, x, y)
 			if (t == deadremains.item.types.inventory_provider) then
 				local item_inventory_index = self:findInventoryIndex(unique)
 				if (item_inventory_index) then
-					print("Dropping item with inv index " .. item_inventory_index)
+					-- print("Dropping item with inv index " .. item_inventory_index)
 
 					-- this means that the item provides an inventory table.
 					-- get the contents of that inventory space
@@ -884,11 +827,6 @@ function player_meta:dropItem(inventory_index, unique, x, y)
 		end
 	end
 end
-
-function check(ply)
-	PrintTable(ply.dr_character.inventory)
-end
-concommand.Add("dr_check", check)
 
 ----------------------------------------------------------------------
 -- Purpose:

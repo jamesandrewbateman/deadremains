@@ -174,7 +174,8 @@ function deadremains.sql.setupTables()
 	  `hunting` int(2) DEFAULT NULL,
 	  `wep1` int(2) DEFAULT NULL,
 	  `wep2` int(2) DEFAULT NULL,
-	  `wep3` int(2) DEFAULT NULL
+	  `wep3` int(2) DEFAULT NULL,
+	   PRIMARY KEY(`steam_id`)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8]])
 
 	deadremains.sql.query(database_main,
@@ -186,7 +187,8 @@ function deadremains.sql.setupTables()
 	  `z` int(32) DEFAULT NULL,
 	  `name` varchar(255) DEFAULT NULL,
 	  `time_alive` int(32) DEFAULT NULL,
-	  `zombie_kill_count` int(32) DEFAULT NULL
+	  `zombie_kill_count` int(32) DEFAULT NULL,
+	   PRIMARY KEY(`steam_id`)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8]])
 
 	deadremains.sql.query(database_main,
@@ -198,6 +200,15 @@ function deadremains.sql.setupTables()
 		`slot_x` int(32) DEFAULT NULL,
 		`slot_y` int(32) DEFAULT NULL,
 		`equipped` int(2) DEFAULT NULL
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8]])
+
+	deadremains.sql.query(database_main,
+	[[
+	CREATE TABLE `user_teams` (
+		`team_id` int(32) DEFAULT NULL AUTO_INCREMENT,
+		`steam_id` varchar(255) DEFAULT NULL,
+		`is_gov` int(2) DEFAULT NULL,
+		KEY `team_id` (`team_id`)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8]])
 end
 

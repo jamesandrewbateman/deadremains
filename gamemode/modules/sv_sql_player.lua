@@ -10,7 +10,6 @@ function deadremains.sql.savePlayer(player)
 		return
 	end
 	local steam_id = deadremains.sql.escape(database_main, player:SteamID())
-	print(steam_id)
 
 	-- create the section for all the needs.
 	local needs = deadremains.settings.get("needs")
@@ -72,6 +71,15 @@ function deadremains.sql.savePlayer(player)
 			end
 		end
 	end)
+
+	if (player:inTeam()) then
+		-- team rows are inserted in sv_team.lua in join team/create team
+		params = ""
+		params = params .. "UPDATE user_teams SET team_id = " .. player:getTeam() .. ", "
+		params = params .. "is_gov" .. player:isGov() and 1 or 0
+		params = params .. " WHERE steam_id = " .. steam_id .. ";"
+		deadremains.sql.query(database_main, params)
+	end
 end
 concommand.Add("dr_saveply", deadremains.sql.savePlayer)
 
@@ -175,9 +183,100 @@ function deadremains.sql.newPlayer(player)
  	-- `user_items` table
  	-- items are inserted into the table if they cannot be updated in Save Player method.
 
-	player:reset()
+ 	-- so we have the new values in the database now.
+ 	-- on the next save, the new default values should be loaded.
 end
 
+
+function player_meta:loadFromMysql()
+	local steam_id = deadremains.sql.escape(database_main, self:SteamID())
+	local needs = deadremains.settings.get("needs")
+	local skills = deadremains.settings.get("skills")
+	local characteristics = deadremains.settings.get("characteristics")
+
+	deadremains.sql.query(database_main, "SELECT * FROM `users` WHERE `steam_id` = " .. steam_id, function(data, affected, last_id)
+		if (data and data[1]) then
+			data = data[1]
+			deadremains.log.write(deadremains.log.mysql, "Data found in database for player, loading...")
+
+			for unique, _ in pairs (needs) do
+				self:setNeed(unique, data["need_" .. unique])
+			end
+
+			for unique, _ in pairs (characteristics) do
+				self:setChar(unique, data["characteristic_" .. unique])
+			end
+		elseif (affected == 0) then
+			deadremains.log.write(deadremains.log.mysql, "No data found in database, inserting new one...")
+			deadremains.sql.newPlayer(self)
+		end
+	end)
+
+	deadremains.sql.query(database_main, "SELECT * FROM `user_skills` WHERE `steam_id` = " .. steam_id, function(data, affected, last_id)
+		if (data and data[1]) then
+			data = data[1]
+
+			for unique, _ in pairs (skills) do
+				self:setSkill(unique, data[unique])
+			end
+
+			-- when finished setting skills
+			-- push loaded skills data to the client
+			-- needs are done automagically.
+			net.Start("deadremains.getskill")
+				net.WriteUInt(table.Count(skills), 32)
+				for k,v in pairs(skills) do
+					if self:getSkill(v.unique) == 1 then
+						net.WriteString(v.unique)
+					end
+				end
+			net.Send(self)
+		else
+			deadremains.log.write(deadremains.log.mysql, "No data found in database for user_skills, inserting new one...")
+		end
+	end)
+
+	-- ok so here is my hackery, i need the items which provide inventory space
+	-- to be added to the players inventory FIRST, so any items after can be placed
+	-- in the right inventory index.
+
+	deadremains.sql.query(database_main, "SELECT * FROM `user_items` WHERE `steam_id` = " .. steam_id, function(data)
+		if (data and data[1]) then
+
+			-- items which provide inventory spaces
+			local inv_providers = {}
+			-- other items
+			local other_items = {}
+
+			for k,v in pairs(data) do
+				item_type = deadremains.item.type(v.item_unique)
+
+				if (item_type == deadremains.item.types.inventory_provider) then
+					table.insert(inv_providers, v)
+				elseif (item_type == deadremains.item.types.normal) then
+					table.insert(other_items, v)
+				end
+			end
+
+			-- loop through tables and control flow.
+			for k,v in pairs(inv_providers) do
+				local success, message = self:findSuitableInventory(v.item_unique)
+			end
+
+			for k,v in pairs(other_items) do
+				local inv_index = self:findInventoryIndex(v.inventory_unique)
+				local success, message = self:addItem(inv_index, v.item_unique, v.slot_x, v.slot_y)
+			end
+		end
+	end)
+
+	deadremains.sql.query(database_main, "SELECT * FROM `user_teams` WHERE `steam_id` = " .. steam_id, function (data)
+		if (data and data[1]) then
+			data = data[1]
+			self:setTeam(data.team_id, data.is_gov)
+		end
+	end)
+end
 
 ----------------------------------------------------------------------
 -- Purpose:
