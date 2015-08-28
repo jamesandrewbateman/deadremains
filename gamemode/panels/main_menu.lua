@@ -1,8 +1,8 @@
 function getUISize()
 	-- given a screen of size 1024, 768
 	-- given a derma of size 664, 756
-	local w_scale = 664 / 1024
-	local h_scale = 756 / 768
+	local w_scale = 1024 / ui_width
+	local h_scale = 768 / ui_height
 
 	-- adjust the size of the global slot accordingly
 	--local slot_scale = 52 / (ScrW() * w_scale)
@@ -223,7 +223,7 @@ end
 function panel:PerformLayout()
 	--local w, h = self:GetSize()
 	
-	self.left:SetWide(500)
+	self.left:SetWide(700)
 
 	self.list:SetWide(100)
 	-- does nothing self.list:SetPos(0, 0)
@@ -330,33 +330,27 @@ function panel:PerformLayout()
 	local w, h = self:GetSize()
 
 	self.inventory_head:SetPos(25, 25)
-
 	local height = 25 +self.inventory_head:GetTall() +16
 
 	self.inventory_chest:SetPos(25, height)
-
 	height = height +self.inventory_chest:GetTall() +16
 
 	self.inventory_feet:SetPos(25, height)
 
 	height = 25 +self.inventory_primary:GetTall()
-
 	self.inventory_primary:SetPos(25, h -height)
 
 	local width, height = 25 +self.inventory_secondary:GetWide(), 25 +self.inventory_secondary:GetTall()
-
-	self.inventory_secondary:SetPos(w -width, h -height)
+	local pwidth = 25+self.inventory_primary:GetWide()
+	self.inventory_secondary:SetPos(pwidth + 25, h -height)
 
 	width = 25 +self.inventory_back:GetWide()
-
 	self.inventory_back:SetPos(w -width, 25)
 
 	width, height = 25 +self.inventory_legs:GetWide(), 25 +self.inventory_secondary:GetTall() +self.inventory_legs:GetTall() +16
-
 	self.inventory_legs:SetPos(w -width, h -height)
 
-
-	self.model:SetPos(w *0.5 -self.model:GetWide() *0.5, 25)
+	self.model:SetPos(w *0.5 -self.model:GetWide() *0.5, 0)
 end
 
 ----------------------------------------------------------------------
@@ -600,6 +594,7 @@ main_menu:addCategory("c", teams_icon, function(base)
 	end
 end)
 
+main_menu:openCategory("a")
 
 end)
 

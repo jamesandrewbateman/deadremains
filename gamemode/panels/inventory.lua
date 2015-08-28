@@ -165,7 +165,7 @@ function panel:setInventory(inventory_index, data)
 	inventory:setInventory(inventory_index, data)
 	inventory:setExternal(true)
 
-	local width = data.slots_horizontal *slot_size
+	local width = data.slots_horizontal * slot_size
 
 	if (width > self:GetWide()) then
 		self:SetWide(width +2)
