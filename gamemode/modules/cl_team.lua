@@ -19,9 +19,11 @@ function deadremains.team.create()
 end
 
 -- called when the player clicks join in the notification
-function deadremains.team.join()
+function deadremains.team.join(ply, gov_steamid)
 	if (ply:getTeam() == 0) then
-		print("Join an existing team.")
+		net.Start("deadremains.jointeam")
+			net.WriteString(gov_steamid)
+		net.SendToServer()
 	end
 end
 
@@ -33,10 +35,10 @@ net.Receive("deadremains.asktojointeam", function(bits, ply)
 		ShowNotification("Team Invitation", "Would you like to join " .. gov_name .. "'s team?",
 		function()
 			-- yes
-			net.Start("deadremains.jointeam")
-				net.WriteString(gov_steamid)
-			net.SendToServer()
+			deadremains.team.join(ply, gov_steamid)
 		end,
-		function() end)
+		function()
+			-- no
+		end)
 	end
 end)

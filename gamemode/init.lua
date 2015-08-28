@@ -18,6 +18,7 @@ AddCSLuaFile("panels/slot_context_menu.lua")
 AddCSLuaFile("panels/inventory.lua")
 AddCSLuaFile("panels/character_creation.lua")
 AddCSLuaFile("panels/main_menu.lua")
+AddCSLuaFile("panels/notification_popup.lua")
 AddCSLuaFile("modules/sh_character.lua")
 AddCSLuaFile("modules/cl_character.lua")
 

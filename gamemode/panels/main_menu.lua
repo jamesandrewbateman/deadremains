@@ -1,3 +1,17 @@
+function getUISize()
+	-- given a screen of size 1024, 768
+	-- given a derma of size 664, 756
+	local w_scale = 664 / 1024
+	local h_scale = 756 / 768
+
+	-- adjust the size of the global slot accordingly
+	--local slot_scale = 52 / (ScrW() * w_scale)
+	slot_size = 52 * w_scale
+
+	-- the actual width/height of the ui
+	return {width = ScrW() * w_scale, height = ScrH() * h_scale}
+end
+
 local panel = {}
 
 ----------------------------------------------------------------------
@@ -209,10 +223,10 @@ end
 function panel:PerformLayout()
 	--local w, h = self:GetSize()
 	
-	self.left:SetWide(600)
+	self.left:SetWide(500)
 
-	--self.list:SetWide(100)
-	--self.list:SetPos(0, 35)
+	self.list:SetWide(100)
+	-- does nothing self.list:SetPos(0, 0)
 end
 
 ----------------------------------------------------------------------
@@ -234,7 +248,6 @@ end
 
 function panel:Paint(w, h)
 	--Derma_DrawBackgroundBlur(self)
-	
 	draw.RoundedBox(2, 0, 0, w, 80, panel_color_background)
 
 	draw.SimpleText(self.title, "deadremains.button", w *0.5, 80 *0.5, panel_color_text, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
@@ -511,9 +524,12 @@ if (IsValid(main_menu)) then main_menu:Remove() end
 
 --STORE_SCALE = math.Clamp(ScrW() / 664, 0.87, 1.13)
 main_menu = vgui.Create("deadremains.main_menu")
-main_menu:SetSize(664, 756)
+
+local newSize = getUISize()
+main_menu:SetSize(newSize.width, newSize.height)
+
 main_menu:Center()
-main_menu.x=200
+main_menu.x = 200 * (200 / ScrW())
 main_menu:MakePopup()
 main_menu:InvalidateLayout(true)
 
@@ -558,6 +574,11 @@ main_menu:addCategory("b", skills_icon, function(base)
 		skills_panel:addCategory("Survival", "survival")
 		skills_panel:addCategory("Medical", "medical")
 		skills_panel:addCategory("Spec", "special")
+
+		nextFrame(function()
+			main_menu:InvalidateLayout(true)
+			main_menu:SizeToChildren(true, false)
+		end)
 	end
 
 	main_menu:setTitle("SKILLS")
@@ -571,6 +592,11 @@ main_menu:addCategory("c", teams_icon, function(base)
 	if (!IsValid(team_panel)) then
 		team_panel = main_menu:addPanel(base, "team_panel", "deadremains.team")
 		team_panel:Dock(FILL)
+
+		nextFrame(function()
+			main_menu:InvalidateLayout(true)
+			main_menu:SizeToChildren(true, false)
+		end)
 	end
 end)
 
