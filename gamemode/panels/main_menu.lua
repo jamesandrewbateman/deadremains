@@ -226,9 +226,10 @@ end
 ----------------------------------------------------------------------
 
 function panel:PerformLayout()
-	--local w, h = self:GetSize()
-	
-	self.left:SetWide(700)
+	local sw, sh = self:GetSize()
+	local sx, sy = self:GetPos()
+
+	self.left:SetWide(700 * (700/ScrW()))
 
 	self.list:SetWide(100)
 	-- does nothing self.list:SetPos(0, 0)
@@ -335,13 +336,13 @@ function panel:PerformLayout()
 	local w, h = self:GetSize()
 
 	-- for each inventory, we must scale it according to the size of the parent panel?
-	print(w, h)
+	-- print(w, h)
 	-- 700 593
 	-- 700 480
 
 	-- 700 tall seems to fit the original UI scaling
-	local scale_h = h / 700
-	slot_size = 52 * scale_h
+	local scale_w = w / 700
+	slot_size = 52 * scale_w
 
 	self.inventory_head:SetPos(25, 25)
 
@@ -527,9 +528,6 @@ vgui.Register("deadremains.team", panel, "EditablePanel")
 
 
 concommand.Add("inventory", function()
-
-LocalPlayer():ConCommand("networkinventory")
-
 if (IsValid(main_menu)) then main_menu:Remove() end
 
 --STORE_SCALE = math.Clamp(ScrW() / 664, 0.87, 1.13)

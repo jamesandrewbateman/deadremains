@@ -55,6 +55,10 @@ end
 function meta_table:canEquip(player, item)
 	print("canEquip:",self.unique,item.equip_slot,self.equip_slot)
 
+	if (item.equip_slot == nil) then
+		return false, "You can't equip that item in this slot."
+	end
+
 	if (bit.band(bit.lshift(1, self.equip_slot), item.equip_slot) == 0) then
 		return false, "You can't equip that item in this slot."
 	end
