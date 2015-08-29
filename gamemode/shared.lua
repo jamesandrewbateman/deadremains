@@ -16,8 +16,6 @@ gender_female = 2
 
 -- The size of a single rectangle.
 slot_size = 52
-ui_width = 1132
-ui_height = 756
 
 inventory_equip_feet = 1
 inventory_equip_legs = 2

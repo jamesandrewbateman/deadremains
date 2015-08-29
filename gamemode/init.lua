@@ -10,6 +10,7 @@ AddCSLuaFile("sh_loader.lua")
 AddCSLuaFile("modules/sh_inventory.lua")
 AddCSLuaFile("modules/cl_inventory.lua")
 AddCSLuaFile("modules/cl_gear.lua")
+AddCSLuaFile("modules/cl_team.lua")
 
 AddCSLuaFile("panels/button.lua")
 AddCSLuaFile("panels/combo_box.lua")
@@ -50,7 +51,7 @@ function GM:Initialize()
 	deadremains.sql.setupModules()
 
 	-- stored[name], hostname, username, password, database, port, (Optional) unixsocketpath, (Optional) clientflags
-	deadremains.sql.intialize(database_main, "localhost", "root", "_debug", "deadremains", 3306)
+	deadremains.sql.intialize(database_main, "localhost", "root", "", "deadremains", 3306)
 	deadremains.map_config.initialize(database_main, "gm_flatgrass")
 end
 

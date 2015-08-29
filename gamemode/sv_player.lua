@@ -423,6 +423,12 @@ function player_meta:networkInventory(inventory_index)
 	net.Send(self)
 end
 
+concommand.Add("networkinventory", function(ply)
+	for k,v in pairs(ply.dr_character.inventory) do
+		ply:networkInventory(k)
+	end
+end)
+
 ----------------------------------------------------------------------
 -- Purpose:
 --		

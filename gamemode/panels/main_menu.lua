@@ -1,15 +1,20 @@
-function getUISize()
-	-- given a screen of size 1024, 768
-	-- given a derma of size 664, 756
-	local w_scale = 1024 / ui_width
-	local h_scale = 768 / ui_height
-
-	-- adjust the size of the global slot accordingly
-	--local slot_scale = 52 / (ScrW() * w_scale)
-	slot_size = 52 * w_scale
-
-	-- the actual width/height of the ui
-	return {width = ScrW() * w_scale, height = ScrH() * h_scale}
+function ValveToScreenRect( x, y, w, h )
+	
+	local base_w, screen_w = 640, ScrW( );
+	local base_h, screen_h = 480, ScrH( );
+	
+	screen_w = screen_h * ( base_w / base_h );
+	
+	local screen_scale_w = screen_w / base_w;
+	local screen_scale_h = screen_h / base_h;
+	
+	x = screen_scale_w * x;
+	y = screen_scale_h * y;
+	w = screen_scale_w * w;
+	h = screen_scale_h * h;
+	
+	return x, y, w, h;
+	
 end
 
 local panel = {}
@@ -329,20 +334,28 @@ end
 function panel:PerformLayout()
 	local w, h = self:GetSize()
 
+	-- for each inventory, we must scale it according to the size of the parent panel?
+	print(w, h)
+	-- 700 593
+	-- 700 480
+
+	-- 700 tall seems to fit the original UI scaling
+	local scale_h = h / 700
+	slot_size = 52 * scale_h
+
 	self.inventory_head:SetPos(25, 25)
+
 	local height = 25 +self.inventory_head:GetTall() +16
-
 	self.inventory_chest:SetPos(25, height)
-	height = height +self.inventory_chest:GetTall() +16
 
+	height = height +self.inventory_chest:GetTall() +16
 	self.inventory_feet:SetPos(25, height)
 
 	height = 25 +self.inventory_primary:GetTall()
 	self.inventory_primary:SetPos(25, h -height)
 
 	local width, height = 25 +self.inventory_secondary:GetWide(), 25 +self.inventory_secondary:GetTall()
-	local pwidth = 25+self.inventory_primary:GetWide()
-	self.inventory_secondary:SetPos(pwidth + 25, h -height)
+	self.inventory_secondary:SetPos(w -width, h -height)
 
 	width = 25 +self.inventory_back:GetWide()
 	self.inventory_back:SetPos(w -width, 25)
@@ -514,16 +527,21 @@ vgui.Register("deadremains.team", panel, "EditablePanel")
 
 
 concommand.Add("inventory", function()
+
+LocalPlayer():ConCommand("networkinventory")
+
 if (IsValid(main_menu)) then main_menu:Remove() end
 
 --STORE_SCALE = math.Clamp(ScrW() / 664, 0.87, 1.13)
 main_menu = vgui.Create("deadremains.main_menu")
-
-local newSize = getUISize()
-main_menu:SetSize(newSize.width, newSize.height)
-
 main_menu:Center()
-main_menu.x = 200 * (200 / ScrW())
+main_menu.x = 10
+main_menu.y = 10
+
+local x,y,w,h = ValveToScreenRect(main_menu.x, main_menu.y, 800, 450)
+main_menu:SetSize(w, h)
+main_menu:SetPos(x, y)
+
 main_menu:MakePopup()
 main_menu:InvalidateLayout(true)
 
@@ -571,7 +589,7 @@ main_menu:addCategory("b", skills_icon, function(base)
 
 		nextFrame(function()
 			main_menu:InvalidateLayout(true)
-			main_menu:SizeToChildren(true, false)
+			main_menu:SizeToChildren(true, true)
 		end)
 	end
 
@@ -589,7 +607,7 @@ main_menu:addCategory("c", teams_icon, function(base)
 
 		nextFrame(function()
 			main_menu:InvalidateLayout(true)
-			main_menu:SizeToChildren(true, false)
+			main_menu:SizeToChildren(true, true)
 		end)
 	end
 end)
