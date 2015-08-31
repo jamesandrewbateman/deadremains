@@ -229,7 +229,7 @@ function panel:PerformLayout()
 	local sw, sh = self:GetSize()
 	local sx, sy = self:GetPos()
 
-	self.left:SetWide(700 * (700/ScrW()))
+	self.left:SetWide(700 * STORE_SCALE_X)
 
 	self.list:SetWide(100)
 	-- does nothing self.list:SetPos(0, 0)
@@ -332,6 +332,10 @@ end
 --		
 ----------------------------------------------------------------------
 
+deadremains.store = {}
+deadremains.store.ScaleW = 1
+deadremains.store.ScaleH = 1
+deadremains.store.FirstLayout = true
 function panel:PerformLayout()
 	local w, h = self:GetSize()
 
@@ -339,11 +343,6 @@ function panel:PerformLayout()
 	-- print(w, h)
 	-- 700 593
 	-- 700 480
-
-	-- 700 tall seems to fit the original UI scaling
-	local scale_w = w / 700
-	slot_size = 52 * scale_w
-
 	self.inventory_head:SetPos(25, 25)
 
 	local height = 25 +self.inventory_head:GetTall() +16
@@ -352,19 +351,28 @@ function panel:PerformLayout()
 	height = height +self.inventory_chest:GetTall() +16
 	self.inventory_feet:SetPos(25, height)
 
-	height = 25 +self.inventory_primary:GetTall()
-	self.inventory_primary:SetPos(25, h -height)
-
-	local width, height = 25 +self.inventory_secondary:GetWide(), 25 +self.inventory_secondary:GetTall()
-	self.inventory_secondary:SetPos(w -width, h -height)
-
-	width = 25 +self.inventory_back:GetWide()
+	local width = 25 +self.inventory_back:GetWide()
 	self.inventory_back:SetPos(w -width, 25)
 
 	width, height = 25 +self.inventory_legs:GetWide(), 25 +self.inventory_secondary:GetTall() +self.inventory_legs:GetTall() +16
 	self.inventory_legs:SetPos(w -width, h -height)
 
 	self.model:SetPos(w *0.5 -self.model:GetWide() *0.5, 0)
+
+	local model_x, model_y = self.model:GetPos()
+	model_y = model_y + self.model:GetTall()
+
+	height = 25 +self.inventory_primary:GetTall()
+	self.inventory_primary:SetPos(25, model_y)
+
+	local back_x, back_y = self.inventory_back:GetPos()
+	self.inventory_legs:SetPos(w - width, back_y + self.inventory_back:GetTall() + 25)
+
+	local legs_x, legs_y = self.inventory_legs:GetPos()
+	local primary_x, primary_y = self.inventory_primary:GetPos()
+
+	width = 25 +self.inventory_secondary:GetWide()
+	self.inventory_secondary:SetPos(w -width, primary_y)
 end
 
 ----------------------------------------------------------------------
@@ -420,13 +428,13 @@ function panel:addCategory(name, type)
 
 	local skills = deadremains.settings.get("skills")
 
-	local y = 64
+	local y = 64 * STORE_SCALE_Y
 
 	for unique, data in pairs(skills) do
 		if (data.type == type) then
 			local icon = panel:Add("DImage")
 			icon:SetImage(data.icon)
-			icon:SetSize(64, 64)
+			icon:SetSize(64 * STORE_SCALE_X, 64 * STORE_SCALE_Y)
 			icon:SetPos(116 *0.5 -40, y)
 			icon:SetMouseInputEnabled(true)
 
@@ -526,18 +534,27 @@ vgui.Register("deadremains.team", panel, "EditablePanel")
 
 
 
-
 concommand.Add("inventory", function()
-if (IsValid(main_menu)) then main_menu:Remove() end
+if (IsValid(main_menu)) then
+	main_menu:Remove()
+	return
+end
 
---STORE_SCALE = math.Clamp(ScrW() / 664, 0.87, 1.13)
 main_menu = vgui.Create("deadremains.main_menu")
 main_menu:Center()
 main_menu.x = 10
 main_menu.y = 10
 
-local x,y,w,h = ValveToScreenRect(main_menu.x, main_menu.y, 800, 450)
-main_menu:SetSize(w, h)
+STORE_SCALE_X = math.Clamp(ScrW() / 1100, 0.87, 1.0)
+STORE_SCALE_Y = math.Clamp(ScrH() / 768, 0.8, 1.13)
+
+print(ScrW() .. " : " .. ScrH())
+print(STORE_SCALE_X .. " : " .. STORE_SCALE_Y)
+
+main_menu:SetSize(ScrW() * STORE_SCALE_X, ScrH() * STORE_SCALE_Y)
+
+slot_size = 50 * STORE_SCALE_Y
+
 main_menu:SetPos(x, y)
 
 main_menu:MakePopup()
@@ -561,7 +578,7 @@ main_menu:addCategory("a", character_icon, function(base)
 
 		nextFrame(function()
 			main_menu:InvalidateLayout(true)
-			main_menu:SizeToChildren(true, false)
+			main_menu:SizeToChildren(true, true)
 		end)
 	end
 	
@@ -612,6 +629,20 @@ end)
 
 main_menu:openCategory("a")
 
+end)
+
+deadremains.thinkwait = false
+hook.Add("Think", "dr_think_hook", function()
+	if (deadremains.thinkwait) then return end
+
+	local keydown = input.IsKeyDown(KEY_I)
+
+	local ply = LocalPlayer()
+	if keydown then
+		ply:ConCommand("inventory")
+		deadremains.thinkwait = true
+		timer.Simple(0.5, function() deadremains.thinkwait = false end)
+	end
 end)
 
 --[[

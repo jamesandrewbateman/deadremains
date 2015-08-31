@@ -83,7 +83,6 @@ function panel:rebuild()
 		data.slot_panel = slot
 	end
 end
-
 ----------------------------------------------------------------------
 -- Purpose:
 --		

@@ -91,6 +91,8 @@ end
 
 function GM:PlayerDisconnect(ply)
 	timer.Remove("dr_alive_timer" .. ply:UniqueID())
+	timer.Remove("dr.thirst." .. ply:UniqueID())
+	timer.Remove("dr.hunger." .. ply:UniqueID())
 
 	deadremains.sql.savePlayer(ply)
 	self.BaseClass:PlayerDisconnect(ply)

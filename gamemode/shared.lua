@@ -16,6 +16,7 @@ gender_female = 2
 
 -- The size of a single rectangle.
 slot_size = 52
+STORE_SCALE = 1
 
 inventory_equip_feet = 1
 inventory_equip_legs = 2

@@ -465,8 +465,9 @@ hook.Add("PreDrawOpaqueRenderables", "deadremains.gear.render", function()
 					end
 				end
 			end
-			
-			deadremains.store.callItemHook(entity, "preDrawOpaqueRenderables", false, entity)
+			if (deadremains.store) then
+				deadremains.store.callItemHook(entity, "preDrawOpaqueRenderables", false, entity)
+			end
 		else
 			if (cache[steamID] and !cache[steamID].hidden) then
 				cache[steamID].hidden = true

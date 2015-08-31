@@ -220,9 +220,6 @@ local function default(self)
 			if (self:getThirst() >= 80) then
 				self:SetHealth(math.min(100, self:Health() + 1))
 			end
-
-		elseif !IsValid(self) then
-			timer.Remove("dr.thirst." .. self:UniqueID())
 		end
 	end)
 
@@ -234,9 +231,6 @@ local function default(self)
 			if (self:getHunger() >= 80) then
 				self:SetHealth(math.min(100, self:Health() + 1))
 			end
-
-		elseif !IsValid(self) then
-			timer.Remove("dr.hunger." .. self:UniqueID())
 		end
 	end)
 

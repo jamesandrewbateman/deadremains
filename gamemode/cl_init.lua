@@ -18,7 +18,7 @@ include("panels/slot_context_menu.lua")
 include("panels/inventory.lua")
 include("panels/character_creation.lua")
 include("panels/main_menu.lua")
-include("panels/notification_popup.lua")
+
 include("modules/sh_character.lua")
 include("modules/cl_character.lua")
 
