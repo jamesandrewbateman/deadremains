@@ -102,6 +102,10 @@ function deadremains.sql.intialize(name, hostname, username, password, database,
 	end)
 end
 
+function deadremains.sql.connect()
+	deadremains.sql.intialize(database_main, "localhost", "root", "", "deadremains", 3306)
+	deadremains.map_config.initialize(database_main, "gm_flatgrass")
+end
 ----------------------------------------------------------------------
 -- Purpose:
 --		
@@ -114,6 +118,8 @@ function deadremains.sql.query(name, query, callback_success, callback_failed)
 		database:Query(query, function(result) handleCallback(name, query, result, callback_success, callback_failed) end)
 	else
 		deadremains.log.write(deadremains.log.mysql, "The mysql database \"" .. tostring(name) .. "\" does not exist!")
+		database:Disconnect()
+		deadremains.sql.connect()
 		
 		if (callback_failed) then
 			callback_failed()

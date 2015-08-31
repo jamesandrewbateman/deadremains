@@ -32,12 +32,12 @@ function panel:Init()
 
 	self.title = ""
 
-	self:DockPadding(0, 82, 0, 0)
+	self:DockPadding(0, 82 * STORE_SCALE_Y, 0, 0)
 
 	self.list = self:Add("Panel")
 	self.list:Dock(LEFT)
 	self.list:DockMargin(0, 0, 1, 0)
-	self.list:SetWide(100)
+	self.list:SetWide(100 * STORE_SCALE_X)
 
 	self.left = self:Add("Panel")
 	self.left:Dock(LEFT)
@@ -144,7 +144,7 @@ function panel:addCategory(name, icon, callback, no_parent)
 	end
 	
 	local panel = self.list:Add("Panel")
-	panel:SetTall(100)
+	panel:SetTall(100 * STORE_SCALE_Y)
 	panel:Dock(TOP)
 	panel:DockMargin(0, 0, 0, 2)
 	panel:SetCursor("hand")
@@ -231,7 +231,7 @@ function panel:PerformLayout()
 
 	self.left:SetWide(700 * STORE_SCALE_X)
 
-	self.list:SetWide(100)
+	self.list:SetWide(100 * STORE_SCALE_X)
 	-- does nothing self.list:SetPos(0, 0)
 end
 
@@ -339,40 +339,46 @@ deadremains.store.FirstLayout = true
 function panel:PerformLayout()
 	local w, h = self:GetSize()
 
+	local padding_x = 25 * STORE_SCALE_X
+	local padding_y = 25 * STORE_SCALE_Y
+	local seperator_x = 16 * STORE_SCALE_X
+	local seperator_y = 16 * STORE_SCALE_Y
+
 	-- for each inventory, we must scale it according to the size of the parent panel?
 	-- print(w, h)
 	-- 700 593
 	-- 700 480
-	self.inventory_head:SetPos(25, 25)
+	self.inventory_head:SetPos(padding_x, padding_y)
 
-	local height = 25 +self.inventory_head:GetTall() +16
-	self.inventory_chest:SetPos(25, height)
+	local height = padding_y + self.inventory_head:GetTall() + seperator_y
+	self.inventory_chest:SetPos(padding_x, height)
 
-	height = height +self.inventory_chest:GetTall() +16
-	self.inventory_feet:SetPos(25, height)
+	height = height + self.inventory_chest:GetTall() + seperator_y
+	self.inventory_feet:SetPos(padding_x, height)
 
-	local width = 25 +self.inventory_back:GetWide()
-	self.inventory_back:SetPos(w -width, 25)
+	local width = padding_x + self.inventory_back:GetWide()
+	self.inventory_back:SetPos(w - width, padding_y)
 
-	width, height = 25 +self.inventory_legs:GetWide(), 25 +self.inventory_secondary:GetTall() +self.inventory_legs:GetTall() +16
-	self.inventory_legs:SetPos(w -width, h -height)
+	width = padding_x + self.inventory_legs:GetWide()
+	height = padding_y + self.inventory_secondary:GetTall() + self.inventory_legs:GetTall() + seperator_y
 
-	self.model:SetPos(w *0.5 -self.model:GetWide() *0.5, 0)
+	local back_x, back_y = self.inventory_back:GetPos()
+	self.inventory_legs:SetPos(w - width, back_y + self.inventory_back:GetTall() + seperator_y)
+
+
+	self.model:SetPos(w * 0.5 - self.model:GetWide() * 0.5, -50 * STORE_SCALE_Y)
 
 	local model_x, model_y = self.model:GetPos()
 	model_y = model_y + self.model:GetTall()
 
-	height = 25 +self.inventory_primary:GetTall()
-	self.inventory_primary:SetPos(25, model_y)
-
-	local back_x, back_y = self.inventory_back:GetPos()
-	self.inventory_legs:SetPos(w - width, back_y + self.inventory_back:GetTall() + 25)
+	height = padding_y + self.inventory_primary:GetTall()
+	self.inventory_primary:SetPos(padding_x, model_y - padding_y)
 
 	local legs_x, legs_y = self.inventory_legs:GetPos()
 	local primary_x, primary_y = self.inventory_primary:GetPos()
 
-	width = 25 +self.inventory_secondary:GetWide()
-	self.inventory_secondary:SetPos(w -width, primary_y)
+	width = padding_x + self.inventory_secondary:GetWide()
+	self.inventory_secondary:SetPos(w - width, primary_y)
 end
 
 ----------------------------------------------------------------------
@@ -547,16 +553,16 @@ main_menu:Center()
 main_menu.x = 10
 main_menu.y = 10
 
-STORE_SCALE_X = math.Clamp(ScrW() / 1100, 0.87, 1.0)
-STORE_SCALE_Y = math.Clamp(ScrH() / 768, 0.8, 1.13)
+STORE_SCALE_X = math.Clamp(ScrW() / 1100, 0, 1)
+STORE_SCALE_Y = math.Clamp(ScrH() / 600, 0, 1)
 
 print(ScrW() .. " : " .. ScrH())
 print(STORE_SCALE_X .. " : " .. STORE_SCALE_Y)
 
 main_menu:SetSize(ScrW() * STORE_SCALE_X, ScrH() * STORE_SCALE_Y)
 
-slot_size = 50 * STORE_SCALE_Y
-
+slot_size = 32 * STORE_SCALE_Y
+print(slot_size)
 main_menu:SetPos(x, y)
 
 main_menu:MakePopup()
