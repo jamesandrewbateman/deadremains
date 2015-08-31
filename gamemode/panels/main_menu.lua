@@ -631,9 +631,18 @@ main_menu:openCategory("a")
 
 end)
 
+hook.Add("StartChat" function()
+	deadremains.block_i = false
+end)
+
+hook.Add("EndChat", function()
+	deadremains.block_i = true
+end)
+
 deadremains.thinkwait = false
+deadremains.block_i = false
 hook.Add("Think", "dr_think_hook", function()
-	if (deadremains.thinkwait) then return end
+	if (deadremains.thinkwait or deadremains.block_i) then return end
 
 	local keydown = input.IsKeyDown(KEY_I)
 
