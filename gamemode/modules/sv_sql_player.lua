@@ -76,7 +76,13 @@ function deadremains.sql.savePlayer(player)
 		-- team rows are inserted in sv_team.lua in join team/create team
 		params = ""
 		params = params .. "UPDATE user_teams SET team_id = " .. player:getTeam() .. ", "
-		params = params .. "is_gov" .. player:isGov() and 1 or 0
+
+		if (player:isGov()) then
+			params = params .. "is_gov = " .. 1
+		else
+			params = params .. "is_gov = " .. 0
+		end
+
 		params = params .. " WHERE steam_id = " .. steam_id .. ";"
 		deadremains.sql.query(database_main, params)
 	end

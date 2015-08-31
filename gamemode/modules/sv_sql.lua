@@ -160,7 +160,7 @@ function deadremains.sql.setupTables()
 	deadremains.sql.query(database_main,
 	[[
 	CREATE TABLE `user_skills` (
-	  `steam_id` varchar(255) DEFAULT NULL,
+	  `steam_id` varchar(255) DEFAULT 0,
 	  `fortification` varchar(45) DEFAULT NULL,
 	  `mechanics` varchar(45) DEFAULT NULL,
 	  `first_aid` int(2) DEFAULT NULL,
@@ -181,7 +181,7 @@ function deadremains.sql.setupTables()
 	deadremains.sql.query(database_main,
 	[[
 	CREATE TABLE `user_meta` (
-	  `steam_id` varchar(255) DEFAULT NULL,
+	  `steam_id` varchar(255) DEFAULT 0,
 	  `x` int(32) DEFAULT NULL,
 	  `y` int(32) DEFAULT NULL,
 	  `z` int(32) DEFAULT NULL,

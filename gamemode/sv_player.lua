@@ -871,6 +871,7 @@ end
 --		
 ----------------------------------------------------------------------
 
+util.AddNetworkString("deadremains.gear.rqgrfull")
 util.AddNetworkString("deadremains.moveitem")
 
 net.Receive("deadremains.moveitem", function(bits, player)

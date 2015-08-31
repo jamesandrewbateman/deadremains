@@ -521,10 +521,12 @@ function panel:Init()
 end
 
 function panel:PerformLayout()
-	local w, h = self:GetSize()
+	if not LocalPlayer():inTeam() then
+		local w, h = self:GetSize()
 
-	self.create_button:SetPos(10, 10)
-	self.create_button:SetSize(104, 30)
+		self.create_button:SetPos(10, 10)
+		self.create_button:SetSize(104, 30)
+	end
 end
 
 function panel:Paint(w, h)

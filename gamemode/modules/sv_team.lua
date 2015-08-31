@@ -6,11 +6,15 @@ function deadremains.team.addInvitation(gov_steamid, target_steamid)
 end
 
 function deadremains.team.hasInviteFrom(gov_steamid, target_steamid)
-	return deadremains.team.invititations[target_steamid] == gov_steamid
+	return deadremains.team.invitations[target_steamid] == gov_steamid
+end
+
+function deadremains.team.hasInvitePending(target_steamid)
+	return deadremains.team.invitations[target_steamid] == nil
 end
 
 function deadremains.team.removeInvitation(steamid)
-	deadremains.team.invititations[steamid] = nil
+	deadremains.team.invitations[steamid] = nil
 end
 ----------------------------------------------------------------------
 -- Purpose:
@@ -25,7 +29,7 @@ net.Receive("deadremains.createteam", function(bits, ply)
 	if not ply:inTeam() then
 		local nearPlayers = ents.FindInSphere(ply:GetPos(), 600)
 		for k,v in pairs(nearPlayers) do
-			if v:IsPlayer() then
+			if v:IsPlayer() and v ~= ply and deadremains.team.hasInvitePending(v:SteamID()) and not v:inTeam() then
 				deadremains.team.askToJoin(ply, v)
 			end
 		end
@@ -50,7 +54,7 @@ net.Receive("deadremains.jointeam", function(bits, ply)
 
 				ply:setTeam(gov_teamid, 0)
 
-				local params = "INSERT INTO user_teams VALUES (team_id, steam_id, is_gov) VALUES ("
+				local params = "INSERT INTO user_teams (team_id, steam_id, is_gov) VALUES ("
 				params = params .. gov_teamid .. ", "
 				params = params .. steam_id .. ", "
 				params = params .. "0)"
@@ -59,7 +63,7 @@ net.Receive("deadremains.jointeam", function(bits, ply)
 		else
 			ply:setTeam(gov_teamid, 0)
 
-			local params = "INSERT INTO user_teams VALUES (team_id, steam_id, is_gov) VALUES ("
+			local params = "INSERT INTO user_teams (team_id, steam_id, is_gov) VALUES ("
 			params = params .. gov_teamid .. ", "
 			params = params .. steam_id .. ", "
 			params = params .. "0)"
@@ -78,6 +82,7 @@ function deadremains.team.askToJoin(gov, ply)
 	else
 		deadremains.team.addInvitation(gov:SteamID(), ply:SteamID())
 		net.Start("deadremains.asktojointeam")
+			net.WriteEntity(ply)
 			net.WriteString(gov:SteamID())
 		net.Send(ply)
 	end
@@ -93,10 +98,10 @@ function deadremains.team.create(ply, callback)
 	local steam_id = deadremains.sql.escape(database_main, ply:SteamID())
 
 	-- the team_id will be automagically assigned by mysql.
-	deadremains.sql.query("INSERT INTO user_teams(steam_id, is_gov) VALUES (" .. steam_id .. ", 1);")
+	deadremains.sql.query(database_main, "INSERT INTO user_teams(steam_id, is_gov) VALUES (" .. steam_id .. ", 1);")
 
 	-- now we get the id assigned by mysql and make this player the gov of the team.
-	deadremains.sql.query("SELECT * FROM user_teams WHERE steam_id=" .. steam_id, function(data, a, l)
+	deadremains.sql.query(database_main, "SELECT * FROM user_teams WHERE steam_id=" .. steam_id, function(data, a, l)
 		if (data and data[1]) then
 			data = data[1]
 			print("New team_id is " .. data.team_id)
