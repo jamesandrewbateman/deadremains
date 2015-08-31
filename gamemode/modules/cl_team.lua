@@ -35,10 +35,12 @@ net.Receive("deadremains.asktojointeam", function(bits, ply)
 		ShowNotification("Team Invitation", "Would you like to join " .. gov_name .. "'s team?",
 		function()
 			-- yes
+			print(ply:SteamID(), gov_steamid)
 			deadremains.team.join(ply, gov_steamid)
 		end,
 		function()
 			-- no
+			print("DECLINED INVITATION")
 		end)
 	end
 end)

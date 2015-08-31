@@ -631,7 +631,7 @@ main_menu:openCategory("a")
 
 end)
 
-hook.Add("StartChat" function()
+hook.Add("StartChat", function()
 	deadremains.block_i = false
 end)
 

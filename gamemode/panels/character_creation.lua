@@ -284,7 +284,6 @@ vgui.Register("deadremains.character.creation", panel, "EditablePanel")
 if (IsValid(testmenu)) then testmenu:Remove() end
 
 --[[
-
 timer.Simple(0.1, function()
 
 testmenu = vgui.Create("deadremains.character.creation")
@@ -293,5 +292,4 @@ testmenu:SetSize(ScrW(), ScrH())
 gui.EnableScreenClicker(true)
 
 end)
-
 ]]
