@@ -413,6 +413,8 @@ function player_meta:networkInventory(inventory_index)
 			net.WriteString(slot.unique)
 			net.WriteUInt(slot.x, 32)
 			net.WriteUInt(slot.y, 32)
+
+			print("NETWORKINVENTORY SV", slot.x, slot.y)
 		end
 	net.Send(self)
 end
@@ -437,8 +439,24 @@ function player_meta:getItemsAtArea(inventory, start_x, start_y, end_x, end_y, r
 		if (slot) then
 			local item = deadremains.item.get(slot.unique)
 			local slot_x, slot_y = slot.x, slot.y
-			local width, height = item.slots_horizontal *slot_size, item.slots_vertical *slot_size
+			local width, height = item.slots_horizontal *self.slot_size, item.slots_vertical *self.slot_size
 			
+			--[[
+			print("------------- get items in area call (serverside) ---------------")
+			print("item = " .. item.unique)
+			print("slot_x = " .. slot_x)
+			print("slot_y = " .. slot_y)
+			print("width = " .. width)
+			print("height = " .. height)
+			print("start_x = " .. start_x)
+			print("start_y = " .. start_y)
+			print("end_x = " .. end_x)
+			print("end_y = " .. end_y)
+			print("item.slots_horizontal.x = " .. item.slots_horizontal)
+			print("item.slots_vertical.y = " .. item.slots_vertical)
+			print("----------------------------------------------------------------\n")
+			]]
+
 			if (start_x > slot_x +width) then continue end
 			if (start_y > slot_y +height) then continue end
 			if (slot_x > end_x) then continue end
@@ -490,7 +508,6 @@ function player_meta:equipItem(inventory_data, item)
 
 	if (can_equip) then
 		inventory_data:equip(self, item)
-
 		return true
 	else
 		return can_equip, message
@@ -515,6 +532,7 @@ end
 util.AddNetworkString("deadremains.getitem")
 
 function player_meta:addItem(inventory_index, unique, x, y, move_item_data)
+	print("Adding item", unique, x, y)
 	local inventory = self.dr_character.inventory[inventory_index]
 
 	if (inventory) then
@@ -522,26 +540,26 @@ function player_meta:addItem(inventory_index, unique, x, y, move_item_data)
 
 		if (item) then
 			local inventory_data = deadremains.inventory.get(inventory.unique)
+			PrintTable(inventory_data)
 
 			if (inventory_data) then
 				if (x and y) then
-					if (x +item.slots_horizontal *slot_size -2 <=inventory_data.slots_horizontal *slot_size and y +item.slots_vertical *slot_size -2 <= inventory_data.slots_vertical *slot_size) then
-						local items = self:getItemsAtArea(inventory, x +1, y +1, x +item.slots_horizontal *slot_size -2, y +item.slots_vertical *slot_size -2)
-						
+					print("X AND Y")
+					if (x +item.slots_horizontal *self.slot_size -2 <=inventory_data.slots_horizontal *self.slot_size and y +item.slots_vertical *self.slot_size -2 <= inventory_data.slots_vertical *self.slot_size) then
+						local items = self:getItemsAtArea(inventory, x +1, y +1, x +item.slots_horizontal *self.slot_size -2, y +item.slots_vertical *self.slot_size -2)
 						if (#items <= 0) then
 							local can_equip, message = self:canEquipItem(inventory_data, item)
 
 							if (!can_equip) then
 								return can_equip, message
 							else
-
 								-- Clamp it to the closest slot.
 								for y2 = 1, inventory_data.slots_vertical do
 									for x2 = 1, inventory_data.slots_horizontal do
-										local slot_x, slot_y = x2 *slot_size -slot_size, y2 *slot_size -slot_size
-						
-										if (x +1 > slot_x +slot_size) then continue end
-										if (y +1 > slot_y +slot_size) then continue end
+										local slot_x, slot_y = x2 *self.slot_size -self.slot_size, y2 *self.slot_size -self.slot_size
+
+										if (x +1 > slot_x +self.slot_size) then continue end
+										if (y +1 > slot_y +self.slot_size) then continue end
 										if (slot_x > x +1) then continue end
 										if (slot_y > y +1) then continue end
 										
@@ -554,6 +572,7 @@ function player_meta:addItem(inventory_index, unique, x, y, move_item_data)
 											item_data.x = slot_x
 											item_data.y = slot_y
 										else
+											print("Put item at ", slot_x, slot_y)
 											item_data = {unique = unique, x = slot_x, y = slot_y}
 										end
 
@@ -579,13 +598,19 @@ function player_meta:addItem(inventory_index, unique, x, y, move_item_data)
 						end
 					end
 				else
+					print("NOT X AND Y")
 					for y = 1, inventory_data.slots_vertical do
 						for x = 1, inventory_data.slots_horizontal do
-							local start_x, start_y = x *slot_size -slot_size +1, y *slot_size -slot_size +1
-							local end_x, end_y = start_x +item.slots_horizontal *slot_size -2, start_y +item.slots_vertical *slot_size -2
-						
+							local start_x = ((x-1) * self.slot_size) + 1
+							local start_y = ((y-1) * self.slot_size) + 1
+							--local pstart_x, pstart_y = x *self.slot_size -self.slot_size +1, y *self.slot_size -self.slot_size +1
+
+							local end_x = start_x + (item.slots_horizontal * self.slot_size) - 2
+							local end_y = start_y + (item.slots_vertical * self.slot_size) - 2
+							--local pend_x, pend_y = start_x +item.slots_horizontal *self.slot_size -2, start_y +item.slots_vertical *self.slot_size -2
+
 							-- Don't search outside the inventory bounds.
-							if (end_x <= inventory_data.slots_horizontal *slot_size and end_y <= inventory_data.slots_vertical *slot_size) then
+							if (end_x <= inventory_data.slots_horizontal *self.slot_size and end_y <= inventory_data.slots_vertical *self.slot_size) then
 								local slots = self:getItemsAtArea(inventory, start_x, start_y, end_x, end_y)
 
 								if (#slots <= 0) then
@@ -599,14 +624,19 @@ function player_meta:addItem(inventory_index, unique, x, y, move_item_data)
 										start_x, start_y = start_x -1, start_y -1
 										
 										local item_data
-
 										if (move_item_data) then
+											print("MOVE _ ITEM _ DATA")
 
 											-- Maybe reuse the item table??
 											item_data = table.Copy(move_item_data)
 											item_data.x = start_x
 											item_data.y = start_y
 										else
+											print("-- item_data --")
+											print("unique = " .. unique)
+											print("x = " .. start_x)
+											print("y = " .. start_y)
+											print("---------------\n")
 											item_data = {unique = unique, x = start_x, y = start_y}
 										end
 										
@@ -647,16 +677,20 @@ end
 util.AddNetworkString("deadremains.removeitem")
 
 function player_meta:removeItem(inventory_index, unique, x, y, dropped_item)
+	print("removeItem call")
 	local inventory = self.dr_character.inventory[inventory_index]
 
 	if (inventory) then
+		print("Found inv")
 		local item = deadremains.item.get(unique)
 
 		if (item) then
+			print("Found item " .. #inventory.slots)
 			for i = 1, #inventory.slots do
 				local slot = inventory.slots[i]
-				
+
 				if (slot.unique == item.unique and slot.x == x and slot.y == y) then
+					print("Removing slot", x, y, unique)
 					local inventory_data = deadremains.inventory.get(inventory.unique)
 
 					if (inventory_data) then
@@ -673,10 +707,10 @@ function player_meta:removeItem(inventory_index, unique, x, y, dropped_item)
 						if (slot.inventory_index) then
 							self:removeInventory(slot.inventory_index, true)
 						end
-
-						
+			
 					end
 					
+					PrintTable(slot)
 					table.remove(inventory.slots, i)
 
 					net.Start("deadremains.removeitem")
@@ -695,11 +729,22 @@ end
 
 ----------------------------------------------------------------------
 -- Purpose:
---		
+--
+-- new_inventory id = the target inventory id
+-- inventory_id = the current inventory id
+-- unique = the item of the slots name
+-- x = origin slots x
+-- y = origin slots y
+-- move_x = target slots x
+-- move_y = target_slots y
+--
 ----------------------------------------------------------------------
 
 function player_meta:moveItem(new_inventory_id, inventory_id, unique, x, y, move_x, move_y)
+	print("Moveitem call")
+	-- the inventory which we are moving from
 	local inventory = self.dr_character.inventory[inventory_id]
+	-- the inventory which we are moving into
 	local new_inventory = self.dr_character.inventory[new_inventory_id]
 
 	local inventory_data = deadremains.inventory.get(inventory.unique)
@@ -709,21 +754,18 @@ function player_meta:moveItem(new_inventory_id, inventory_id, unique, x, y, move
 		local item = deadremains.item.get(unique)
 
 		if (item) then
-
 			-- The slot where we want to move our moving slot to.
-			local slot = self:getItemsAtArea(new_inventory, move_x +1, move_y +1, move_x +item.slots_horizontal *slot_size -2, move_y +item.slots_vertical *slot_size -2, true)
-			
+			local slot = self:getItemsAtArea(new_inventory, move_x +1, move_y +1, move_x + (item.slots_horizontal *self.slot_size -2), move_y + (item.slots_vertical *self.slot_size -2), true)
 			-- The slot that we are moving.
-			local move_slot = self:getItemsAtArea(inventory, x +1, y +1, x +item.slots_horizontal *slot_size -2, y +item.slots_vertical *slot_size -2, true)
+			local move_slot = self:getItemsAtArea(inventory, x +1, y +1, x + (item.slots_horizontal *self.slot_size -2), y +(item.slots_vertical *self.slot_size -2), true)
 		
 			if (slot) then
-
+				print("the target slot has something in it...")
 				-- We don't want to do anything if we're moving to our current position.
 				if (slot != move_slot) then
 					local slot_item = deadremains.item.get(slot.unique)
-	
+					
 					if (slot_item) then
-	
 						-- Let's see if we can swap the positions of the slots.
 						if (item.slots_horizontal == slot_item.slots_horizontal and item.slots_vertical == slot_item.slots_vertical) then
 							local can_equip, message = self:canEquipItem(inventory_data, slot_item)
@@ -738,6 +780,7 @@ function player_meta:moveItem(new_inventory_id, inventory_id, unique, x, y, move
 								return can_equip, message
 							else
 	
+								print("Moving...")
 								-- Remove the item that we are moving from.
 								self:removeItem(inventory_id, unique, x, y)
 		
@@ -761,16 +804,18 @@ function player_meta:moveItem(new_inventory_id, inventory_id, unique, x, y, move
 				else
 					return true
 				end
-				
 			-- We are moving to an empty area.	
 			else
 				local can_equip, message = self:canEquipItem(inventory_data_new, item)
 
 				if (!can_equip) then
+					print("!can_equip")
 					return can_equip, message
 				else
 					self:removeItem(inventory_id, unique, x, y)
+					print("Removed " .. unique .. " from " .. inventory_id .. " at " .. x .. ", " .. y)
 					self:addItem(new_inventory_id, unique, move_x, move_y, move_slot)
+					print("Added " .. unique .. " to " .. new_inventory_id .. " at " .. move_x .. ", " .. move_y)
 
 					return true
 				end
@@ -789,7 +834,7 @@ function player_meta:dropItem(inventory_index, unique, x, y)
 
 	if (inventory) then
 		local item = deadremains.item.get(unique)
-		local slot = self:getItemsAtArea(inventory, x +1, y +1, x +item.slots_horizontal *slot_size -2, y +item.slots_vertical *slot_size -2, true)
+		local slot = self:getItemsAtArea(inventory, x +1, y +1, x +item.slots_horizontal *self.slot_size -2, y +item.slots_vertical *self.slot_size -2, true)
 
 		if (slot) then
 			local t = deadremains.item.type(unique)
@@ -838,7 +883,7 @@ function player_meta:destroyItem(inventory_index, unique, x, y)
 
 	if (inventory) then
 		local item = deadremains.item.get(unique)
-		local slot = self:getItemsAtArea(inventory, x +1, y +1, x +item.slots_horizontal *slot_size -2, y +item.slots_vertical *slot_size -2, true)
+		local slot = self:getItemsAtArea(inventory, x +1, y +1, x +item.slots_horizontal *self.slot_size -2, y +item.slots_vertical *self.slot_size -2, true)
 
 		if (slot) then
 			self:removeItem(inventory_index, unique, x, y, true)
@@ -856,7 +901,7 @@ function player_meta:useItem(inventory_index, unique, x, y)
 
 	if (inventory) then
 		local item = deadremains.item.get(unique)
-		local slot = self:getItemsAtArea(inventory, x +1, y +1, x +item.slots_horizontal *slot_size -2, y +item.slots_vertical *slot_size -2, true)
+		local slot = self:getItemsAtArea(inventory, x +1, y +1, x +item.slots_horizontal *self.slot_size -2, y +item.slots_vertical *self.slot_size -2, true)
 
 		if (slot) then
 			if (item.use) then
@@ -864,6 +909,16 @@ function player_meta:useItem(inventory_index, unique, x, y)
 			end
 		end
 	end
+end
+
+function player_meta:RMoveItem(target_inv, current_inv, item_name, current_x, current_y, target_x, target_y)
+	return false, "could not move item."
+end
+
+function player_meta:RDestroyItem(inv_index, item_name, slot_x, slot_y)
+end
+
+function player_meta:RUseItem(inv_index, item_name, slot_x, slot_y)
 end
 
 ----------------------------------------------------------------------
@@ -882,6 +937,11 @@ net.Receive("deadremains.moveitem", function(bits, player)
 	local y = net.ReadUInt(32) -- Where the item comes from.
 	local move_x = net.ReadUInt(32) -- Where we want to move the item.
 	local move_y = net.ReadUInt(32) -- Where we want to move the item.
+
+	print("DEADREMAINS.MOVEITEM (SV_PLAYER 951)")
+	print("move_x", move_x)
+	print("move_y", move_y)
+	print("\n")
 
 	local success, message = player:moveItem(new_inventory_id, inventory_index, unique, x, y, move_x, move_y)
 

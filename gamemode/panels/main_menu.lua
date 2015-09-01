@@ -471,7 +471,7 @@ function panel:addCategory(name, type)
 				DImage.Paint(self, w, h)
 			end
 			
-			y = y +64 +48
+			y = y + (64 * STORE_SCALE_Y) + (48 * STORE_SCALE_Y)
 		end
 	end
 end
@@ -553,16 +553,8 @@ main_menu:Center()
 main_menu.x = 10
 main_menu.y = 10
 
-STORE_SCALE_X = math.Clamp(ScrW() / 1100, 0, 1)
-STORE_SCALE_Y = math.Clamp(ScrH() / 600, 0, 1)
-
-print(ScrW() .. " : " .. ScrH())
-print(STORE_SCALE_X .. " : " .. STORE_SCALE_Y)
-
 main_menu:SetSize(ScrW() * STORE_SCALE_X, ScrH() * STORE_SCALE_Y)
 
-slot_size = 32 * STORE_SCALE_Y
-print(slot_size)
 main_menu:SetPos(x, y)
 
 main_menu:MakePopup()
@@ -633,6 +625,8 @@ main_menu:addCategory("c", teams_icon, function(base)
 			main_menu:SizeToChildren(true, true)
 		end)
 	end
+
+	main_menu:setTitle("TEAM")
 end)
 
 main_menu:openCategory("a")

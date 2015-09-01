@@ -74,11 +74,14 @@ function panel:rebuild()
 	for i = 1, #inventory.slots do
 		local data = inventory.slots[i]
 
+		--PrintTable(data)
 		local slot = self:Add("deadremains.slot")
+		print("DATA", data.x, data.y, data.width, data.height, data.item.unique)
 		slot:SetPos(data.x, data.y)
 		slot:SetSize(data.width, data.height)
 		slot:setItem(data.item)
 		slot:setInventoryIndex(data.inventory_index)
+
 
 		data.slot_panel = slot
 	end
@@ -91,6 +94,7 @@ end
 function panel:addItem(data)
 	local slot = self:Add("deadremains.slot")
 	slot:SetPos(data.x, data.y)
+	print("Slot added at " .. data.x .. ", " .. data.y .. " with size " .. data.width .. "x" .. data.height)
 	slot:SetSize(data.width, data.height)
 	slot:setItem(data.item)
 	slot:setInventoryIndex(data.inventory_index)
@@ -123,9 +127,12 @@ local function isWithin(slot, target_slot)
 	local slot_width, slot_height = slot:GetSize()
 
 	local target_slot_x, target_slot_y = target_slot.x, target_slot.y
+	--print("SLOT", slot_x, slot_y)
+	--print("TARGET_SLOT", target_slot_x, target_slot_y)
 	local target_slot_width, target_slot_height = target_slot.width, target_slot.height
 	
-	return slot_x +slot_width *0.1 >= target_slot_x and slot_x +slot_width *0.9 <= target_slot_x +target_slot_width and slot_y +slot_height *0.1 >= target_slot_y and slot_y +slot_height *0.9 <= target_slot_y +target_slot_height
+	local within = slot_x +slot_width *0.1 >= target_slot_x and slot_x +slot_width *0.9 <= target_slot_x +target_slot_width and slot_y +slot_height *0.1 >= target_slot_y and slot_y +slot_height *0.9 <= target_slot_y +target_slot_height
+	return within
 end
 
 function panel:Paint(w, h)
@@ -147,7 +154,7 @@ function panel:Paint(w, h)
 		local moving_x, moving_y = moving_slot:GetPos()
 		local parent_x, parent_y = self:LocalToScreen(0, 0)
 		local width, height = moving_slot:GetSize()
-	
+
 		if (moving_x >= parent_x -width *0.5 and moving_x +width *0.5 <= parent_x +w and moving_y >= parent_y -height *0.5 and moving_y +height *0.5 <= parent_y +h) then
 			local inventory = deadremains.inventory.getc(self.inventory_index)
 			local x, y = self:ScreenToLocal(moving_x, moving_y)
@@ -156,10 +163,11 @@ function panel:Paint(w, h)
 
 			for i = 1, #slots do
 				local items = inventory:getItemsAtArea(slots[i].x +1, slots[i].y +1, slots[i].x +slot_size -2, slots[i].y +slot_size -2)
-			
+				
 				if (#items <= 0) then
 					table.insert(slots_free, i)
 				else
+
 					local within = isWithin(moving_slot, items[1])
 
 					if (within and moving_slot.size == items[1].size) then
@@ -170,14 +178,13 @@ function panel:Paint(w, h)
 					
 				end
 			end
-			
 			if (moving_slot.size == #slots_free) then
 				for k = 1, moving_slot.size do
 					local i = slots_free[k]
 
 					draw.simpleRect(slots[i].x, slots[i].y, slot_size, slot_size, Color(0, 255, 0, 20))
 				end
-				
+
 				moving_slot_receiver = {parent = self, x = slots[slots_free[1]].x, y = slots[slots_free[1]].y}
 			else
 				moving_slot_receiver = nil
@@ -241,15 +248,24 @@ end
 ----------------------------------------------------------------------
  
 function panel:setItem(item)
+	print("Setted item ------------" .. item.unique)
 	self.size = item.slots_vertical *item.slots_horizontal
 	self.unique = item.unique
 	self.slots_vertical = item.slots_vertical
 	self.slots_horizontal = item.slots_horizontal
+	self:SetSize(slot_size, slot_size)
 
 	if (item.model) then
-		self.model = self:Add("DModelPanel")
-		self.model:Dock(FILL)
+		self.model = self:GetParent():Add("DModelPanel")
+		--self.model:Dock(FILL)
 		self.model:SetModel(item.model)
+		self.model:SetSize(slot_size * item.slots_horizontal, slot_size * item.slots_vertical)
+		--self.model:SetSize(64, 64)
+		self.model:SetDrawOnTop(true)
+		print("Model view size", slot_size * item.slots_horizontal, slot_size * item.slots_vertical)
+		local sx, sy = self:GetPos()
+
+		self.model:SetPos(sx, sy)
 		self.model:SetLookAt(item.look_at)
 		self.model:SetCamPos(item.cam_pos)
 		self.model:SetFOV(item.fov)
@@ -272,12 +288,18 @@ end
 function panel:OnMousePressed(code)
 	if (code == MOUSE_LEFT) then
 		local parent = self:GetParent()
+		local sx, sy = self:GetPos()
 
 		self.origin = {parent = parent, x = self.x, y = self.y}
 
 		self:SetParent(nil)
 		self:SetDrawOnTop(true)
 		self:MouseCapture(true)
+
+		if (self.model) then
+			print("CLOSED MODELPANEL")
+			self.model:SetVisible(false)
+		end
 
 		moving_slot = self
 	end
@@ -296,9 +318,21 @@ function panel:OnMouseReleased(code)
 			if (moving_slot_receiver) then
 				local inventory_index = moving_slot_receiver.parent:getInventoryIndex()
 				
-				--moving_slot_receiver.x != self.origin.x and moving_slot_receiver.y != self.origin.y
+				-- moving_slot_receiver.x != self.origin.x and moving_slot_receiver.y != self.origin.y
 				--if (inventory_index == self.origin.parent:getInventoryIndex()) then
 
+				
+				print("------------ Slot panel moveitem call (clientside) --------------")
+				print("inventory_index (move target) = " .. inventory_index)
+				print("self.inventory_index = " .. self.inventory_index)
+				print("unique = " .. self.unique)
+				print("origin.x = " .. self.origin.x)
+				print("origin.y = " .. self.origin.y)
+				print("moving_slot_receiver.x = " .. moving_slot_receiver.x)
+				print("moving_slot_receiver.y = " .. moving_slot_receiver.y)
+				print("----------------------------------------------------------------\n")
+				
+			
 				net.Start("deadremains.moveitem")
 					net.WriteUInt(inventory_index, 8) -- In what inventory we want to put this item.
 					net.WriteUInt(self.inventory_index, 8) -- In what inventory we are currently.
@@ -312,14 +346,23 @@ function panel:OnMouseReleased(code)
 			
 			self:SetVisible(false)
 			self:SetParent(self.origin.parent)
-			self:SetPos(self.origin.x, self.origin.y)
-
+			self:SetPos(self.origin.x, self.origin.y)	
 			
+			-- wait for the server to respond to the request
 			timer.Simple(LocalPlayer():Ping() *0.001, function()
 				print(self)
+
 				if (IsValid(self)) then
 					print("Reset to true")
 					self:SetVisible(true)
+
+					if (self.model) then
+						print("re-opened modelpanel*************8")
+						local sx, sy = self:GetPos()
+						print(sx, sy)
+						self.model:SetPos(sx, sy)
+						self.model:SetVisible(true)
+					end
 				end
 			end)
 		

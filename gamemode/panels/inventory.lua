@@ -18,7 +18,7 @@ end
 
 function panel:setInventory(inventory_index, data)
 	self.slots = self:Add("deadremains.slots")
-	self.slots:SetPos(0, 32)
+	self.slots:SetPos(0, 32 * STORE_SCALE_Y)
 	self.slots:createSlots(data.slots_horizontal, data.slots_vertical)
 	self.slots:setInventoryID(data.unique)
 	self.slots:setInventoryIndex(inventory_index)
@@ -42,13 +42,13 @@ end
 function panel:setExternal(bool)
 	self.external = bool
 
-	self.slots:SetPos(0, 32 +25)
+	self.slots:SetPos(0, (32 +25)*STORE_SCALE_Y)
 
 	self:InvalidateLayout(true)
 	self:SizeToChildren(true, true)
 
 	self.top = self:Add("Panel")
-	self.top:SetTall(36)
+	self.top:SetTall(36 * STORE_SCALE_Y)
 	self.top:SetCursor("hand")
 
 	function self.top:OnMousePressed()
@@ -61,7 +61,7 @@ function panel:setExternal(bool)
 				parent.old_height = parent:GetTall()
 			end
 
-			parent:SetTall(36)
+			parent:SetTall(36 * STORE_SCALE_Y)
 		end
 
 		self.retracted = !self.retracted
@@ -69,9 +69,9 @@ function panel:setExternal(bool)
 	
 	function self.top:Paint(w, h)
 		if (self.retracted) then
-			draw.SimpleText("+", "deadremains.inventory.external", w -34, 0, panel_color_text, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
+			draw.SimpleText("+", "deadremains.inventory.external", w -(34 * STORE_SCALE_Y), 0, panel_color_text, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
 		else
-			draw.SimpleText("-", "deadremains.inventory.external", w -32, 0, panel_color_text, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
+			draw.SimpleText("-", "deadremains.inventory.external", w -(32 * STORE_SCALE_Y), 0, panel_color_text, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
 		end
 	end
 end
@@ -139,7 +139,7 @@ local panel = {}
 
 function panel:Init()
 	self:SetWide(0)
-	self:DockPadding(0, 25, 0, 25)
+	self:DockPadding(0, 25 * STORE_SCALE_X, 0, 25 * STORE_SCALE_Y)
 
 	self.name = ""
 
@@ -159,9 +159,10 @@ end
 ----------------------------------------------------------------------
 
 function panel:setInventory(inventory_index, data)
+	print("SET INVENTORY --")
 	local inventory = self.list:Add("deadremains.inventory")
 	inventory:Dock(TOP)
-	inventory:DockMargin(0, 0, 0, 25)
+	inventory:DockMargin(0, 0, 0, 25 * STORE_SCALE_Y)
 	inventory:setInventory(inventory_index, data)
 	inventory:setExternal(true)
 

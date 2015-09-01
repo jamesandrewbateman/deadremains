@@ -208,6 +208,8 @@ end
 ----------------------------------------------------------------------
  
 function meta_table:addItem(item, x, y)
+	print(debug.Trace())
+	print(item.unique, x, y)
 	if (x and y) then
 		local slot = {}
 		slot.item = item
@@ -267,7 +269,8 @@ end
 
 function meta_table:removeItem(item, x, y)
 	local slot = self:getItemsAtArea(x +1, y +1, x +item.slots_horizontal *slot_size -2, y +item.slots_vertical *slot_size -2, true)
-
+	print("REMOVED", slot)
+	PrintTable(slot)
 	if (slot) then
 		if (IsValid(slot.slot_panel)) then
 			slot.slot_panel:Remove()
@@ -337,6 +340,8 @@ net.Receive("deadremains.removeitem", function(bits)
 
 	local item = deadremains.item.get(unique)
 
+	print("Got clientside remove item ", x, y, unique)
+
 	if (item) then
 		local inventory = stored[inventory_index]
 	
@@ -390,6 +395,11 @@ net.Receive("deadremains.networkinventory", function(bits)
 		local unique = net.ReadString()
 		local x = net.ReadUInt(32)
 		local y = net.ReadUInt(32)
+		print(x, y)
+		print(slot_size)
+		x = (x/52) * (slot_size)
+		y = (y/52) * (slot_size)
+		print("NETWORKINVENTORY CLIENTSIDE", x, y)
 
 		local item = deadremains.item.get(unique)
 
