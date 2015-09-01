@@ -413,8 +413,6 @@ function player_meta:networkInventory(inventory_index)
 			net.WriteString(slot.unique)
 			net.WriteUInt(slot.x, 32)
 			net.WriteUInt(slot.y, 32)
-
-			print("NETWORKINVENTORY SV", slot.x, slot.y)
 		end
 	net.Send(self)
 end
@@ -532,7 +530,6 @@ end
 util.AddNetworkString("deadremains.getitem")
 
 function player_meta:addItem(inventory_index, unique, x, y, move_item_data)
-	print("Adding item", unique, x, y)
 	local inventory = self.dr_character.inventory[inventory_index]
 
 	if (inventory) then
@@ -544,7 +541,6 @@ function player_meta:addItem(inventory_index, unique, x, y, move_item_data)
 
 			if (inventory_data) then
 				if (x and y) then
-					print("X AND Y")
 					if (x +item.slots_horizontal *self.slot_size -2 <=inventory_data.slots_horizontal *self.slot_size and y +item.slots_vertical *self.slot_size -2 <= inventory_data.slots_vertical *self.slot_size) then
 						local items = self:getItemsAtArea(inventory, x +1, y +1, x +item.slots_horizontal *self.slot_size -2, y +item.slots_vertical *self.slot_size -2)
 						if (#items <= 0) then
@@ -572,7 +568,6 @@ function player_meta:addItem(inventory_index, unique, x, y, move_item_data)
 											item_data.x = slot_x
 											item_data.y = slot_y
 										else
-											print("Put item at ", slot_x, slot_y)
 											item_data = {unique = unique, x = slot_x, y = slot_y}
 										end
 
@@ -598,7 +593,6 @@ function player_meta:addItem(inventory_index, unique, x, y, move_item_data)
 						end
 					end
 				else
-					print("NOT X AND Y")
 					for y = 1, inventory_data.slots_vertical do
 						for x = 1, inventory_data.slots_horizontal do
 							local start_x = ((x-1) * self.slot_size) + 1
@@ -625,18 +619,11 @@ function player_meta:addItem(inventory_index, unique, x, y, move_item_data)
 										
 										local item_data
 										if (move_item_data) then
-											print("MOVE _ ITEM _ DATA")
-
 											-- Maybe reuse the item table??
 											item_data = table.Copy(move_item_data)
 											item_data.x = start_x
 											item_data.y = start_y
 										else
-											print("-- item_data --")
-											print("unique = " .. unique)
-											print("x = " .. start_x)
-											print("y = " .. start_y)
-											print("---------------\n")
 											item_data = {unique = unique, x = start_x, y = start_y}
 										end
 										
@@ -753,7 +740,6 @@ function player_meta:moveItem(new_inventory_id, inventory_id, unique, x, y, move
 			local move_slot = self:getItemsAtArea(inventory, x +1, y +1, x + (item.slots_horizontal *self.slot_size -2), y +(item.slots_vertical *self.slot_size -2), true)
 		
 			if (slot) then
-				print("the target slot has something in it...")
 				-- We don't want to do anything if we're moving to our current position.
 				if (slot != move_slot) then
 					local slot_item = deadremains.item.get(slot.unique)
@@ -806,10 +792,8 @@ function player_meta:moveItem(new_inventory_id, inventory_id, unique, x, y, move
 					return can_equip, message
 				else
 					self:removeItem(inventory_id, unique, x, y)
-					print("Removed " .. unique .. " from " .. inventory_id .. " at " .. x .. ", " .. y)
 					self:addItem(new_inventory_id, unique, move_x, move_y, move_slot)
-					print("Added " .. unique .. " to " .. new_inventory_id .. " at " .. move_x .. ", " .. move_y)
-
+	
 					return true
 				end
 			end

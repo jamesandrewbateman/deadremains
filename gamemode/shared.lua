@@ -16,7 +16,6 @@ gender_female = 2
 
 -- hacky hacks
 slot_size = 32
-f1_menu_open = false
 
 if (SERVER) then
 	util.AddNetworkString("deadremains.updatessize")

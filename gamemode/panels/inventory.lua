@@ -35,7 +35,6 @@ function panel:setInventory(inventory_index, data)
 end
 
 function panel:rebuild()
-	print("Rebuilding main inv")
 	self.slots:rebuild()
 end
 
@@ -188,7 +187,6 @@ end
 ----------------------------------------------------------------------
 
 function panel:rebuild()
-	print("Rebuilding external inv")
 	self.list:Clear()
 
 	local inventories = deadremains.inventory.getStoredC()

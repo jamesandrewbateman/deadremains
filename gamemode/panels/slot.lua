@@ -69,7 +69,6 @@ end
 ----------------------------------------------------------------------
 
 function panel:rebuild()
-	print("SLOT REBUILDING")
 	local inventory = deadremains.inventory.getc(self.inventory_index)
 
 	for i = 1, #inventory.slots do
@@ -77,7 +76,6 @@ function panel:rebuild()
 
 		--PrintTable(data)
 		local slot = self:Add("deadremains.slot")
-		print("DATA", data.x, data.y, data.width, data.height, data.item.unique)
 		slot:SetPos(data.x, data.y)
 		slot:SetSize(data.width, data.height)
 		slot:setItem(data.item)
@@ -94,7 +92,7 @@ end
 function panel:addItem(data)
 	local slot = self:Add("deadremains.slot")
 	slot:SetPos(data.x, data.y)
-	print("Slot added at " .. data.x .. ", " .. data.y .. " with size " .. data.width .. "x" .. data.height)
+
 	slot:SetSize(data.width, data.height)
 	slot:setItem(data.item)
 	slot:setInventoryIndex(data.inventory_index)
@@ -248,7 +246,6 @@ end
 ----------------------------------------------------------------------
  
 function panel:setItem(item)
-	print("Setted item ------------" .. item.unique)
 	self.size = item.slots_vertical *item.slots_horizontal
 	self.unique = item.unique
 	self.slots_vertical = item.slots_vertical
@@ -262,7 +259,7 @@ function panel:setItem(item)
 		self.model:SetSize(slot_size * item.slots_horizontal, slot_size * item.slots_vertical)
 		--self.model:SetSize(64, 64)
 		self.model:SetDrawOnTop(true)
-		print("Model view size", slot_size * item.slots_horizontal, slot_size * item.slots_vertical)
+
 		local sx, sy = self:GetPos()
 
 		self.model:SetPos(sx, sy)
