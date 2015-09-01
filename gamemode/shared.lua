@@ -13,7 +13,10 @@ panel_color_background_light = Color(255, 255, 255, 100)
 
 gender_male = 1
 gender_female = 2
+
+-- hacky hacks
 slot_size = 32
+f1_menu_open = false
 
 if (SERVER) then
 	util.AddNetworkString("deadremains.updatessize")

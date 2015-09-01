@@ -214,12 +214,6 @@ function panel:Init()
 	self:SetCursor("hand")
 end
 
-function panel:removeModel()
-	if (self.model) then
-		self.model:Remove()
-	end
-end
-
 ----------------------------------------------------------------------
 -- Purpose:
 --		
@@ -325,18 +319,6 @@ function panel:OnMouseReleased(code)
 				
 				-- moving_slot_receiver.x != self.origin.x and moving_slot_receiver.y != self.origin.y
 				--if (inventory_index == self.origin.parent:getInventoryIndex()) then
-
-				
-				print("------------ Slot panel moveitem call (clientside) --------------")
-				print("inventory_index (move target) = " .. inventory_index)
-				print("self.inventory_index = " .. self.inventory_index)
-				print("unique = " .. self.unique)
-				print("origin.x = " .. self.origin.x)
-				print("origin.y = " .. self.origin.y)
-				print("moving_slot_receiver.x = " .. moving_slot_receiver.x)
-				print("moving_slot_receiver.y = " .. moving_slot_receiver.y)
-				print("----------------------------------------------------------------\n")
-				
 			
 				net.Start("deadremains.moveitem")
 					net.WriteUInt(inventory_index, 8) -- In what inventory we want to put this item.

@@ -1,22 +1,3 @@
-function ValveToScreenRect( x, y, w, h )
-	
-	local base_w, screen_w = 640, ScrW( );
-	local base_h, screen_h = 480, ScrH( );
-	
-	screen_w = screen_h * ( base_w / base_h );
-	
-	local screen_scale_w = screen_w / base_w;
-	local screen_scale_h = screen_h / base_h;
-	
-	x = screen_scale_w * x;
-	y = screen_scale_h * y;
-	w = screen_scale_w * w;
-	h = screen_scale_h * h;
-	
-	return x, y, w, h;
-	
-end
-
 local panel = {}
 
 ----------------------------------------------------------------------
@@ -89,6 +70,12 @@ function panel:openCategory(name)
 	if (data) then
 		self:switchParent(data.parent, data.callback)
 	end
+end
+
+function panel:getCategory(name)
+	local data = self.categories[string.lower(name)]
+
+	return data
 end
 
 ----------------------------------------------------------------------
@@ -540,7 +527,10 @@ function panel:Paint(w, h)
 end
 vgui.Register("deadremains.team", panel, "EditablePanel")
 
+
+
 function ShowMenu()
+	-- toggle functionality
 	if (IsValid(main_menu)) then
 		main_menu:Remove()
 		return
@@ -630,30 +620,6 @@ function ShowMenu()
 	main_menu:openCategory("a")
 end
 concommand.Add("inventory", ShowMenu)
-
-
-hook.Add("StartChat", function()
-	deadremains.block_i = false
-end)
-
-hook.Add("EndChat", function()
-	deadremains.block_i = true
-end)
-
-deadremains.thinkwait = false
-deadremains.block_i = false
-hook.Add("Think", "dr_think_hook", function()
-	if (deadremains.thinkwait or deadremains.block_i) then return end
-
-	local keydown = input.IsKeyDown(KEY_I)
-
-	local ply = LocalPlayer()
-	if keydown then
-		ply:ConCommand("inventory")
-		deadremains.thinkwait = true
-		timer.Simple(0.5, function() deadremains.thinkwait = false end)
-	end
-end)
 
 --[[
 main_menu:addCategory("c", skills_icon, function(base)
