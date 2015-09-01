@@ -294,7 +294,7 @@ function panel:OnMousePressed(code)
 		self:MouseCapture(true)
 
 		if (self.model) then
-			self.model:SetVisible(false)
+			self.model:SetVisible(true)
 		end
 
 		moving_slot = self
@@ -334,10 +334,7 @@ function panel:OnMouseReleased(code)
 			
 			-- wait for the server to respond to the request
 			timer.Simple(LocalPlayer():Ping() *0.001, function()
-				print(self)
-
 				if (IsValid(self)) then
-					print("Reset to true")
 					self:SetVisible(true)
 
 					if (self.model) then
@@ -371,7 +368,6 @@ function panel:Think()
 	if (self.origin) then
 		local x, y = gui.MousePos()
 		local w, h = self:GetSize()
-
 		self:SetPos(x -w *0.5, y -h *0.5)
 	end
 end

@@ -537,8 +537,7 @@ function player_meta:addItem(inventory_index, unique, x, y, move_item_data)
 
 		if (item) then
 			local inventory_data = deadremains.inventory.get(inventory.unique)
-			PrintTable(inventory_data)
-
+			
 			if (inventory_data) then
 				if (x and y) then
 					if (x +item.slots_horizontal *self.slot_size -2 <=inventory_data.slots_horizontal *self.slot_size and y +item.slots_vertical *self.slot_size -2 <= inventory_data.slots_vertical *self.slot_size) then
