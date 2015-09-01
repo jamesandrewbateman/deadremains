@@ -230,7 +230,8 @@ end
 
 function panel:OnKeyCodePressed(code)
 	if (code == KEY_F1) then
-		self:SetVisible(false)
+		--self:SetVisible(false)
+		self:Remove()
 	end
 end
 
