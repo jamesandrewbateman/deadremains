@@ -677,20 +677,16 @@ end
 util.AddNetworkString("deadremains.removeitem")
 
 function player_meta:removeItem(inventory_index, unique, x, y, dropped_item)
-	print("removeItem call")
 	local inventory = self.dr_character.inventory[inventory_index]
 
 	if (inventory) then
-		print("Found inv")
 		local item = deadremains.item.get(unique)
 
 		if (item) then
-			print("Found item " .. #inventory.slots)
 			for i = 1, #inventory.slots do
 				local slot = inventory.slots[i]
 
 				if (slot.unique == item.unique and slot.x == x and slot.y == y) then
-					print("Removing slot", x, y, unique)
 					local inventory_data = deadremains.inventory.get(inventory.unique)
 
 					if (inventory_data) then
@@ -707,10 +703,8 @@ function player_meta:removeItem(inventory_index, unique, x, y, dropped_item)
 						if (slot.inventory_index) then
 							self:removeInventory(slot.inventory_index, true)
 						end
-			
 					end
 					
-					PrintTable(slot)
 					table.remove(inventory.slots, i)
 
 					net.Start("deadremains.removeitem")
@@ -741,7 +735,6 @@ end
 ----------------------------------------------------------------------
 
 function player_meta:moveItem(new_inventory_id, inventory_id, unique, x, y, move_x, move_y)
-	print("Moveitem call")
 	-- the inventory which we are moving from
 	local inventory = self.dr_character.inventory[inventory_id]
 	-- the inventory which we are moving into
@@ -866,8 +859,6 @@ function player_meta:dropItem(inventory_index, unique, x, y)
 			end
 
 			self:removeItem(inventory_index, unique, x, y, true)
-			-- meta_data should contain a table full of items which were in it, serverside.
-			PrintTable(meta_data)
 			deadremains.item.spawn_meta(self, unique, meta_data)
 		end
 	end
@@ -911,15 +902,6 @@ function player_meta:useItem(inventory_index, unique, x, y)
 	end
 end
 
-function player_meta:RMoveItem(target_inv, current_inv, item_name, current_x, current_y, target_x, target_y)
-	return false, "could not move item."
-end
-
-function player_meta:RDestroyItem(inv_index, item_name, slot_x, slot_y)
-end
-
-function player_meta:RUseItem(inv_index, item_name, slot_x, slot_y)
-end
 
 ----------------------------------------------------------------------
 -- Purpose:
@@ -937,11 +919,6 @@ net.Receive("deadremains.moveitem", function(bits, player)
 	local y = net.ReadUInt(32) -- Where the item comes from.
 	local move_x = net.ReadUInt(32) -- Where we want to move the item.
 	local move_y = net.ReadUInt(32) -- Where we want to move the item.
-
-	print("DEADREMAINS.MOVEITEM (SV_PLAYER 951)")
-	print("move_x", move_x)
-	print("move_y", move_y)
-	print("\n")
 
 	local success, message = player:moveItem(new_inventory_id, inventory_index, unique, x, y, move_x, move_y)
 

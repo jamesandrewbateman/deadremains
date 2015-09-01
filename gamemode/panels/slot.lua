@@ -69,6 +69,7 @@ end
 ----------------------------------------------------------------------
 
 function panel:rebuild()
+	print("SLOT REBUILDING")
 	local inventory = deadremains.inventory.getc(self.inventory_index)
 
 	for i = 1, #inventory.slots do
@@ -81,7 +82,6 @@ function panel:rebuild()
 		slot:SetSize(data.width, data.height)
 		slot:setItem(data.item)
 		slot:setInventoryIndex(data.inventory_index)
-
 
 		data.slot_panel = slot
 	end
@@ -214,6 +214,12 @@ function panel:Init()
 	self:SetCursor("hand")
 end
 
+function panel:removeModel()
+	if (self.model) then
+		self.model:Remove()
+	end
+end
+
 ----------------------------------------------------------------------
 -- Purpose:
 --		
@@ -297,7 +303,6 @@ function panel:OnMousePressed(code)
 		self:MouseCapture(true)
 
 		if (self.model) then
-			print("CLOSED MODELPANEL")
 			self.model:SetVisible(false)
 		end
 
@@ -357,9 +362,7 @@ function panel:OnMouseReleased(code)
 					self:SetVisible(true)
 
 					if (self.model) then
-						print("re-opened modelpanel*************8")
 						local sx, sy = self:GetPos()
-						print(sx, sy)
 						self.model:SetPos(sx, sy)
 						self.model:SetVisible(true)
 					end

@@ -34,6 +34,11 @@ function panel:setInventory(inventory_index, data)
 	self.slots:rebuild()
 end
 
+function panel:rebuild()
+	print("Rebuilding main inv")
+	self.slots:rebuild()
+end
+
 ----------------------------------------------------------------------
 -- Purpose:
 --		
@@ -159,7 +164,6 @@ end
 ----------------------------------------------------------------------
 
 function panel:setInventory(inventory_index, data)
-	print("SET INVENTORY --")
 	local inventory = self.list:Add("deadremains.inventory")
 	inventory:Dock(TOP)
 	inventory:DockMargin(0, 0, 0, 25 * STORE_SCALE_Y)
@@ -184,6 +188,7 @@ end
 ----------------------------------------------------------------------
 
 function panel:rebuild()
+	print("Rebuilding external inv")
 	self.list:Clear()
 
 	local inventories = deadremains.inventory.getStoredC()

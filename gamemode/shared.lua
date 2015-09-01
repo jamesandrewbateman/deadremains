@@ -20,7 +20,6 @@ if (SERVER) then
 
 	net.Receive("deadremains.updatessize", function(bits, ply)
 		ply.slot_size = net.ReadUInt(32)
-		print("ply.slot_size ", ply.slot_size)
 	end)
 end
 

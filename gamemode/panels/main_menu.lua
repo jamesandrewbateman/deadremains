@@ -540,98 +540,97 @@ function panel:Paint(w, h)
 end
 vgui.Register("deadremains.team", panel, "EditablePanel")
 
+function ShowMenu()
+	if (IsValid(main_menu)) then
+		main_menu:Remove()
+		return
+	end
 
+	main_menu = vgui.Create("deadremains.main_menu")
+	main_menu:Center()
+	main_menu.x = 10
+	main_menu.y = 10
 
-concommand.Add("inventory", function()
-if (IsValid(main_menu)) then
-	main_menu:Remove()
-	return
-end
+	main_menu:SetSize(ScrW() * STORE_SCALE_X, ScrH() * STORE_SCALE_Y)
 
-main_menu = vgui.Create("deadremains.main_menu")
-main_menu:Center()
-main_menu.x = 10
-main_menu.y = 10
+	main_menu:SetPos(x, y)
 
-main_menu:SetSize(ScrW() * STORE_SCALE_X, ScrH() * STORE_SCALE_Y)
+	main_menu:MakePopup()
+	main_menu:InvalidateLayout(true)
 
-main_menu:SetPos(x, y)
+	local character_icon = Material("icon16/user.png")
 
-main_menu:MakePopup()
-main_menu:InvalidateLayout(true)
+	main_menu:addCategory("a", character_icon, function(base)
+		local character_panel = main_menu:getPanel("character_panel")
+		local inventory_panel = main_menu:getPanel("inventory_panel")
 
-local character_icon = Material("icon16/user.png")
+		if (!IsValid(character_panel)) then
+			character_panel = main_menu:addPanel(base, "character_panel", "deadremains.equipment")
+			character_panel:Dock(FILL)
+			
+			inventory_panel = main_menu:Add("deadremains.inventory.external")
+			inventory_panel:Dock(LEFT)
+			inventory_panel:DockMargin(2, 0, 0, 0)
 
-main_menu:addCategory("a", character_icon, function(base)
-	local character_panel = main_menu:getPanel("character_panel")
-	local inventory_panel = main_menu:getPanel("inventory_panel")
+			main_menu:addPanel(nil, "inventory_panel", inventory_panel)
 
-	if (!IsValid(character_panel)) then
-		character_panel = main_menu:addPanel(base, "character_panel", "deadremains.equipment")
-		character_panel:Dock(FILL)
+			nextFrame(function()
+				main_menu:InvalidateLayout(true)
+				main_menu:SizeToChildren(true, true)
+			end)
+		end
 		
-		inventory_panel = main_menu:Add("deadremains.inventory.external")
-		inventory_panel:Dock(LEFT)
-		inventory_panel:DockMargin(2, 0, 0, 0)
+		inventory_panel:SetVisible(true)
 
-		main_menu:addPanel(nil, "inventory_panel", inventory_panel)
+		main_menu:setTitle("EQUIPMENT")
+	end)
 
-		nextFrame(function()
-			main_menu:InvalidateLayout(true)
-			main_menu:SizeToChildren(true, true)
-		end)
-	end
-	
-	inventory_panel:SetVisible(true)
+	local skills_icon = Material("icon16/user_add.png")
 
-	main_menu:setTitle("EQUIPMENT")
-end)
+	main_menu:addCategory("b", skills_icon, function(base)
+		local skills_panel = main_menu:getPanel("skills_panel")
+		
+		if (!IsValid(skills_panel)) then
+			skills_panel = main_menu:addPanel(base, "skills_panel", "deadremains.skills")
+			skills_panel:Dock(FILL)
 
-local skills_icon = Material("icon16/user_add.png")
+			skills_panel:addCategory("Combat", "weapon")
+			skills_panel:addCategory("Crafting", "crafting")
+			skills_panel:addCategory("Survival", "survival")
+			skills_panel:addCategory("Medical", "medical")
+			skills_panel:addCategory("Spec", "special")
 
-main_menu:addCategory("b", skills_icon, function(base)
-	local skills_panel = main_menu:getPanel("skills_panel")
-	
-	if (!IsValid(skills_panel)) then
-		skills_panel = main_menu:addPanel(base, "skills_panel", "deadremains.skills")
-		skills_panel:Dock(FILL)
+			nextFrame(function()
+				main_menu:InvalidateLayout(true)
+				main_menu:SizeToChildren(true, true)
+			end)
+		end
 
-		skills_panel:addCategory("Combat", "weapon")
-		skills_panel:addCategory("Crafting", "crafting")
-		skills_panel:addCategory("Survival", "survival")
-		skills_panel:addCategory("Medical", "medical")
-		skills_panel:addCategory("Spec", "special")
+		main_menu:setTitle("SKILLS")
+	end)
 
-		nextFrame(function()
-			main_menu:InvalidateLayout(true)
-			main_menu:SizeToChildren(true, true)
-		end)
-	end
+	local teams_icon = Material("icon16/user_add.png")
 
-	main_menu:setTitle("SKILLS")
-end)
+	main_menu:addCategory("c", teams_icon, function(base)
+		local team_panel = main_menu:getPanel("team_panel")
 
-local teams_icon = Material("icon16/user_add.png")
+		if (!IsValid(team_panel)) then
+			team_panel = main_menu:addPanel(base, "team_panel", "deadremains.team")
+			team_panel:Dock(FILL)
 
-main_menu:addCategory("c", teams_icon, function(base)
-	local team_panel = main_menu:getPanel("team_panel")
+			nextFrame(function()
+				main_menu:InvalidateLayout(true)
+				main_menu:SizeToChildren(true, true)
+			end)
+		end
 
-	if (!IsValid(team_panel)) then
-		team_panel = main_menu:addPanel(base, "team_panel", "deadremains.team")
-		team_panel:Dock(FILL)
+		main_menu:setTitle("TEAM")
+	end)
 
-		nextFrame(function()
-			main_menu:InvalidateLayout(true)
-			main_menu:SizeToChildren(true, true)
-		end)
-	end
+	main_menu:openCategory("a")
+end
+concommand.Add("inventory", ShowMenu)
 
-	main_menu:setTitle("TEAM")
-end)
-
-main_menu:openCategory("a")
-
-end)
 
 hook.Add("StartChat", function()
 	deadremains.block_i = false
