@@ -18,7 +18,7 @@ function deadremains.loader.initialize()
 	include(directory .. "/sh_settings.lua")
 	
 	deadremains.log.write(deadremains.log.loader, "Initialized settings.")
-	
+
 	-- Load the folders.
 	local _, folders = file.Find(directory .. "/*", "LUA")
 	

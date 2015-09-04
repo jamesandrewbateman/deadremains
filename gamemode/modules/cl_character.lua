@@ -46,8 +46,8 @@ net.Receive("deadremains.getskill", function(bits)
 	end
 end)
 
-net.Receieve("deadremains.getchars", function(bits)
-	local len = net.ReadUint(8)
+net.Receive("deadremains.getchars", function(bits)
+	local len = net.ReadUInt(8)
 
 	if (len > 1) then
 		characteristics = {}

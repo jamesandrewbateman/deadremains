@@ -1,3 +1,8 @@
+deadremains.characteristics = {}
+
+function deadremains.characteristics()
+end
+
 util.AddNetworkString("deadremains.character.new")
 util.AddNetworkString("deadremains.shownotification_ok")
 
