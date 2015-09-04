@@ -29,6 +29,11 @@ function panel:setInventory(inventory_index, data)
 
 	local inventory = deadremains.inventory.getc(inventory_index)
 
+	if not inventory then
+		LocalPlayer():ConCommand("networkinventory")
+		inventory = deadremains.inventory.getc(inventory_index)
+	end
+
 	inventory:setPanel(self.slots)
 
 	self.slots:rebuild()

@@ -298,12 +298,12 @@ function panel:Init()
 	self.inventory_legs:setInventory(inventory_index_legs, data)
 
 	self.model = self:Add("DModelPanel")
-	self.model:SetModel("models/humans/group01/male_01.mdl")
+	self.model:SetModel(LocalPlayer():GetModel())
 	self.model:SetSize(264, 500)
 	self.model:SetFOV(36)
 
 	function self.model.LayoutEntity(_self, entity)
-		local sequence = entity:LookupSequence("idle_subtle")
+		local sequence = entity:LookupSequence("idle")
 		
 		entity:SetAngles(Angle(0, 45, 0))
 		entity:ResetSequence(sequence)
@@ -320,10 +320,6 @@ end
 --		
 ----------------------------------------------------------------------
 
-deadremains.store = {}
-deadremains.store.ScaleW = 1
-deadremains.store.ScaleH = 1
-deadremains.store.FirstLayout = true
 function panel:PerformLayout()
 	local w, h = self:GetSize()
 
@@ -429,7 +425,7 @@ function panel:addCategory(name, type)
 			local icon = panel:Add("DImage")
 			icon:SetImage(data.icon)
 			icon:SetSize(64 * STORE_SCALE_X, 64 * STORE_SCALE_Y)
-			icon:SetPos(116 *0.5 -40, y)
+			icon:SetPos((64*STORE_SCALE_X)*0.5, y)
 			icon:SetMouseInputEnabled(true)
 
 			function icon:Paint(w, h)
@@ -459,7 +455,7 @@ function panel:addCategory(name, type)
 				DImage.Paint(self, w, h)
 			end
 			
-			y = y + (64 * STORE_SCALE_Y) + (48 * STORE_SCALE_Y)
+			y = y + (32 * STORE_SCALE_Y) + (48 * STORE_SCALE_Y)
 		end
 	end
 end
@@ -529,6 +525,7 @@ end
 vgui.Register("deadremains.team", panel, "EditablePanel")
 
 
+deadremains.store = {}
 
 function ShowMenu()
 	-- toggle functionality
@@ -619,6 +616,8 @@ function ShowMenu()
 	end)
 
 	main_menu:openCategory("a")
+
+	deadremains.store.main_menu = main_menu
 end
 concommand.Add("inventory", ShowMenu)
 

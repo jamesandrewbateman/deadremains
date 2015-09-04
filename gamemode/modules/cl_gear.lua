@@ -33,6 +33,8 @@ end
 ---------------------------------------------------------
 
 net.Receive("deadremains.gear.gtgrfull", function(bits)
+	local store = deadremains.store.main_menu
+
 	local steamID = net.ReadString()
 
 	for i = 1, inventory_equip_maximum do
@@ -169,6 +171,7 @@ net.Receive("deadremains.gear.gtgrslot", function(bits)
 	local steamID = net.ReadString()
 	local remove = net.ReadBit()
 	local player = util.FindPlayer(steamID)
+	local store = deadremains.store.main_menu
 	
 	if (remove == 1) then
 		if (IsValid(cache[steamID][item.slot].entity)) then

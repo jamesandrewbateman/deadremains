@@ -10,6 +10,7 @@ include("modules/sh_inventory.lua")
 include("modules/cl_inventory.lua")
 include("modules/cl_team.lua")
 include("modules/cl_gear.lua")
+include("modules/cl_character.lua")
 
 include("panels/button.lua")
 include("panels/combo_box.lua")

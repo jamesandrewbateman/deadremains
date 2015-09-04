@@ -11,6 +11,7 @@ AddCSLuaFile("modules/sh_inventory.lua")
 AddCSLuaFile("modules/cl_inventory.lua")
 AddCSLuaFile("modules/cl_gear.lua")
 AddCSLuaFile("modules/cl_team.lua")
+AddCSLuaFile("modules/cl_character.lua")
 
 AddCSLuaFile("panels/button.lua")
 AddCSLuaFile("panels/combo_box.lua")

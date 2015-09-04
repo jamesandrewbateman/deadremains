@@ -27,6 +27,25 @@ function panel:addOption(name, callback)
 	table.insert(self.options, {name = name, callback = callback})
 end
 
+function panel:removeOption(name)
+	local optionIndex = -1
+	for k,v in pairs(self.options) do
+		if v.name == name then optionIndex = k end
+	end
+
+	if (optionIndex == -1) then
+		error("Could not find option with name: ", name)
+	else
+		table.remove(self.options, optionIndex)
+	end
+end
+
+function panel:clearOptions()
+	for k,v in pairs(self.options) do
+		table.remove(self.options, k)
+	end
+end
+
 ----------------------------------------------------------------------
 -- Purpose:
 --		
