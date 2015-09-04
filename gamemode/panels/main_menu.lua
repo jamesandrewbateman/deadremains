@@ -75,7 +75,7 @@ function ShowMenu()
 
 			characteristics_panel:initCategories()
 
-			main_menu:addPanel(nil, "characteristics_panel", inventory_panel)
+			main_menu:addPanel(nil, "characteristics_panel", characteristics_panel)
 
 			nextFrame(function()
 				main_menu:InvalidateLayout(true)
@@ -83,11 +83,7 @@ function ShowMenu()
 			end)
 		end
 
-		print("calling")
-		--if (IsValid(characteristics_panel)) then
-			print("called")
-			characteristics_panel:SetVisible(true)
-		--end
+		characteristics_panel:SetVisible(true)
 
 		main_menu:setTitle("SKILLS")
 	end)

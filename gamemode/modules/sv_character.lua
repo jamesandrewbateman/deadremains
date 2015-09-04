@@ -1,6 +1,7 @@
 deadremains.characteristics = {}
 
 function deadremains.characteristics()
+	-- now we sample the database
 end
 
 util.AddNetworkString("deadremains.character.new")
