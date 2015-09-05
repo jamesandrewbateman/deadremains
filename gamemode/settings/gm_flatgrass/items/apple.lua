@@ -1,7 +1,9 @@
 item.unique = "apple"
 
 -- The model that this item should have.
-item.model = "models/props_junk/watermelon01.mdl"
+item.model = "models/Gibs/HGIBS.mdl"
+
+item.colour = Color(0, 155, 0)
 
 -- How many horizontal slots this item should take.
 item.slots_horizontal = 1
@@ -33,4 +35,5 @@ item.context_menu = {item_function_consume, item_function_drop, item_function_de
 ----------------------------------------------------------------------
 
 function item:use(player)
+	print("HELLO WORLD")
 end

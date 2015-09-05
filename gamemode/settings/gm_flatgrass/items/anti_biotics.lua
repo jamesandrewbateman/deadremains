@@ -1,7 +1,7 @@
 item.unique = "anti_biotics"
 
 -- The model that this item should have.
-item.model = "models/props_urban/tire001.mdl"
+item.model = "models/props_junk/garbage_milkcarton002a.mdl"
 
 -- How many horizontal slots this item should take.
 item.slots_horizontal = 1
