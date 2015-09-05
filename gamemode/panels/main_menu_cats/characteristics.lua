@@ -6,7 +6,7 @@ local panel = {}
 
 function panel:Init()
 	--self:DockPadding(25, 25, 25, 25)
-	self:SetWide(200 * STORE_SCALE_X)
+	self:SetWide(300 * STORE_SCALE_X)
 	self:SetTall(620 * STORE_SCALE_Y)
 end
 

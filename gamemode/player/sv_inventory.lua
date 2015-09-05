@@ -1,4 +1,4 @@
-
+--! @module serverside inventory handling (adding, removing, move.etc)
 util.AddNetworkString("deadremains.gear.rqgrfull")
 
 ----------------------------------------------------------------------
@@ -137,10 +137,15 @@ function player_meta:networkInventory(inventory_index)
 	net.Send(self)
 end
 
-concommand.Add("networkinventory", function(ply)
+--! @brief sends the inventory slot data of all inventories to the client.
+function player_meta:networkInventoryAll()
 	for k,v in pairs(ply.dr_character.inventory) do
-		ply:networkInventory(k)
+		self:networkInventory(k)
 	end
+end
+
+concommand.Add("networkinventory", function(ply)
+	ply:networkInventoryAll()
 end)
 
 ----------------------------------------------------------------------

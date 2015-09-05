@@ -86,21 +86,6 @@ function panel:showButtons()
 				--self:showCharacter()
 			end)
 		end
-		
-		local line = self.buttons_base:Add("Panel")
-		line:Dock(TOP)
-		line:DockMargin(STORE_SCALE_X * 256, 0, STORE_SCALE_X * 256, 0)
-		line:SetTall(1)
-
-		function line:Paint(w, h)
-			draw.simpleRect(0, 0, w, h, color_line)
-		end
-		
-		local button_settings = self.buttons_base:Add("deadremains.button")
-		button_settings:setName("Settings")
-		button_settings:Dock(TOP)
-		button_settings:DockMargin(STORE_SCALE_X * 128, STORE_SCALE_Y * 24, STORE_SCALE_X * 128, 0)
-		button_settings:SetTall(STORE_SCALE_Y * 48 +20 *2)
 	end
 
 	self.buttons_base:SetVisible(true)

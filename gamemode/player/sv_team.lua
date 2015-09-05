@@ -1,8 +1,3 @@
-----------------------------------------------------------------------
--- Purpose:
---	Networked team variables
-----------------------------------------------------------------------
-
 function player_meta:setTeam(team_id, is_gov)
 	self.dr_character.team.id = team_id
 	self.dr_character.team.is_gov = is_gov
@@ -16,7 +11,7 @@ function player_meta:getTeam()
 end
 
 function player_meta:isGov()
-	return self.dr_character.team.is_gov == 1
+	return (self.dr_character.team.is_gov or 0) == 1
 end
 
 function player_meta:inTeam()

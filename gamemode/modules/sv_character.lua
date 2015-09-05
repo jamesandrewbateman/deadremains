@@ -1,7 +1,9 @@
-deadremains.characteristics = {}
+deadremains.skills = {}
 
-function deadremains.characteristics()
+function deadremains.skills.getStartValues()
 	-- now we sample the database
+	-- to find out which characteristics are the least.
+
 end
 
 util.AddNetworkString("deadremains.character.new")

@@ -229,7 +229,7 @@ function player_meta:loadFromMysql()
 			-- when finished setting skills
 			-- push loaded skills data to the client
 			-- needs are done automagically.
-			net.Start("deadremains.getskill")
+			net.Start("deadremains.getskills")
 				net.WriteUInt(table.Count(skills), 32)
 				for k,v in pairs(skills) do
 					if self:getSkill(v.unique) == 1 then

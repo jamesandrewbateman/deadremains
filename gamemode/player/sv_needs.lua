@@ -1,7 +1,4 @@
-----------------------------------------------------------------------
--- Purpose:
---	So that the values can be loaded in from an sql result string.
-----------------------------------------------------------------------
+--! @module	So that the values can be loaded in from an sql result string.
 
 function player_meta:setNeed(need_unique, value)
 	-- get a reference to a function pointer

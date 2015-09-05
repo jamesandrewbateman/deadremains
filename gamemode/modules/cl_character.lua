@@ -32,7 +32,7 @@ end
 --		
 ----------------------------------------------------------------------
 
-net.Receive("deadremains.getskill", function(bits)
+net.Receive("deadremains.getskills", function(bits)
 	local len = net.ReadUInt(8)
 
 	-- Clear all the skills.

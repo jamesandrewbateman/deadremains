@@ -26,8 +26,8 @@ if (SERVER) then
 end
 
 if (CLIENT) then
-	STORE_SCALE_X = math.Clamp(ScrW() / 1204, 0, 3)
-	STORE_SCALE_Y = math.Clamp(ScrH() / 756, 0, 3)
+	STORE_SCALE_X = math.Clamp(ScrW() / 1204, 0, 2)
+	STORE_SCALE_Y = math.Clamp(ScrH() / 756, 0, 2)
 	slot_size = slot_size * STORE_SCALE_Y
 
 	-- hacky fix

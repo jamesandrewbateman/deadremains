@@ -1,5 +1,3 @@
-
-
 local function default(self)
 	-- loads all the default data into containers.
 	local needs = deadremains.settings.get("needs")
@@ -50,11 +48,7 @@ local function default(self)
 	self.dr_character.max_weight = 20
 end
 
-----------------------------------------------------------------------
--- Purpose:
---		
-----------------------------------------------------------------------
-
+--! @brief prepares the player_meta.dr_character table for all incoming data.
 function player_meta:reset()
 	self.dr_character = {}
 
@@ -75,7 +69,7 @@ end
 function player_meta:initializeCharacter()
 	self:reset()
 
-	timer.Simple(2, function()
+	timer.Simple(1, function()
 		self:loadFromMysql()
 	end)
 end

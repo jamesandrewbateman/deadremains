@@ -16,6 +16,10 @@ end
 --		
 ----------------------------------------------------------------------
 
+local function getData()
+	return 
+end
+
 function panel:setInventory(inventory_index, data)
 	self.slots = self:Add("deadremains.slots")
 	self.slots:SetPos(0, 32 * STORE_SCALE_Y)
@@ -29,14 +33,22 @@ function panel:setInventory(inventory_index, data)
 
 	local inventory = deadremains.inventory.getc(inventory_index)
 
+	--! @hack my async way of making sure we don't proceed until we have the data.
 	if not inventory then
-		LocalPlayer():ConCommand("networkinventory")
-		inventory = deadremains.inventory.getc(inventory_index)
+		LocalPlayer():ConCommand("syncdata")
+
+		timer.Simple(1, function()
+			inventory = deadremains.inventory.getc(inventory_index)	
+
+			if inventory then
+				inventory:setPanel(self.slots)
+				self.slots:rebuild()
+			end
+		end)
+	else		
+		inventory:setPanel(self.slots)
+		self.slots:rebuild()
 	end
-
-	inventory:setPanel(self.slots)
-
-	self.slots:rebuild()
 end
 
 function panel:rebuild()
