@@ -24,6 +24,8 @@ item.rotate = 45
 -- How much this item weighs.
 item.weight = 1000
 
+item.meta["type"] = item_type_weapon
+
 -- What functions exists on the context menu.
 item.context_menu = {item_function_consume, item_function_drop, item_function_destroy}
 

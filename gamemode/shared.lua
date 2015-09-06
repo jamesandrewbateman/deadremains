@@ -52,3 +52,17 @@ inventory_equip_primary = 6
 inventory_equip_secondary = 7
 
 inventory_equip_maximum = 7
+
+item_type_consumable = 1
+item_type_weapon = 2
+item_type_craftable = 3
+item_type_building = 4
+item_type_gear = 5
+
+function type_to_string(item_type)
+	if item_type == 1 then return "consumable" end
+	if item_type == 2 then return "weapon" end
+	if item_type == 3 then return "craftable" end
+	if item_type == 4 then return "building" end
+	if item_type == 5 then return "gear" end
+end

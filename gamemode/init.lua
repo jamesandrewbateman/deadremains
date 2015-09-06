@@ -27,6 +27,7 @@ AddCSLuaFile("panels/main_menu_cats/equipment.lua")
 AddCSLuaFile("panels/main_menu_cats/skills.lua")
 AddCSLuaFile("panels/main_menu_cats/team.lua")
 AddCSLuaFile("panels/main_menu_cats/characteristics.lua")
+AddCSLuaFile("panels/deadmin_menu.lua")
 
 include("shared.lua")
 include("sh_utilities.lua")
@@ -57,6 +58,14 @@ function GM:Initialize()
 
 	-- stored[name], hostname, username, password, database, port, (Optional) unixsocketpath, (Optional) clientflags
 	deadremains.sql.connect()
+
+	-- autoreconnect
+	timer.Create("deadremains.sqlreconnect", 10, 0, function()
+		if not deadremains.sql.isConnected(database_main) then
+			print("Could not find connection, reconnecting")
+			deadremains.sql.connect()
+		end
+	end)
 end
 ----------------------------------------------------------------------
 -- Purpose:

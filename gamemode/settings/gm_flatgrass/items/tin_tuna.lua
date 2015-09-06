@@ -1,4 +1,4 @@
-item.unique = "tim_tuna"
+item.unique = "tin_tuna"
 
 -- The model that this item should have.
 item.model = "models/props_junk/MetalBucket02a.mdl"
@@ -23,6 +23,8 @@ item.rotate = 45
 
 -- How much this item weighs.
 item.weight = 200
+
+item.meta["type"] = item_type_consumable
 
 -- What functions exists on the context menu.
 item.context_menu = {item_function_consume, item_function_drop, item_function_destroy}

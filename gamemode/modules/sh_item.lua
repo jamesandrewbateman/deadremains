@@ -28,6 +28,10 @@ function deadremains.item.get(unique)
 	return stored[unique]
 end
 
+function deadremains.item.getAll()
+	return stored
+end
+
 ----------------------------------------------------------------------
 -- Purpose:
 --		

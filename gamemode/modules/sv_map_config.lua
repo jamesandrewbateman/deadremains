@@ -18,15 +18,8 @@ function deadremains.map_config.initialize(database_name, map_name)
 			deadremains.log.write(deadremains.log.mysql, "Map config for " .. map_name .. " found...")
 
 			for row_number,item in pairs(data) do
-				-- spawn the item
-				local i = deadremains.item.get(item["name"])
 
-				local ent = ents.Create("deadremains_item")
-				ent:SetPos(Vector(item["x"], item["y"], item["z"]))
-				ent:SetModel(i.model)
-				ent:Spawn()
-
-				ent.item = i.unique
+				deadremains.item.mapSpawn(item["name"], Vector(item.x, item.y, item.z), i.model)
 			end
 
 		else

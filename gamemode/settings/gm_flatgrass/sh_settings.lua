@@ -1,3 +1,8 @@
+deadremains.settings.new("cl_defaults",
+	{
+		spawn_rarity = 0.5
+	}
+)
 
 ----------------------------------------------------------------------
 -- Purpose:

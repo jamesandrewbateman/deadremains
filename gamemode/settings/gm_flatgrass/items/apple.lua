@@ -26,6 +26,8 @@ item.rotate = 45
 -- How much this item weighs.
 item.weight = 30
 
+item.meta["type"] = item_type_consumable
+
 -- What functions exists on the context menu.
 item.context_menu = {item_function_consume, item_function_drop, item_function_destroy}
 
@@ -35,5 +37,4 @@ item.context_menu = {item_function_consume, item_function_drop, item_function_de
 ----------------------------------------------------------------------
 
 function item:use(player)
-	print("HELLO WORLD")
 end

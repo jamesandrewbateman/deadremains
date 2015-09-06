@@ -1,7 +1,7 @@
 item.unique = "antipsych"
 
 -- The model that this item should have.
-item.model = "models/props_urban/tire001.mdl"
+item.model = "models/props_junk/shoe001a.mdl"
 
 -- How many horizontal slots this item should take.
 item.slots_horizontal = 1
@@ -23,6 +23,8 @@ item.rotate = 45
 
 -- How much this item weighs.
 item.weight = 20
+
+item.meta["type"] = item_type_consumable
 
 -- What functions exists on the context menu.
 item.context_menu = {item_function_consume, item_function_drop, item_function_destroy}

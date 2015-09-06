@@ -106,6 +106,11 @@ function deadremains.sql.connect()
 	deadremains.sql.intialize(database_main, "localhost", "root", "", "deadremains", 3306)
 	deadremains.map_config.initialize(database_main, "gm_flatgrass")
 end
+
+function deadremains.sql.isConnected(name)
+	return deadremains.sql.stored[name] ~= nil
+end
+
 ----------------------------------------------------------------------
 -- Purpose:
 --		
@@ -113,6 +118,10 @@ end
 
 function deadremains.sql.query(name, query, callback_success, callback_failed)
 	local database = deadremains.sql.stored[name]
+
+	if not deadremains.sql.isConnected(name) then
+		deadremains.sql.connect()
+	end
 	
 	if (database) then
 		database:Query(query, function(result) handleCallback(name, query, result, callback_success, callback_failed) end)

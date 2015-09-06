@@ -24,6 +24,8 @@ item.rotate = 90
 -- How much this item weighs.
 item.weight = 4
 
+item.meta["type"] = item_type_weapon
+
 -- What equipment slot this item can be placed in.
 item.equip_slot = bit.bor(bit.lshift(1, inventory_equip_primary), bit.lshift(1, inventory_equip_secondary))
 
