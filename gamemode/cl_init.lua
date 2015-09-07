@@ -2,6 +2,7 @@ deadremains = {}
 
 include("shared.lua")
 include("sh_utilities.lua")
+include("modules/cl_netrequest.lua")
 include("modules/sh_log.lua")
 include("modules/sh_settings.lua")
 include("modules/sh_item.lua")

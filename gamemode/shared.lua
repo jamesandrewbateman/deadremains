@@ -66,3 +66,7 @@ function type_to_string(item_type)
 	if item_type == 4 then return "building" end
 	if item_type == 5 then return "gear" end
 end
+
+
+-- client send message to server to execute code
+-- server send message back to client to tell it we're done.

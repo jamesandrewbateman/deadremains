@@ -7,6 +7,16 @@ net.Receive("deadremains.sendItemCount", function(bits, ply)
 	deadremains.deadmin.itemcount[unique] = count
 end)
 
+concommand.Add("spawn_menu_deadmin", function()
+	deadremains.deadmin.spawn_menu = vgui.create("DFrame")
+	deadremains.deadmin.spawn_menu:SetSize(ScrW() * 0.3, ScrH() * 0.3)
+	deadremains.deadmin.spawn_menu:SetPos(ScrW() * -0.002, ScrH() * 0.002)
+	deadremains.deadmin.spawn_menu:SetTitle('Deadmin Spawn Item')
+	deadremains.deadmin.spawn_menu:SetSizable(true)
+	deadremains.deadmin.spawn_menu:SetDeleteOnClose(false)
+	deadremains.deadmin.spawn_menu:MakePopup()
+end)
+
 concommand.Add("open_deadmin", function()
 	-- load data required
 	net.Start("deadremains.getItemCounts")

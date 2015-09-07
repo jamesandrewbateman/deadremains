@@ -18,7 +18,7 @@ function deadremains.map_config.initialize(database_name, map_name)
 			deadremains.log.write(deadremains.log.mysql, "Map config for " .. map_name .. " found...")
 
 			for row_number,item in pairs(data) do
-
+				local i = inventory.item.get(item["name"])
 				deadremains.item.mapSpawn(item["name"], Vector(item.x, item.y, item.z), i.model)
 			end
 
