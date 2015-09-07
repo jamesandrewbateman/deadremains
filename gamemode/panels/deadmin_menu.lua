@@ -3,11 +3,13 @@ deadremains.deadmin.itemcount = {}
 
 
 deadremains.netrequest.create("load_deadmin_items", function(data)
-	print("clientside callback called.")
+	print("Clientside called")
 	if (data) then
-		PrintTable(data)
 		for k,v in pairs(data) do
-			deadremains.deadmin.itemcount[v.unique] = v.count
+			deadremains.deadmin.itemcount[v.unique] = {
+				count = v.count,
+				type = v.type
+			}
 		end
 
 		ShowDeadmin()
@@ -19,7 +21,7 @@ concommand.Add("show_deadmin", function()
 end)
 
 function ShowDeadmin()
-	local items = deadremains.item.getAll()
+	local itemcount = deadremains.deadmin.itemcount
 
 	deadremains.deadmin.main = vgui.Create('DFrame')
 	deadremains.deadmin.main:SetSize(ScrW() * 0.61, ScrH() * 0.609)
@@ -50,9 +52,9 @@ function ShowDeadmin()
 	consumable_cat:SetContents(item_list)
 
 	-- populate the list.
-	for k,v in pairs(items) do
-		if v.meta["type"] == item_type_consumable then
-			item_list:AddLine(v.unique, type_to_string(v.meta["type"]), deadremains.deadmin.itemcount[v.unique] or 0)
+	for k,v in pairs(itemcount) do
+		if v.type == item_type_consumable then
+			item_list:AddLine(k, type_to_string(v.type), v.count)
 		end
 	end
 

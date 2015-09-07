@@ -9,15 +9,27 @@ deadremains.netrequest.create("load_deadmin_items", function()
 	local temp_data = {}
 	for k,v in pairs(ents.GetAll()) do
 		if IsValid(v) then
-			if v.meta then
-				-- it's an item
-				temp_data[v.unique] = 1 + (temp_data[v.unique] or 0)
+			if v.item then
+				local i = deadremains.item.get(v.item)
+
+				if temp_data[v.item] then
+					-- specify data to send back.
+					temp_data[v.item] = {
+						count = 1 + temp_data[v.item].count,
+						type = i.meta["type"]
+					}
+				else
+					temp_data[v.item] = {
+						count = 1,
+						type = i.meta["type"]
+					}
+				end
 			end
 		end
 	end
 
 	for k,v in pairs(temp_data) do
-		table.insert(data, {unique=k, count=v})
+		table.insert(data, {unique=k, count=v.count, type=v.type})
 	end
 
 	return data
