@@ -1,7 +1,7 @@
 deadremains.netrequest = {}
 deadremains.netrequest.requests = {}
 
-function deadremains.v.listen(name)
+function deadremains.netrequest.listen(name)
 	local request_table;
 	for k,v in pairs(deadremains.netrequest.requests) do
 		if (v) then

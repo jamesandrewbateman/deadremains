@@ -2,27 +2,25 @@
 -- Purpose:
 --		
 ----------------------------------------------------------------------
-deadremains.item.spawn_count = {}
-function deadremains.item.spawnedItem(unique)
-	local item_count = deadremains.item.spawn_count[unique]
+-- always listen
+deadremains.netrequest.create("load_deadmin_items", function()
+	local data = {}
 
-	if item_count == nil then
-		deadremains.item.spawn_count[unique] = 1
-	else
-		deadremains.item.spawn_count[unique] = deadremains.item.spawn_count[unique] + 1
+	local temp_data = {}
+	for k,v in pairs(ents.GetAll()) do
+		if IsValid(v) then
+			if v.meta then
+				-- it's an item
+				temp_data[v.unique] = 1 + (temp_data[v.unique] or 0)
+			end
+		end
 	end
-end
 
-util.AddNetworkString("deadremains.getItemCounts")
-util.AddNetworkString("deadremains.sendItemCount")
-
-net.Receive("deadremains.getItemCounts", function(bits, ply)
-	for k,v in pairs(deadremains.item.spawn_count) do
-		net.Start("deadremains.sendItemCount")
-			net.WriteString(k)
-			net.WriteUInt(v, 32)
-		net.Send(ply)
+	for k,v in pairs(temp_data) do
+		table.insert(data, {unique=k, count=v})
 	end
+
+	return data
 end)
 
 function deadremains.item.mapSpawn(unique, position, model)
@@ -35,8 +33,6 @@ function deadremains.item.mapSpawn(unique, position, model)
 		entity:Spawn()
 
 		entity.item = item.unique
-
-		deadremains.item.spawnedItem(item.unique)
 	end
 end
 
@@ -57,8 +53,6 @@ function deadremains.item.spawn(player, cmd, args)
 		entity:Spawn()
 
 		entity.item = item.unique
-
-		deadremains.item.spawnedItem(item.unique)
 	end
 end
 
@@ -75,8 +69,6 @@ function deadremains.item.spawn_meta(player, unique, meta_data)
 
 		entity.item = item.unique
 		entity.meta = table.Copy(meta_data)
-
-		deadremains.item.spawnedItem(item.unique)
 	end
 end
 

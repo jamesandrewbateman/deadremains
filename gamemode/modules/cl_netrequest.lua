@@ -25,5 +25,4 @@ end
 
 function deadremains.netrequest.create(name, callback)
 	table.insert(deadremains.netrequest.requests, {Name=name, Callback=callback})
-	deadremains.netrequest.trigger(name)
 end
