@@ -36,27 +36,34 @@ function ShowDeadmin()
 
 	-- Spawning panel
 	local spawning_panel = vgui.Create("DPanel", sheet)
-	local cat_height = deadremains.deadmin.main:GetTall() / 4
-	
-	-- Consumables
-	local consumable_cat = vgui.Create("DCollapsibleCategory", spawning_panel)
-	consumable_cat:Dock(FILL)
-	consumable_cat:SizeToChildren(false, true)
-	consumable_cat:SetLabel("Consumables")
+	spawning_panel:Dock(FILL)
+	spawning_panel:SetBackgroundColor(Color(155, 155, 155))
+
+	local button = vgui.Create("DButton", sheet)
+	button:Dock(TOP)
+	button:SetTall(25)
+	button:SetColor(Color(0, 155, 0))
+	button:SetText("Spawn New Item")
 
 	local item_list = vgui.Create("DListView", spawning_panel)
+	item_list:Dock(TOP)
+	item_list:DockMargin(0, 8, 0, 0)
+	--item_list:SetTall(deadremains.deadmin.main:GetTall())
 	item_list:SetMultiSelect(false)
 	item_list:AddColumn("Name")
 	item_list:AddColumn("Type")
 	item_list:AddColumn("Map Count")
-	consumable_cat:SetContents(item_list)
 
-	-- populate the list.
-	for k,v in pairs(itemcount) do
-		if v.type == item_type_consumable then
-			item_list:AddLine(k, type_to_string(v.type), v.count)
-		end
+	local function AddItem(unique, item_data)
+		item_list:AddLine(unique, type_to_string(item_data.type), item_data.count)
 	end
 
+	-- populate the lists.
+	for k,v in pairs(itemcount) do
+		AddItem(k, v)
+	end
+
+	-- make it the correct size
+	item_list:SizeToContents()
 	sheet:AddSheet("Spawning", spawning_panel, "icon16/wand.png")
 end
