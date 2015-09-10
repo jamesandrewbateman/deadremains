@@ -24,55 +24,56 @@ function player_meta:newCharacter(model, gender)
 	self.dr_character.gender = gender
 
 	-- flags
-	self.dr_character.debuffs = {
-		COLD = 0,
-		SICKNESS = 0,
-		HEART_ATTACK = 0,
-		UNCONCIOUS = 0,
-		TIREDNESS = 0,
-		BANDIT = 0,
-		DEPRESSION = 0,
-		PSYCHOSIS = 0,
-		ZINFECTED_HIT = 0,
-		ZINFECTED_BLOOD = 0,
-		DEHYDRATED = 0,
-		STARVATION = 0,
-		BLEEDING = 0,
-		RESTRAINED = 0
-	}
+	self.dr_character.debuffs = {}
+	self.dr_character.debuffs["COLD"] = 0
+	self.dr_character.debuffs["SICKNESS"] = 0
+	self.dr_character.debuffs["HEART_ATTACK"] = 0
+	self.dr_character.debuffs["UNCONCIOUS"] = 0
+	self.dr_character.debuffs["TIREDNESS"] = 0
+	self.dr_character.debuffs["BANDIT"] = 0
+	self.dr_character.debuffs["DEPRESSION"] = 0
+	self.dr_character.debuffs["PSYCHOSIS"] = 0
+	self.dr_character.debuffs["ZINFECTED_HIT"] = 0
+	self.dr_character.debuffs["ZINFECTED_BLOOD"] = 0
+	self.dr_character.debuffs["DEHYDRATED"] = 0
+	self.dr_character.debuffs["STARVATION"] = 0
+	self.dr_character.debuffs["BLEEDING"] = 0
+	self.dr_character.debuffs["RESTRAINED"] = 0
 
-	self.dr_character.buffs = {
-		HYDRATED = 1,
-		FULL = 1,
-		ZINVISIBLE = 0,
-		BOOST = 0,
-		PAUSE = 0,
-		HEALTHY = 0,
-		ATHLETIC = 0,
-		IRON_MAN = 0,
-		RIPPED = 0,
-		WARM = 0,
-		HERO = 0
-	}
+	self.dr_character.buffs = {}
+	self.dr_character.buffs["HYDRATED"] = 1
+	self.dr_character.buffs["FULL"] = 1
+	self.dr_character.buffs["ZINVISIBLE"] = 0
+	self.dr_character.buffs["BOOST"] = 0
+	self.dr_character.buffs["PAUSE"] = 0
+	self.dr_character.buffs["HEALTHY"] = 0
+	self.dr_character.buffs["ATHLETIC"] = 0
+	self.dr_character.buffs["IRON_MAN"] = 0
+	self.dr_character.buffs["RIPPED"] = 0
+	self.dr_character.buffs["WARM"] = 0
+	self.dr_character.buffs["HERO"] = 0
 
 	self.dr_character.created = true
 end
 
 deadremains.character = {}
+-- list of functions with strings as keys
+-- these are ran if the condition of the buff/debuff is met.
+deadremains.character.flagCheckFuncs = {}
+deadremains.character.processFlagFuncs = {}
 
 -- looper to apply these to all players online.
 timer.Create("deadremains.buffschecker", 1, 0, function()
 	for k,ply in pairs(player.GetAll()) do
-		if (IsValid(ply) and ply.dr_character.created) then
+		if (IsValid(ply) and (ply.dr_character.created == true)) then
 
 			-- process each flag one by one
 			for unique, flag in pairs(ply.dr_character.buffs) do
 				if (flag == 1) then
 					if (deadremains.character.flagCheckFuncs[unique] ~= nil) then
-						flag = deadremains.character.flagCheckFuncs[unique]
+						flag = deadremains.character.flagCheckFuncs[unique](ply)
 
 						if (flag == 1) then
-							print("Processing flag", unique)
 							deadremains.character.processFlagFuncs[unique](ply)
 						end
 					end
@@ -83,19 +84,14 @@ timer.Create("deadremains.buffschecker", 1, 0, function()
 	end
 end)
 
--- list of functions with strings as keys
--- these are ran if the condition of the buff/debuff is met.
-deadremains.character.flagCheckFuncs = {}
-deadremains.character.processFlagFuncs = {}
-
 -- ran every second if enabled.
 
 deadremains.character.flagCheckFuncs["HYDRATED"] = function(ply)
 	if (ply:getThirst() > 80) then return 1 else return 0 end
 end
-deadremains.character.processFlagFuncs["HYRDRATED"] = function(ply)
-	local v = math.Clamp(ply:Heath() + (1/60), 0, 100)
-	ply:SetHealth(v)
+deadremains.character.processFlagFuncs["HYDRATED"] = function(ply)
+	--local v = math.Clamp(ply:Health() + (1/60), 0, 100)
+	ply:SetHealth(math.Clamp(ply:Health() + (1/60), 0, 100))
 end
 
 deadremains.character.flagCheckFuncs["FULL"] = function(ply)
