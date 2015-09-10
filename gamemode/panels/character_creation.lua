@@ -310,11 +310,10 @@ vgui.Register("deadremains.character.creation", panel, "EditablePanel")
 
 
 timer.Simple(0.1, function()
-print("Reloaded char creation")
-if (IsValid(testmenu)) then testmenu:Remove() end
-testmenu = vgui.Create("deadremains.character.creation")
-testmenu:SetSize(ScrW(), ScrH())
+	if (IsValid(testmenu)) then return end
 
-gui.EnableScreenClicker(true)
+	testmenu = vgui.Create("deadremains.character.creation")
+	testmenu:SetSize(ScrW(), ScrH())
 
+	gui.EnableScreenClicker(true)
 end)

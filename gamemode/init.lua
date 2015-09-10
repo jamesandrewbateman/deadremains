@@ -14,6 +14,7 @@ AddCSLuaFile("modules/cl_gear.lua")
 AddCSLuaFile("modules/cl_team.lua")
 AddCSLuaFile("modules/sh_character.lua")
 AddCSLuaFile("modules/cl_character.lua")
+AddCSLuaFile("cl_player.lua")
 
 AddCSLuaFile("panels/button.lua")
 AddCSLuaFile("panels/combo_box.lua")
@@ -56,6 +57,7 @@ database_main = "deadremains"
 ----------------------------------------------------------------------
 
 function GM:Initialize()
+	print("Starting")
 	deadremains.sql.setupModules()
 
 	-- stored[name], hostname, username, password, database, port, (Optional) unixsocketpath, (Optional) clientflags

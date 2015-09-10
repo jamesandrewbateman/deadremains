@@ -5,7 +5,12 @@ deadremains.loader = {}
 --		
 ----------------------------------------------------------------------
 
+deadremains.loader.loaded = false
 function deadremains.loader.initialize()
+	if (deadremains.loader.loaded) then return end
+	deadremains.loader.loaded = true
+
+	print("Loader.Initialize()")
 	local GAMEMODE = GM
 	local map = string.lower(game.GetMap())
 	local directory = GAMEMODE.FolderName .. "/gamemode/settings/" .. map

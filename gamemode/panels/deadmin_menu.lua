@@ -1,9 +1,7 @@
 deadremains.deadmin = {}
 deadremains.deadmin.itemcount = {}
 
-
 deadremains.netrequest.create("load_deadmin_items", function(data)
-	print("Clientside called")
 	if (data) then
 		for k,v in pairs(data) do
 			deadremains.deadmin.itemcount[v.unique] = {
@@ -16,8 +14,31 @@ deadremains.netrequest.create("load_deadmin_items", function(data)
 	end
 end)
 
+concommand.Add("show_deadmin_spawnitem", function()
+	if (LocalPlayer():IsAdmin()) then
+		local si_frame = vgui.Create("DFrame")
+		si_frame:SetSize(256, 256)
+		si_frame:SetPos(10, 10)
+		si_frame:MakePopup()
+		si_frame:SetTitle("Spawn new item");
+
+		local si_textbox = vgui.Create("DTextEntry", si_frame)
+		si_textbox:SetText("Name of item.")
+		si_textbox:SetPos(2, 30)
+		si_textbox:SetSize(252, 16)
+
+		local si_rslider = vgui.Create("Slider", si_frame)
+		si_rslider:SetPos(2, 50)
+		si_rslider:SetSize(252, 16)
+		si_rslider:SetMin(0)
+		si_rslider:SetMax(100)
+	end
+end)
+
 concommand.Add("show_deadmin", function()
-	deadremains.netrequest.trigger("load_deadmin_items")
+	if (LocalPlayer():IsAdmin()) then
+		deadremains.netrequest.trigger("load_deadmin_items")
+	end
 end)
 
 function ShowDeadmin()
@@ -39,11 +60,15 @@ function ShowDeadmin()
 	spawning_panel:Dock(FILL)
 	spawning_panel:SetBackgroundColor(Color(155, 155, 155))
 
+	-- Spawning button
 	local button = vgui.Create("DButton", sheet)
 	button:Dock(TOP)
 	button:SetTall(25)
 	button:SetColor(Color(0, 155, 0))
 	button:SetText("Spawn New Item")
+	button.DoClick = function()
+		LocalPlayer():ConCommand("show_deadmin_spawnitem")
+	end
 
 	local item_list = vgui.Create("DListView", spawning_panel)
 	item_list:Dock(TOP)

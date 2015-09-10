@@ -13,6 +13,8 @@ function ShowMenu()
 		return
 	end
 
+	-- lets replace this with a netrequest
+	
 	-- Network the variables.
 	LocalPlayer():ConCommand("syncdata")
 

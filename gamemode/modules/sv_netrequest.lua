@@ -15,12 +15,12 @@ function deadremains.netrequest.listen(name)
 	util.AddNetworkString("STC".. request_table.Name)
 
 	net.Receive("CTS".. request_table.Name, function(bits, ply)
-		local data = request_table.Callback()
+		local response_data = request_table.Callback(ply)
 
 		timer.Simple(0.1, function()
 			net.Start("STC".. request_table.Name)
-				if (data) then
-					net.WriteTable(data)
+				if (response_data) then
+					net.WriteTable(response_data)
 				end
 			net.Send(ply)
 		end)

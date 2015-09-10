@@ -26,6 +26,8 @@ include("panels/deadmin_menu.lua")
 include("modules/sh_character.lua")
 include("modules/cl_character.lua")
 
+include("cl_player.lua")
+
 deadremains.loader.initialize()
 
 ----------------------------------------------------------------------

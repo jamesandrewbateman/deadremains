@@ -2,6 +2,7 @@ deadremains.netrequest = {}
 deadremains.netrequest.requests = {}
 
 function deadremains.netrequest.trigger(name)
+	-- friend the request which matches this name.
 	local request_table;
 	for k,v in pairs(deadremains.netrequest.requests) do
 		if (v) then
@@ -11,11 +12,13 @@ function deadremains.netrequest.trigger(name)
 		end
 	end
 
+	-- setup listen to fire callback when received.
 	net.Receive("STC".. request_table.Name, function(bits, ply)
 		local data = net.ReadTable()
 		request_table.Callback(data)
 	end)
 
+	-- response to client after 0.1 seconds.
 	timer.Simple(0.1, function()
 		net.Start("CTS".. request_table.Name)
 		net.SendToServer()
@@ -24,5 +27,10 @@ end
 
 
 function deadremains.netrequest.create(name, callback)
-	table.insert(deadremains.netrequest.requests, {Name=name, Callback=callback})
+	local request = {
+		Name = name,
+		Callback = callback
+	}
+	
+	table.insert(deadremains.netrequest.requests, request)
 end
