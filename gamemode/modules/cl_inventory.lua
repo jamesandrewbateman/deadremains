@@ -1,3 +1,19 @@
+concommand.Add("inventory", function()
+	-- we send a show_menu flag to indicate whether the UI should popup on this event or not.
+	deadremains.netrequest.trigger("deadremains.syncdata", {
+			show_menu = 1
+		})
+end)
+
+-- syncdata event callback, fired whenever syncdata is called.
+deadremains.netrequest.create("deadremains.syncdata", function(data)
+	if (not data) then return end
+	if (data.show_menu == 1) then
+		ShowMenu()
+	end
+end)
+
+
 local stored = {}
 
 local meta_table = {}
