@@ -26,8 +26,11 @@ item.weight = 650
 
 item.meta["type"] = item_type_gear
 
+-- What equipment slot this item can be placed in.
+item.equip_slot = bit.lshift(1, inventory_equip_chest)
+
 -- What functions exists on the context menu.
-item.context_menu = {item_function_consume, item_function_drop, item_function_destroy}
+item.context_menu = {item_function_drop, item_function_destroy}
 
 ----------------------------------------------------------------------
 -- Purpose:

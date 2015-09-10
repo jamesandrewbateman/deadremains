@@ -27,7 +27,9 @@ function player_meta:findSuitableInventory(unique)
 			local success, message
 
 			for _, data in pairs(self.dr_character.inventory) do
-				if (bit.band(bit.lshift(1, data.inventory_index), item.equip_slot) != 0 and #data.slots <= 0) then
+				local slotCheck = bit.band(bit.lshift(1, data.inventory_index), item.equip_slot)
+
+				if ((slotCheck ~= 0) and (#data.slots <= 0)) then
 					success, message = self:addItem(data.inventory_index, unique)
 
 					if (success) then
@@ -61,7 +63,7 @@ function player_meta:findSuitableInventory(unique)
 			end
 			
 			if (!success) then
-				return false, "Could not find any suitable inventory."
+				return false, "Could not find suitable inventory."
 			end
 		end
 	end

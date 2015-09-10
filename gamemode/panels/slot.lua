@@ -178,9 +178,6 @@ function panel:Paint(w, h)
 				end
 			end
 
-			PrintTable(slots_free)
-
-
 			if (moving_slot.size == #slots_free) then
 				for k = 1, moving_slot.size do
 					local i = slots_free[k]
