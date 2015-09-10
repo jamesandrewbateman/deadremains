@@ -61,7 +61,8 @@ concommand.Add("show_deadmin_spawnitem", function()
 			local freq = si_fslider:GetValue()
 			local unique = si_textbox:GetValue()
 
-			deadremains.netrequest.trigger("deadremains.spawnitem", {
+			deadremains.netrequest.trigger("deadremains.spawnitem",
+			{
 				unique = unique,
 				frequency = freq,
 				rariy = rariy
@@ -121,6 +122,15 @@ function ShowDeadmin()
 	-- populate the lists.
 	for k,v in pairs(itemcount) do
 		AddItem(k, v)
+	end
+
+	item_list.OnClickLine = function(parent, line, isselected)
+		ShowNotification("Deadmin", "Spawn " .. line:GetValue(1) .. "?", function()
+			deadremains.netrequest.trigger("deadremains.spawnitem", {
+					unique = line:GetValue(1)
+				})
+		end, function()
+		end)
 	end
 
 	-- make it the correct size
