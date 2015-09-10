@@ -24,14 +24,40 @@ concommand.Add("show_deadmin_spawnitem", function()
 
 		local si_textbox = vgui.Create("DTextEntry", si_frame)
 		si_textbox:SetText("Name of item.")
-		si_textbox:SetPos(2, 30)
-		si_textbox:SetSize(252, 16)
+		si_textbox:SetPos(10, 30)
+		si_textbox:SetSize(236, 16)
+
+		local si_rlabel = vgui.Create("DLabel", si_frame)
+		si_rlabel:SetText("Rarity (chance of spawning.)")
+		si_rlabel:SetPos(50, 50)
+		si_rlabel:SizeToContents()
 
 		local si_rslider = vgui.Create("Slider", si_frame)
-		si_rslider:SetPos(2, 50)
+		si_rslider:SetPos(10, 65)
 		si_rslider:SetSize(252, 16)
 		si_rslider:SetMin(0)
-		si_rslider:SetMax(100)
+		si_rslider:SetMax(1)
+		si_rslider:SetValue(0.5)
+
+		local si_flabel = vgui.Create("DLabel", si_frame)
+		si_flabel:SetText("Frequency (0=never, 0.5=max/2, 1=max)")
+		si_flabel:SetPos(30, 80)
+		si_flabel:SizeToContents()
+
+		local si_fslider = vgui.Create("Slider", si_frame)
+		si_fslider:SetPos(10, 95)
+		si_fslider:SetSize(252, 16)
+		si_fslider:SetMin(0)
+		si_fslider:SetMax(2)
+		si_fslider:SetValue(1)
+
+		local si_button = vgui.Create("DButton", si_frame)
+		si_button:SetText("Spawn")
+		si_button:SetSize(250, 50)
+		si_button:SetPos(2, 115)
+		si_button.DoClick = function()
+			si_frame:Close()
+		end
 	end
 end)
 
