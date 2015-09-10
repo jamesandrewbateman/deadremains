@@ -79,6 +79,7 @@ end)
 
 function ShowDeadmin()
 	local itemcount = deadremains.deadmin.itemcount
+	local items = deadremains.item.getAll()
 
 	deadremains.deadmin.main = vgui.Create('DFrame')
 	deadremains.deadmin.main:SetSize(ScrW() * 0.61, ScrH() * 0.609)
@@ -107,7 +108,7 @@ function ShowDeadmin()
 	end
 
 	local item_list = vgui.Create("DListView", spawning_panel)
-	item_list:Dock(TOP)
+	item_list:Dock(FILL)
 	item_list:DockMargin(0, 8, 0, 0)
 	--item_list:SetTall(deadremains.deadmin.main:GetTall())
 	item_list:SetMultiSelect(false)
@@ -120,8 +121,12 @@ function ShowDeadmin()
 	end
 
 	-- populate the lists.
-	for k,v in pairs(itemcount) do
-		AddItem(k, v)
+	for k,v in pairs(items) do
+		if (itemcount[k] == nil) then
+			AddItem(k, {type = v.meta.type, count = 0})
+		else
+			AddItem(k, itemcount[k])
+		end
 	end
 
 	item_list.OnClickLine = function(parent, line, isselected)
