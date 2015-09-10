@@ -28,6 +28,8 @@ item.weight = 8
 item.meta = {}
 item.meta["type"] = 0
 item.meta["enabled"] = 1
+item.meta["rarity"] = 1
+item.meta["frequency"] = 1
 
 -- What equipment slot this item can be placed in.
 --item.equip_slot = bit.lshift(1, inventory_equip_back)

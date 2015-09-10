@@ -15,7 +15,8 @@ function deadremains.netrequest.listen(name)
 	util.AddNetworkString("STC".. request_table.Name)
 
 	net.Receive("CTS".. request_table.Name, function(bits, ply)
-		local response_data = request_table.Callback(ply)
+		local meta_data = net.ReadTable()
+		local response_data = request_table.Callback(ply, meta_data)
 
 		timer.Simple(0.1, function()
 			net.Start("STC".. request_table.Name)

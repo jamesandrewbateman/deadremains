@@ -1,7 +1,7 @@
 deadremains.netrequest = {}
 deadremains.netrequest.requests = {}
 
-function deadremains.netrequest.trigger(name)
+function deadremains.netrequest.trigger(name, meta)
 	-- friend the request which matches this name.
 	local request_table;
 	for k,v in pairs(deadremains.netrequest.requests) do
@@ -21,6 +21,9 @@ function deadremains.netrequest.trigger(name)
 	-- response to client after 0.1 seconds.
 	timer.Simple(0.1, function()
 		net.Start("CTS".. request_table.Name)
+			if (meta) then
+				net.WriteTable(meta)
+			end
 		net.SendToServer()
 	end)
 end
@@ -29,7 +32,8 @@ end
 function deadremains.netrequest.create(name, callback)
 	local request = {
 		Name = name,
-		Callback = callback
+		Callback = callback,
+		Meta = meta
 	}
 	
 	table.insert(deadremains.netrequest.requests, request)

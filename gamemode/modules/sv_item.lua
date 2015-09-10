@@ -35,6 +35,17 @@ deadremains.netrequest.create("load_deadmin_items", function()
 	return data
 end)
 
+deadremains.netrequest.create("deadremains.spawnitem", function(ply, meta)
+	local i = deadremains.item.get(meta.unique)
+	-- preserve the default values.
+	local default_meta = i.meta
+
+	default_meta["frequency"] = meta.frequency
+	default_meta["rarity"] = meta.rarity
+	
+	deadremains.item.spawn_meta(ply, meta.unique, default_meta)
+end)
+
 function deadremains.item.mapSpawn(unique, position, model)
 	local item = deadremains.item.get(unique)
 

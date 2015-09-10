@@ -1,6 +1,7 @@
 deadremains.deadmin = {}
 deadremains.deadmin.itemcount = {}
 
+deadremains.netrequest.create("deadremains.spawnitem", function(data) end)
 deadremains.netrequest.create("load_deadmin_items", function(data)
 	if (data) then
 		for k,v in pairs(data) do
@@ -56,7 +57,15 @@ concommand.Add("show_deadmin_spawnitem", function()
 		si_button:SetSize(250, 50)
 		si_button:SetPos(2, 115)
 		si_button.DoClick = function()
-			si_frame:Close()
+			local rarity = si_rslider:GetValue()
+			local freq = si_fslider:GetValue()
+			local unique = si_textbox:GetValue()
+
+			deadremains.netrequest.trigger("deadremains.spawnitem", {
+				unique = unique,
+				frequency = freq,
+				rariy = rariy
+			})
 		end
 	end
 end)
