@@ -14,8 +14,14 @@ function deadremains.netrequest.trigger(name, meta)
 
 	-- setup listen to fire callback when received.
 	net.Receive("STC".. request_table.Name, function(bits, ply)
-		local data = net.ReadTable()
-		request_table.Callback(data)
+		local data = nil
+		if (bits > 0) then
+			data = net.ReadTable()
+		end
+
+		for k,v in pairs(request_table.Callbacks) do
+			v(data)
+		end
 	end)
 
 	-- response to client after 0.1 seconds.
@@ -29,12 +35,24 @@ function deadremains.netrequest.trigger(name, meta)
 end
 
 
+--! @brief clientside can have multiple callbacks.
 function deadremains.netrequest.create(name, callback)
+	-- do we already have a request set for this event?
+	-- if so add it to that events callback table.
+	for k,v in pairs(deadremains.netrequest.requests) do
+		if (v.Name == name) then
+			table.insert(v.Callbacks, callback)
+			return
+		end
+	end
+
+	-- otherwise make a new request.
 	local request = {
 		Name = name,
-		Callback = callback,
+		Callbacks = {
+			callback
+		},
 		Meta = meta
 	}
-	
 	table.insert(deadremains.netrequest.requests, request)
 end

@@ -35,7 +35,7 @@ function panel:setInventory(inventory_index, data)
 
 	--! @hack my async way of making sure we don't proceed until we have the data.
 	if not inventory then
-		LocalPlayer():ConCommand("syncdata")
+		LocalPlayer():ConCommand("deadremains.syncdata")
 
 		timer.Simple(1, function()
 			inventory = deadremains.inventory.getc(inventory_index)	

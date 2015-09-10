@@ -159,15 +159,16 @@ function panel:Paint(w, h)
 			local slots = inventory:getSlotsAtArea(x +slot_size *0.5, y +slot_size *0.5, x +width -slot_size *0.5, y +height -slot_size *0.5)
 			local slots_free = {}
 
+			-- gather free slots into new table.
 			for i = 1, #slots do
 				local items = inventory:getItemsAtArea(slots[i].x +1, slots[i].y +1, slots[i].x +slot_size -2, slots[i].y +slot_size -2)
 				
 				if (#items <= 0) then
+					-- if no items insert into new table.
 					table.insert(slots_free, i)
 				else
-
+					-- within our own slot size? will attempt to swap iirc.
 					local within = isWithin(moving_slot, items[1])
-
 					if (within and moving_slot.size == items[1].size) then
 						table.insert(slots_free, i)
 					else
@@ -176,6 +177,10 @@ function panel:Paint(w, h)
 					
 				end
 			end
+
+			PrintTable(slots_free)
+
+
 			if (moving_slot.size == #slots_free) then
 				for k = 1, moving_slot.size do
 					local i = slots_free[k]
