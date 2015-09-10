@@ -117,3 +117,10 @@ end
 function GM:PostPlayerDeath(ply)
 	player.alive_timer = 0
 end
+
+function player_meta:sendNotification(title, message)
+	net.Start("deadremains.shownotification_ok")
+		net.WriteString(title)
+		net.WriteString(message)
+	net.Send(self)
+end

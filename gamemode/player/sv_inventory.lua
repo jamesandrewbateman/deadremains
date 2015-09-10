@@ -141,7 +141,7 @@ end
 
 --! @brief sends the inventory slot data of all inventories to the client.
 function player_meta:networkInventoryAll()
-	for k,v in pairs(ply.dr_character.inventory) do
+	for k,v in pairs(self.dr_character.inventory) do
 		self:networkInventory(k)
 	end
 end

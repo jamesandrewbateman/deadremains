@@ -22,26 +22,15 @@ local function default(self)
 	-- default to 0 (no team for group making)
 	self:setTeam(0)
 
-
 	timer.Create("dr.thirst." .. self:UniqueID(), 15, 100, function()
 		if IsValid(self) and self.decreaseThirst then
 			self:decreaseThirst(1)
-
-			-- HYDRATED buff
-			if (self:getThirst() >= 80) then
-				self:SetHealth(math.min(100, self:Health() + 1))
-			end
 		end
 	end)
 
 	timer.Create("dr.hunger." .. self:UniqueID(), 30, 100, function()
 		if IsValid(self) and self.decreaseHunger then
 			self:decreaseHunger(1)
-
-			-- FULL buff
-			if (self:getHunger() >= 80) then
-				self:SetHealth(math.min(100, self:Health() + 1))
-			end
 		end
 	end)
 
