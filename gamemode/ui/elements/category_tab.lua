@@ -67,6 +67,12 @@ function ELEMENT:setActive(b)
 
 end
 
+function ELEMENT:getActive()
+
+	return self.active
+
+end
+
 function ELEMENT:OnCursorEntered()
 
 	self.hovered = true
