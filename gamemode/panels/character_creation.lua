@@ -5,7 +5,7 @@ local panel = {}
 
 ----------------------------------------------------------------------
 -- Purpose:
---		
+--
 ----------------------------------------------------------------------
 
 function panel:Init()
@@ -14,7 +14,7 @@ end
 
 ----------------------------------------------------------------------
 -- Purpose:
---		
+--
 ----------------------------------------------------------------------
 
 function panel:showButtons()
@@ -39,7 +39,7 @@ function panel:showButtons()
 			draw.SimpleText("Welcome back", "deadremains.button", w *0.5 -8, h *0.5, panel_color_text, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
 			draw.SimpleText(nick, "deadremains.button", w *0.5 +8, h *0.5, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
 		end
-		
+
 		local button_play = self.buttons_base:Add("deadremains.button")
 		button_play:setName("Play")
 		button_play:Dock(TOP)
@@ -59,6 +59,10 @@ function panel:showButtons()
 						{x = ScrW()/2, y = ScrH()/2})
 				else
 					self:Close()
+
+					deadremains.ui.createBlur()
+					deadremains.ui.createHUD()
+
 				end
 			end)
 		end
@@ -71,7 +75,7 @@ function panel:showButtons()
 		function line:Paint(w, h)
 			draw.simpleRect(0, 0, w, h, color_line)
 		end
-		
+
 		local button_character = self.buttons_base:Add("deadremains.button")
 		button_character:setName("Character")
 		button_character:Dock(TOP)
@@ -100,7 +104,7 @@ end
 
 ----------------------------------------------------------------------
 -- Purpose:
---		
+--
 ----------------------------------------------------------------------
 
 function panel:showCharacterCreation()
@@ -218,7 +222,7 @@ function panel:showCharacterCreation()
 			end)
 		end
 	end
-	
+
 	self.character_creation_base:SetVisible(true)
 	self.character_creation_base:SetAlpha(0)
 	self.character_creation_base:AlphaTo(255, 0.3, 0)
@@ -226,7 +230,7 @@ end
 
 ----------------------------------------------------------------------
 -- Purpose:
---		
+--
 ----------------------------------------------------------------------
 
 function panel:showCharacter()
@@ -262,7 +266,7 @@ function panel:showCharacter()
 				self:showButtons()
 			end)
 		end
-		
+
 		local new_button = top_base:Add("DLabel")
 		new_button:Dock(RIGHT)
 		new_button:DockMargin(0, 0, 20, 0)
@@ -281,7 +285,7 @@ end
 
 ----------------------------------------------------------------------
 -- Purpose:
---		
+--
 ----------------------------------------------------------------------
 
 function panel:PerformLayout()
@@ -295,7 +299,7 @@ end
 
 ----------------------------------------------------------------------
 -- Purpose:
---		
+--
 ----------------------------------------------------------------------
 
 function panel:Paint(w, h)

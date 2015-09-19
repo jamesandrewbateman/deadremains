@@ -20,6 +20,29 @@ function deadremains.ui.print(...)
 end
 
 ----------------------------------------------------------------------
+-- Purpose: Load all required UI helper functions and variables
+--
+----------------------------------------------------------------------
+function deadremains.ui.loadHelpers()
+
+	if SERVER then
+
+		AddCSLuaFile(GAMEMODE_PATH .. "ui/cl_helpers.lua")
+
+		deadremains.ui.print("deadremains.ui :: Added fonts")
+
+	elseif CLIENT then
+
+		include(GAMEMODE_PATH .. "ui/cl_helpers.lua")
+
+		deadremains.ui.print("deadremains.ui :: Loaded fonts")
+
+
+	end
+
+end
+
+----------------------------------------------------------------------
 -- Purpose: Load all required UI Fonts
 --
 ----------------------------------------------------------------------
@@ -112,6 +135,7 @@ end
 ----------------------------------------------------------------------
 function deadremains.ui.initialize()
 
+	deadremains.ui.loadHelpers()
 	deadremains.ui.loadFonts()
 	deadremains.ui.loadElements()
 	deadremains.ui.loadContainers()

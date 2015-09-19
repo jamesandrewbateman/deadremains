@@ -7,7 +7,7 @@ function ELEMENT:Think()
 
 end
 
-function ELEMENT:Paint(w, h)
+function ELEMENT:Paint()
 
 end
-vgui.Register("deadremains.screen", ELEMENT, "Panel")
+vgui.Register("deadremains.hud_handler", ELEMENT, "Panel")
