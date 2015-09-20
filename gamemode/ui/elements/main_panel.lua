@@ -7,33 +7,33 @@ local matHunting = Material("deadremains/skills/SurvivalSkill_Hunting.png", "noc
 local ELEMENT = {}
 function ELEMENT:Init()
 
-	self.title_bar = vgui.Create("deadremains.panel_title_bar", self)
-	self.title_bar:SetSize(640, 100)
-	self.title_bar:SetPos(0, 0)
+	self.titleBar = vgui.Create("deadremains.panel_title_bar", self)
+	self.titleBar:SetSize(640, 100)
+	self.titleBar:SetPos(0, 0)
 
-	self.tab_list = vgui.Create("deadremains.category_tab_list", self)
-	self.tab_list:SetPos(0, 0)
-	self.tab_list:SetSize(100, 760)
+	self.tabList = vgui.Create("deadremains.category_tab_list", self)
+	self.tabList:SetPos(0, 0)
+	self.tabList:SetSize(100, 760)
 
-	self.cat_skills = vgui.Create("deadremains.skills_panel", self)
-	self.cat_skills:SetPos(101, 102)
-	self.cat_skills:SetSize(539, 660)
-	self.tab_list:addCategory(matHunting, self.cat_skills, 2)
+	self.catSkills = vgui.Create("deadremains.skills_panel", self)
+	self.catSkills:SetPos(101, 102)
+	self.catSkills:SetSize(539, 660)
+	self.tabList:addCategory(matHunting, self.catSkills, 2, "SKILLS")
 
-	self.cat_map = vgui.Create("deadremains.map_panel", self)
-	self.cat_map:SetPos(101, 102)
-	self.cat_map:SetSize(539, 660)
-	self.tab_list:addCategory(matMech, self.cat_map, 3)
+	self.catMap = vgui.Create("deadremains.map_panel", self)
+	self.catMap:SetPos(101, 102)
+	self.catMap:SetSize(539, 660)
+	self.tabList:addCategory(matMech, self.catMap, 3, "MAP")
 
-	self.cat_character = vgui.Create("deadremains.character_panel", self)
-	self.cat_character:SetPos(101, 102)
-	self.cat_character:SetSize(539, 660)
-	self.tab_list:addCategory(matFire, self.cat_character, 1)
+	self.catCharacter = vgui.Create("deadremains.character_panel", self)
+	self.catCharacter:SetPos(101, 102)
+	self.catCharacter:SetSize(539, 660)
+	self.tabList:addCategory(matFire, self.catCharacter, 1, "CHARACTER")
 
-	self.cat_crafting = vgui.Create("deadremains.crafting_panel", self)
-	self.cat_crafting:SetPos(101, 102)
-	self.cat_crafting:SetSize(539, 660)
-	self.tab_list:addCategory(matFort, self.cat_crafting, 4)
+	self.catCrafting = vgui.Create("deadremains.crafting_panel", self)
+	self.catCrafting:SetPos(101, 102)
+	self.catCrafting:SetSize(539, 660)
+	self.tabList:addCategory(matFort, self.catCrafting, 4, "CRAFTING")
 
 end
 

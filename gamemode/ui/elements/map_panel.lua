@@ -9,8 +9,8 @@ end
 
 function ELEMENT:Paint(w, h)
 
-	surface.SetDrawColor(0, 255, 0, 180)
-	surface.DrawRect(0, 0, w - 50, h)
+	surface.SetDrawColor(deadremains.ui.colors.clr1)
+	surface.DrawRect(0, 0, w, h)
 
 end
 vgui.Register("deadremains.map_panel", ELEMENT, "Panel")

@@ -2,12 +2,12 @@ local material_health = Material("deadremains/hud/outercircle.png", "noclamp smo
 local material_health_shadow = Material("vgui/hsv", "noclamp smooth")
 local material_health_background = Material("deadremains/hud/innercircle.png", "noclamp smooth")
 
-local health_x, health_y = 100, 256
+local health_x, health_y = 50, 256
 local health_size = 200
 
 
-local color_circle_inner = Color(0, 0, 0, 100)
-local color_circle_shadow = Color(0, 0, 0, 80)
+local color_circle_inner = Color(120, 120, 120, 80)
+local color_circle_shadow = Color(0, 0, 0, 70)
 
 local ELEMENT = {}
 function ELEMENT:Init()
@@ -53,8 +53,8 @@ function ELEMENT:minimize()
 	self.offset_h_x_to = -health_x - 256 - 192 + deadremains.ui.screenSizeX / 2 - 35 / 2 - 640 - health_size * self.scale_to * 0.8 - 20 + 100
 
 	self.offset_hp_y_to = -health_y + 15
-	self.offset_t_y_to = -health_y + 145 + 125
-	self.offset_h_y_to = -health_y + 145
+	self.offset_t_y_to = -health_y + 145
+	self.offset_h_y_to = -health_y + 145 + 125
 
 end
 
@@ -74,16 +74,16 @@ end
 
 function ELEMENT:Paint(w, h)
 
-	self.scale = deadremains.ui.lerp(0.05, self.scale, self.scale_to)
+	self.scale = deadremains.ui.lerp(0.08, self.scale, self.scale_to)
 
-	self.offset_hp_x = deadremains.ui.lerp(0.05, self.offset_hp_x, self.offset_hp_x_to)
-	self.offset_hp_y = deadremains.ui.lerp(0.05, self.offset_hp_y, self.offset_hp_y_to)
+	self.offset_hp_x = deadremains.ui.lerp(0.10, self.offset_hp_x, self.offset_hp_x_to)
+	self.offset_hp_y = deadremains.ui.lerp(0.10, self.offset_hp_y, self.offset_hp_y_to)
 
-	self.offset_t_x = deadremains.ui.lerp(0.05, self.offset_t_x, self.offset_t_x_to)
-	self.offset_t_y = deadremains.ui.lerp(0.05, self.offset_t_y, self.offset_t_y_to)
+	self.offset_t_x = deadremains.ui.lerp(0.10, self.offset_t_x, self.offset_t_x_to)
+	self.offset_t_y = deadremains.ui.lerp(0.10, self.offset_t_y, self.offset_t_y_to)
 
-	self.offset_h_x = deadremains.ui.lerp(0.05, self.offset_h_x, self.offset_h_x_to)
-	self.offset_h_y = deadremains.ui.lerp(0.05, self.offset_h_y, self.offset_h_y_to)
+	self.offset_h_x = deadremains.ui.lerp(0.10, self.offset_h_x, self.offset_h_x_to)
+	self.offset_h_y = deadremains.ui.lerp(0.10, self.offset_h_y, self.offset_h_y_to)
 
 	local health = LocalPlayer():Health()
 

@@ -14,8 +14,10 @@ function ELEMENT:updateOrder(tab)
 
 	local newActive = tab.order
 
-	for _, v in pairs(self.cats_tabs) do
+	local oldPos = {}
+	for k, v in pairs(self.cats_tabs) do
 
+		oldPos[v.order] = k
 		v:Remove()
 
 	end
@@ -29,7 +31,8 @@ function ELEMENT:updateOrder(tab)
 		if v.pos == newActive then
 
 			self.cats_tabs[1] = vgui.Create("deadremains.category_tab", self)
-			self.cats_tabs[1]:SetPos(0, 0)
+			self.cats_tabs[1]:SetPos(0, (100 + 2) * (oldPos[v.pos] - 1))
+			self.cats_tabs[1]:moveTo(0, 0)
 			self.cats_tabs[1]:SetSize(100, 100)
 			self.cats_tabs[1]:setPanel(v.panel)
 			self.cats_tabs[1]:setIcon(v.icon)
@@ -47,12 +50,15 @@ function ELEMENT:updateOrder(tab)
 
 				self:updateOrder(tab)
 
+				self:GetParent().titleBar:setTitle(v.title)
+
 			end
 
 		else
 
 			self.cats_tabs[pos] = vgui.Create("deadremains.category_tab", self)
-			self.cats_tabs[pos]:SetPos(0, (100 + 2) * (pos - 1))
+			self.cats_tabs[pos]:SetPos(0, (100 + 2) * (oldPos[v.pos] - 1))
+			self.cats_tabs[pos]:moveTo(0, (100 + 2) * (pos - 1))
 			self.cats_tabs[pos]:SetSize(100, 100)
 			self.cats_tabs[pos]:setPanel(v.panel)
 			self.cats_tabs[pos]:setIcon(v.icon)
@@ -70,6 +76,8 @@ function ELEMENT:updateOrder(tab)
 
 				self:updateOrder(tab)
 
+				self:GetParent().titleBar:setTitle(v.title)
+
 			end
 
 			pos = pos + 1
@@ -80,9 +88,9 @@ function ELEMENT:updateOrder(tab)
 
 end
 
-function ELEMENT:addCategory(icon, p, pos)
+function ELEMENT:addCategory(icon, p, pos, title)
 
-	self.cats[pos] = {icon = icon, panel = p, pos = pos}
+	self.cats[pos] = {icon = icon, panel = p, pos = pos, title = title}
 
 	self.cats_tabs[pos] = vgui.Create("deadremains.category_tab", self)
 	self.cats_tabs[pos]:SetPos(0, (100 + 2) * (pos - 1))
@@ -103,11 +111,15 @@ function ELEMENT:addCategory(icon, p, pos)
 
 		self:updateOrder(tab)
 
+		self:GetParent().titleBar:setTitle(title)
+
 	end
 
 	if pos == 1 then
 
 		self.cats_tabs[pos]:setActive(true)
+
+		self:GetParent().titleBar:setTitle(title)
 
 	end
 

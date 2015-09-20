@@ -1,17 +1,6 @@
 
 deadremains.ui.key = KEY_F9
 
-deadremains.ui.colors = {}
-deadremains.ui.colors.clr1 = Color(0, 0, 0, 245)
-deadremains.ui.colors.clr2 = Color(75, 80, 100, 150)
-deadremains.ui.colors.clr3 = Color(255, 156, 28, 255)
-deadremains.ui.colors.clr4 = Color(245, 245, 245, 255)
-deadremains.ui.colors.clr5 = Color(245, 245, 245, 75)
-deadremains.ui.colors.clr6 = Color(245, 245, 245, 40)
-deadremains.ui.colors.clr7 = Color(60, 60, 60, 255)
-deadremains.ui.colors.clr8 = Color(75, 80, 100, 255)
-deadremains.ui.colors.clr9 = Color(75, 80, 100, 200)
-
 deadremains.ui.enableBlur = true
 
 local UI_MAIN

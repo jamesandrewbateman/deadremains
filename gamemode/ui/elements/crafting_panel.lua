@@ -9,7 +9,7 @@ end
 
 function ELEMENT:Paint(w, h)
 
-	surface.SetDrawColor(0, 0, 255, 180)
+	surface.SetDrawColor(deadremains.ui.colors.clr1)
 	surface.DrawRect(0, 0, w, h)
 
 end
