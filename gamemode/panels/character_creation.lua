@@ -308,8 +308,7 @@ vgui.Register("deadremains.character.creation", panel, "EditablePanel")
 
 --if (IsValid(testmenu)) then testmenu:Remove() end
 
-
-timer.Simple(0.1, function()
+concommand.Add("show_character_creation", function()
 	if (IsValid(testmenu)) then return end
 
 	testmenu = vgui.Create("deadremains.character.creation")
