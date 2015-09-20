@@ -40,6 +40,12 @@ function deadremains.ui.getMenu()
 
 end
 
+function deadremains.ui.getActiveActionMenu()
+
+	return deadremains.ui.activeActionMenu
+
+end
+
 function deadremains.ui.isMenuOpen()
 
 	return menuOpen

@@ -94,6 +94,23 @@ function ELEMENT:OnMousePressed(m)
 
 	end
 
+	local activeMenu = deadremains.ui.getActiveActionMenu()
+	if activeMenu then
+
+		activeMenu:Remove()
+
+	end
+
+	local x, y = gui.MousePos()
+	local actionMenu = vgui.Create("deadremains.action_menu")
+	actionMenu:SetSize(190, 40)
+	actionMenu:setTitle(self.name)
+	actionMenu:setOrigin(x, y)
+	actionMenu:addAction("Share", function() end, Material("deadremains/characteristics/sprintspeed.png"))
+	actionMenu:addAction("Unlock", function() end, Material("deadremains/characteristics/sprintspeed.png"))
+
+	deadremains.ui.activeActionMenu = actionMenu
+
 end
 
 function ELEMENT:OnCursorEntered()

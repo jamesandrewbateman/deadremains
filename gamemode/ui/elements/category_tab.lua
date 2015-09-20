@@ -118,6 +118,9 @@ function ELEMENT:OnMousePressed(m)
 
 	self.DoClick(self)
 
+	local activeActionMenu = deadremains.ui.getActiveActionMenu()
+	if activeActionMenu then activeActionMenu:Remove() end
+
 end
 
 function ELEMENT:OnCursorExited()
