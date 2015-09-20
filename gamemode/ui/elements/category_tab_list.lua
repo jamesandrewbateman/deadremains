@@ -25,9 +25,6 @@ function ELEMENT:updateOrder(tab)
 	local pos = 2
 	for _, v in SortedPairsByMemberValue(self.cats, "pos") do
 
-		print("Pos", pos)
-		PrintTable(v)
-
 		if v.pos == newActive then
 
 			self.cats_tabs[1] = vgui.Create("deadremains.category_tab", self)

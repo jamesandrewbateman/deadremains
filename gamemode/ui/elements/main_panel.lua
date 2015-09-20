@@ -13,11 +13,34 @@ function ELEMENT:Init()
 
 	self.tabList = vgui.Create("deadremains.category_tab_list", self)
 	self.tabList:SetPos(0, 0)
-	self.tabList:SetSize(100, 760)
+	self.tabList:SetSize(100, 762)
 
 	self.catSkills = vgui.Create("deadremains.skills_panel", self)
 	self.catSkills:SetPos(101, 102)
 	self.catSkills:SetSize(539, 660)
+
+	local skillTypes = deadremains.settings.get("skill_types")
+	for _, name in pairs(skillTypes) do
+
+		self.catSkills:addCategory(name)
+
+	end
+
+	local skills = deadremains.settings.get("skills")
+	for unique, data in pairs(skills) do
+
+		self.catSkills:addSkill(unique, data.name, data.icon, data.type)
+
+	end
+
+	// local chars = deadremains.settings.get("char")
+	local chars = {sight = {name = "Sight", default = 0, icon = "materials/deadremains/characteristics/sight.png"}, thirst = {name = "Thirst", default = 1, icon = "materials/deadremains/characteristics/thirst.png"}, health = {name = "Health", default = 2, icon = "materials/deadremains/characteristics/health.png"}, hunger = {name = "Hunger", default = 5, icon = "materials/deadremains/characteristics/hunger.png"}, strength = {name = "Strength", default = 9, icon = "materials/deadremains/characteristics/strength.png"}}
+	for id, data in pairs(chars) do
+
+		self.catSkills:addCharacteristic(id, data.name, data.default, data.icon)
+
+	end
+	self.catSkills:updateLayout()
 	self.tabList:addCategory(matHunting, self.catSkills, 2, "SKILLS")
 
 	self.catMap = vgui.Create("deadremains.map_panel", self)
