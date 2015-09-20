@@ -73,21 +73,22 @@ deadremains.character.processFlagFuncs = {}
 -- looper to apply these to all players online.
 timer.Create("deadremains.buffschecker", 1, 0, function()
 	for k,ply in pairs(player.GetAll()) do
-		if (IsValid(ply) and (ply.dr_character.created == true)) then
+		if (ply.dr_character) then
+			if (IsValid(ply) and (ply.dr_character.created == true)) then
 
-			-- process each flag one by one
-			for unique, flag in pairs(ply.dr_character.buffs) do
-				if (flag == 1) then
-					if (deadremains.character.flagCheckFuncs[unique] ~= nil) then
-						flag = deadremains.character.flagCheckFuncs[unique](ply)
+				-- process each flag one by one
+				for unique, flag in pairs(ply.dr_character.buffs) do
+					if (flag == 1) then
+						if (deadremains.character.flagCheckFuncs[unique] ~= nil) then
+							flag = deadremains.character.flagCheckFuncs[unique](ply)
 
-						if (flag == 1) then
-							deadremains.character.processFlagFuncs[unique](ply)
+							if (flag == 1) then
+								deadremains.character.processFlagFuncs[unique](ply)
+							end
 						end
 					end
 				end
 			end
-
 		end
 	end
 end)
