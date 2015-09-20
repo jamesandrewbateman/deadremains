@@ -68,8 +68,6 @@ end
 
 function LoadInfoFile(data)
 	print("Loading Module...", data.Name)
-	PrintTable(data)
-
 	local path_to_module = GM.FolderName .. "/gamemode/modules/" .. data.Name
 
 	for k,v in ipairs(data.Dependencies) do
@@ -82,7 +80,6 @@ function LoadInfoFile(data)
 
 		if (string.find(file, "sv_")) then
 			if (SERVER) then
-				print("including", file)
 				include(file)
 			end
 		elseif (string.find(file, "sh_")) then
@@ -102,6 +99,7 @@ end
 
 function LoadModule(name)
 	local path_to_folder = GM.FolderName .. "/gamemode/modules/" .. name
+	if (SERVER) then AddCSLuaFile(path_to_folder .. "/sh_info.lua") end
 	include (path_to_folder .. "/sh_info.lua")
 	-- should call LoadInfoFile()
 end

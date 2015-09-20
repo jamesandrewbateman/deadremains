@@ -103,7 +103,7 @@ function deadremains.sql.intialize(name, hostname, username, password, database,
 end
 
 function deadremains.sql.connect()
-	deadremains.sql.intialize(database_main, "localhost", "root", "", "deadremains", 3306)
+	deadremains.sql.intialize(database_main, "localhost", "root", "_debug", "deadremains", 3306)
 	deadremains.map_config.initialize(database_main, "gm_flatgrass")
 end
 
