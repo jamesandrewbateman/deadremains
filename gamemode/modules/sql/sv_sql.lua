@@ -1,13 +1,11 @@
 deadremains.sql = {}
 deadremains.sql.stored = {}
 deadremains.sql.tmysql = nil
+print("Loading SQL module")
 -- time in seconds between mysql database updates.
 deadremains.sql.save_timer = 60
 local queue = {}
 local modules_loaded = false
-
-local extras_base_path = GM.FolderName .. "/gamemode/modules/"
-include(extras_base_path .. "sv_sql_player.lua")
 
 ----------------------------------------------------------------------
 -- Purpose:

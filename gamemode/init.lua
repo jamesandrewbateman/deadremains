@@ -40,7 +40,6 @@ include("modules/sh_inventory.lua")
 include("modules/sh_item.lua")
 include("modules/sv_item.lua")
 include("sh_loader.lua")
-include("modules/sv_sql.lua")
 include("modules/sv_team.lua")
 include("modules/sv_map_config.lua")
 include("modules/sh_character.lua")
@@ -48,6 +47,8 @@ include("modules/sv_character.lua")
 include("sv_player.lua")
 
 deadremains.loader.initialize()
+
+LoadModule("sql")
 
 database_main = "deadremains"
 

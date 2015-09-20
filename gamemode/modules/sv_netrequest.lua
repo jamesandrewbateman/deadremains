@@ -1,6 +1,7 @@
 deadremains.netrequest = {}
 deadremains.netrequest.requests = {}
 
+--! @brief we can have multiple listeners on 1 signal.
 function deadremains.netrequest.listen(name)
 	local request_table;
 	for k,v in pairs(deadremains.netrequest.requests) do
