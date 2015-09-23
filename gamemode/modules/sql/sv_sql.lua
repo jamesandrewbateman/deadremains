@@ -231,8 +231,6 @@ function deadremains.sql.setupTables()
 	CREATE TABLE `gm_meta` (
 		`team_count` int(32) DEFAULT 0
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8]], function(data, affected, last)
-	end, function (data, affected, last)
-		-- insert default row
 		deadremains.sql.query(database_main, "INSERT INTO gm_meta(team_count) VALUES (0);")
 	end)
 end

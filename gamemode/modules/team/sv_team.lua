@@ -132,5 +132,9 @@ function deadremains.team.kickPlayer(ply)
 		local steam_id = deadremains.sql.escape(database_main, ply:SteamID())
 
 		deadremains.sql.query(database_main, "DELETE FROM user_teams WHERE steam_id=" .. steam_id);
+		ply:setTeam(0, 0)
 	end
 end
+concommand.Add("dr_team_kick", function(ply)
+	deadremains.team.kickPlayer(ply)
+end)
