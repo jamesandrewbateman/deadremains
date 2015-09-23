@@ -17,9 +17,16 @@ function deadremains.map_config.initialize(database_name, map_name)
 		if (data and data[1]) then
 			deadremains.log.write(deadremains.log.mysql, "Map config for " .. map_name .. " found...")
 
-			for row_number,item in pairs(data) do
-				local i = deadremains.item.get(item["name"])
-				deadremains.item.mapSpawn(item["name"], Vector(item.x, item.y, item.z), i.model)
+			for row_number,entry in pairs(data) do
+				if (entry.entry_type == "item") then
+					local i = deadremains.item.get(entry.name)
+					deadremains.item.mapSpawn(entry.name, Vector(entry.x, entry.y, entry.z), i.model)
+				elseif (entry.entry_type == "ent") then
+					-- spawn the ent
+					local e = ents.Create(entry.name)
+					e:SetPos(position)
+					e:Spawn()
+				end
 			end
 
 		else
@@ -66,3 +73,33 @@ function deadremains.map_config.persistSpawn(player, cmd, args)
 	deadremains.item.spawn(player, cmd, args)
 end
 concommand.Add("dr_map_config_spawnitem", deadremains.map_config.persistSpawn)
+
+-- Similar but for entities (like zombies.etc)
+-- unused atm
+function deadremains.map_config.addEntity(class_name, position)
+	deadremains.log.write(deadremains.log.mysql, "Adding entity " .. class_name)
+
+	local query = "INSERT INTO map_config (map_name, entry_type, name, x, y, z) VALUES ("
+	query = query .. deadremains.sql.escape(deadremains.map_config.database_name, deadremains.map_config.map_name) .. ", "
+	query = query .. "'ent'" .. ", "
+	query = query .. "'" .. class_name .. "', "
+	query = query .. position.x .. ", "
+	query = query .. position.y .. ", "
+	query = query .. position.z .. ");"
+	
+	deadremains.sql.query(database_main, query)
+end
+
+function deadremains.map_config.persistSpawnEnt(player, cmd, args)
+	if (args ~= nil) then
+		local name = deadremains.item.get(args[1])
+		local pos = player:GetPos() --player:eyeTrace(192)
+		deadremains.map_config.addEntity(name, pos)
+	end
+
+	-- spawn the ent
+	local e = ents.Create(name)
+	e:SetPos(position)
+	e:Spawn()
+end
+concommand.Add("dr_map_config_spawnent", deadremains.map_config.persistSpawnEnt)
