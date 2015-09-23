@@ -220,11 +220,21 @@ function deadremains.sql.setupTables()
 	deadremains.sql.query(database_main,
 	[[
 	CREATE TABLE `user_teams` (
-		`team_id` int(32) DEFAULT NULL AUTO_INCREMENT,
+		`team_id` int(32) DEFAULT 0,
 		`steam_id` varchar(255) DEFAULT NULL,
 		`is_gov` int(2) DEFAULT NULL,
 		KEY `team_id` (`team_id`)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8]])
+
+	deadremains.sql.query(database_main,
+	[[
+	CREATE TABLE `gm_meta` (
+		`team_count` int(32) DEFAULT 0
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8]], function(data, affected, last)
+	end, function (data, affected, last)
+		-- insert default row
+		deadremains.sql.query(database_main, "INSERT INTO gm_meta(team_count) VALUES (0);")
+	end)
 end
 
 

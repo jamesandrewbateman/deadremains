@@ -1,7 +1,7 @@
 deadremains.team = {}
 deadremains.team.invitations = {}
 function deadremains.team.addInvitation(gov_steamid, target_steamid)
-	-- [from]
+	-- [to] = from
 	deadremains.team.invitations[target_steamid] = gov_steamid
 end
 
@@ -41,6 +41,7 @@ net.Receive("deadremains.jointeam", function(bits, ply)
 
 	-- protection from joining random teams.
 	if (deadremains.team.hasInviteFrom(gov_steamid, ply:SteamID())) then
+
 		-- create the team, or if it already exists, set the team.
 		local gov_player = player.GetBySteamID(gov_steamid)
 		local gov_teamid = gov_player:getTeam()
@@ -97,16 +98,39 @@ function deadremains.team.create(ply, callback)
 	print("Creating team " .. ply:SteamID())
 	local steam_id = deadremains.sql.escape(database_main, ply:SteamID())
 
-	-- the team_id will be automagically assigned by mysql.
-	deadremains.sql.query(database_main, "INSERT INTO user_teams(steam_id, is_gov) VALUES (" .. steam_id .. ", 1);")
-
-	-- now we get the id assigned by mysql and make this player the gov of the team.
-	deadremains.sql.query(database_main, "SELECT * FROM user_teams WHERE steam_id=" .. steam_id, function(data, a, l)
+	-- update the number of teams.
+	deadremains.sql.query(database_main, "SELECT team_count FROM gm_meta;", function(data, a, l)
 		if (data and data[1]) then
 			data = data[1]
-			print("New team_id is " .. data.team_id)
-			ply:setTeam(data.team_id, 1)
-			callback(data.team_id)
+
+			local team_count = data.team_count + 1
+
+			deadremains.sql.query(database_main, "UPDATE gm_meta SET team_count=" .. team_count .. " LIMIT 1;")
+			deadremains.sql.query(database_main, "INSERT INTO user_teams(team_id, steam_id, is_gov) VALUES (" .. team_count .. "," .. steam_id .. ", 1);")
+			
+			ply:setTeam(team_count, 1)
+			callback(team_count)
 		end
 	end)
+end
+concommand.Add("dr_team_create", function(ply)
+	deadremains.team.create(ply, function(teamid)
+		print("Created a new team!")
+	end)
+end)
+
+----------------------------------------------------------------------
+-- Purpose: Allow members from a team to kick a member.
+--		
+----------------------------------------------------------------------
+deadremains.team.voteKicksTable = {}
+
+function deadremains.team.kickPlayer(ply)
+	if (ply:inTeam()) then
+		-- remove networked variables
+		-- remove row from db
+		local steam_id = deadremains.sql.escape(database_main, ply:SteamID())
+
+		deadremains.sql.query(database_main, "DELETE FROM user_teams WHERE steam_id=" .. steam_id);
+	end
 end
