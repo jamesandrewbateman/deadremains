@@ -1,21 +1,3 @@
-concommand.Add("inventory", function()
-	-- trigger the syncdata with flag show_menu to popup.
-	deadremains.netrequest.trigger("deadremains.syncdata", {
-		show_menu = 1
-	})
-end)
-
--- syncdata event callback, fired whenever syncdata is called.
-deadremains.netrequest.create("deadremains.syncdata", function(data)
-	if (not data) then return end
-
-	-- should we popup?
-	if (data.show_menu == 1) then
-		ShowMenu()
-	end
-end)
-
-
 local stored = {}
 
 local meta_table = {}

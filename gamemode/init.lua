@@ -5,6 +5,7 @@ AddCSLuaFile("sh_utilities.lua")
 AddCSLuaFile("cl_init.lua")
 AddCSLuaFile("sh_loader.lua")
 AddCSLuaFile("cl_player.lua")
+AddCSLuaFile("sh_uiloader.lua")
 
 include("shared.lua")
 include("sh_utilities.lua")
@@ -69,7 +70,7 @@ function GM:ShowHelp(ply)
 	ply:ConCommand("inventory")
 end
 
-function GM:PlayerSpawn(ply)
+hook.Add("PlayerSpawn", "drPlayerSpawn", function(ply)
 	ply.alive_timer = 0
 
 	timer.Create("dr_alive_timer" .. ply:UniqueID(), 1, 0, function()
@@ -77,8 +78,7 @@ function GM:PlayerSpawn(ply)
 			ply.alive_timer = ply.alive_timer + 1
 		end
 	end)
-end
-
+end)
 
 function GM:PlayerConnect(ply)
 
@@ -96,6 +96,10 @@ end
 function GM:PostPlayerDeath(ply)
 	player.alive_timer = 0
 end
+
+hook.Add("PlayerLoadout", "drPlayerLoadout", function(ply)
+	ply:Give("keys")
+end)
 
 function player_meta:sendNotification(title, message)
 	net.Start("deadremains.shownotification_ok")
