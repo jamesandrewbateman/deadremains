@@ -60,15 +60,12 @@ function SWEP:PrimaryAttack()
 		return
 	end
 	
-	if self.Owner:EyePos():Distance(trace.Entity:GetPos()) > 65 then
+	if self.Owner:EyePos():Distance(trace.Entity:GetPos()) > 256 then
 		return
 	end
 	
-	print("Attempting to lock.")
-	if not trace.Entity:IsLocked() then
-		print("Locking...")
-		trace.Entity:Lock(self.Owner)
-	end
+	print("Locking...")
+	trace.Entity:Lock(self.Owner)
 
 	self.Owner:EmitSound(self.Sound)
 	self.Weapon:SetNextPrimaryFire(CurTime() + 0.3)
@@ -79,28 +76,24 @@ function SWEP:SecondaryAttack()
 
 	local trace = self.Owner:GetEyeTrace()
 
-	print("Unlock pre-validation")
 	if not IsValid(trace.Entity) or not trace.Entity.Meta then
 		return
 	end
 
-	print("Post")
 	if not (trace.Entity.Meta["Type"] == "CONTAINER") then
 		return
 	end
 	
-	print(self.Owner:Nick())
 	if self.Owner:EyePos():Distance(trace.Entity:GetPos()) > 256 then
-		print("too far")
 		return
 	end
 
-	print("Attempting to unlock.")
 	if trace.Entity:IsLocked() then
 		print("Unlocking...")
 		trace.Entity:Unlock(self.Owner)
+
+		self.Owner:EmitSound(self.Sound)
 	end
 
-	self.Owner:EmitSound(self.Sound)
 	self.Weapon:SetNextSecondaryFire(CurTime() + 0.3)
 end

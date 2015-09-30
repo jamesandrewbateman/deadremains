@@ -16,7 +16,7 @@ function ENT:Initialize()
 	self.Meta = {}
 	self.Meta["Type"] = "CONTAINER"
 	self.Meta["Owner"] = nil
-	self.Meta["Capacity"] = {width=10, height=10}
+	self.Meta["Capacity"] = {width=5, height=5}
 
 	self:SetNetworkName("ENTID" .. self:EntIndex())
 
@@ -26,15 +26,20 @@ function ENT:Initialize()
 
 	self.Meta["Items"] = {}
 
-	table.insert(self.Meta["Items"], {Unique = "tin_beans", SlotPosition = Vector(0, 0, 0)})
+	self:AddItem("tin_beans")
+	self:AddItem("hunting_backpack")
+	self:AddItem("hunting_backpack")
 
 	util.AddNetworkString(self:GetNetworkName())
+	util.AddNetworkString(self:GetNetworkName() .. ":OpenUI")
+	util.AddNetworkString(self:GetNetworkName() .. ":ContainerSize")
 end
 
 function ENT:Think()
 end
 
 function ENT:Use(player)
+	self:NetworkContainerSize()
 	self:NetworkItems()
 
 	-- hack: can be used to make sure items aren't stolen
@@ -50,10 +55,9 @@ function ENT:Use(player)
 	-- unlock and own if no valid owner
 	if not self:HasOwner() then
 		self:Own(player)
-		self:Lock(player)
 	end
 
-	self:Open()
+	self:Open(player)
 end
 
 function ENT:StartTouch(entity)
@@ -117,20 +121,128 @@ function ENT:Open(player)
 	net.Send(player)
 end
 
+function ENT:AddItem(item_unique)
+	local selectedItemCore = deadremains.item.get(item_unique)
+
+	for ox = 0, self.Meta["Capacity"].width - selectedItemCore.slots_horizontal do
+		for oy = 0, self.Meta["Capacity"].height - selectedItemCore.slots_vertical do
+
+			local testOriginItem = self:GetItemAt(Vector(ox, oy, 0))
+			local slotArea = 0
+			-- this one is empty, what about the others?
+			if testOriginItem == 0 then
+				-- for each slot within the projected new position, is there an item present?
+				for dx = 0, selectedItemCore.slots_horizontal - 1 do
+					for dy = 0, selectedItemCore.slots_vertical - 1 do
+						local testItem = self:GetItemAt(Vector(ox, oy, 0) + Vector(dx, dy, 0))
+						if testItem == 0 then
+							slotArea = slotArea + 1
+						end
+					end
+				end
+
+				if slotArea >= (selectedItemCore.slots_horizontal * selectedItemCore.slots_vertical) then
+					table.insert(self.Meta["Items"], {Unique = item_unique, SlotPosition = Vector(ox, oy, 0)})
+					return
+				end
+			else
+				--print(testOriginItem.Unique)
+			end
+		end
+	end
+end
+
+-- ITEM MOVEMENTS
+function ENT:MoveItem(SelectedPos, TargetPos)
+	local selectedItem = self:GetItemAt(SelectedPos)
+	local targetItem = self:GetItemAt(TargetPos)
+
+	-- empy space where we want to place
+	if (targetItem == 0) then
+		-- but if we move it here will it overlap another items bounds?
+
+		-- for each slot within the projected new position, is there an item present?
+		local selectedItemCore = deadremains.item.get(selectedItem.Unique)
+		for dx = 0, selectedItemCore.slots_horizontal do
+			for dy = 0, selectedItemCore.slots_vertical do
+
+				-- todo if we find another item which is not itself in this position, fail.
+				local testItem = self:GetItemAt(TargetPos + Vector(dx, dy, 0))
+
+				if testItem == 1 then
+					return "Could not fit item here."
+				end
+			end
+		end
+
+		-- now we know that SelectedPos item can move to TargetPos
+		-- with no collisions.
+		selectedItem.SlotPosition = TargetPos
+		self:NetworkItems()
+		return "Done!"
+	else
+		return "Could not fit item here sorry."
+	end
+end
+
+function ENT:GetItemAt(position)
+	local items = self.Meta["Items"]
+	local selected_item = 0
+
+	-- get the item which this point lands inside of.
+	for k,v in pairs(items) do
+		local x,y,w,h = self:GetItemSlotBBox(v.SlotPosition, v.Unique)
+
+		if position.X >= x and position.X <= x + w then
+			if position.Y >= y and position.Y <= y + h then
+				-- found an item to select
+				selected_item = v
+			end
+		end
+	end
+
+	return selected_item
+end
+
+function ENT:CanPlace(position)
+end
+
+-- bbox in slots
+function ENT:GetItemSlotBBox(slot_position, item_unique)
+	local i = deadremains.item.get(item_unique)
+
+	local width = i.slots_horizontal - 1
+	local height = i.slots_vertical - 1
+
+	local oX = slot_position.x
+	local oY = slot_position.y
+
+	return oX,oY, width,height
+end
+
+
+-- NETWORKING
 function ENT:NetworkItems()
 	local items = self.Meta["Items"]
 
 	net.Start(self:GetNetworkName())
-	net.WriteUInt(#items, 16)
+		net.WriteUInt(#items, 16)
 
-	for i=1, #items do
-		local thisItem = items[i]
-		net.WriteString(thisItem.Unique)
-		-- thisItem.Contains is only serverside!
-		-- needs a new panel to view contents.
-		net.WriteVector(thisItem.SlotPosition)
-	end
+		for i=1, #items do
+			local thisItem = items[i]
+			net.WriteString(thisItem.Unique)
+			-- thisItem.Contains is only serverside!
+			-- needs a new panel to view contents.
+			net.WriteVector(thisItem.SlotPosition)
+		end
 
 	-- send to everyone?
+	net.Broadcast()
+end
+
+function ENT:NetworkContainerSize()
+	net.Start(self:GetNetworkName() .. ":ContainerSize")
+		net.WriteUInt(self.Meta["Capacity"].width, 8)
+		net.WriteUInt(self.Meta["Capacity"].height, 8)
 	net.Broadcast()
 end
