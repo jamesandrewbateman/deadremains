@@ -140,7 +140,7 @@ function deadremains.team.voteKickPlayer(ply, target_steamid)
 	deadremains.team.voteKicksTable[target_steam] = 1
 
 	for k,v in pairs(player.GetAll()) do
-		if (v:getTeam() == ply:getTeam()) do
+		if (v:getTeam() == ply:getTeam()) then
 			-- should we kick this geeza?
 		end
 	end

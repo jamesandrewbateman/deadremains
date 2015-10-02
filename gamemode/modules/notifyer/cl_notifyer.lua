@@ -5,6 +5,8 @@ function PANEL:Init()
 	self:Center()
 
 	local yesButton = vgui.Create("DButton", self)
+	yesButton:SetText("Yes")
+	yesButton:SetColor(deadremains.ui.colors.clr15)
 	yesButton:SetSize(40, 30)
 	yesButton:SetPos(256 - 40, 256 - 30)
 	yesButton.DoClick = function(self)
@@ -14,6 +16,8 @@ function PANEL:Init()
 	end
 
 	local noButton = vgui.Create("DButton", self)
+	noButton:SetText("No")
+	noButton:SetColor(deadremains.ui.colors.clr15)
 	noButton:SetSize(40, 30)
 	noButton:SetPos(0, 256-30)
 	noButton.DoClick = function(self)
@@ -21,13 +25,15 @@ function PANEL:Init()
 			net.WriteUInt(2, 8)
 		net.SendToServer()
 	end
+	noButton.Paint = function(self, w, h)
+	end
 end
 
 function PANEL:Paint(w, h)
 	draw.RoundedBox(0, 0, 0, w, h, Color(0, 0, 0, 255))
 end
 
-vgui.Register("YesNoNotification", PANEL, "Panel")
+vgui.Register("YesNoNotification", PANEL, "DFrame")
 
 
 
