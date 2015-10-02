@@ -23,6 +23,8 @@ LoadModule("map_config")
 LoadModule("gear")
 LoadModule("container")
 LoadModule("deadmin")
+LoadModule("notifyer")
+
 include("sh_uiloader.lua")
 
 deadremains.loader.initialize()

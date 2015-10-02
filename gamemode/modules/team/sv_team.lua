@@ -135,6 +135,18 @@ function deadremains.team.kickPlayer(ply)
 		ply:setTeam(0, 0)
 	end
 end
+
+function deadremains.team.voteKickPlayer(ply, target_steamid)
+	deadremains.team.voteKicksTable[target_steam] = 1
+
+	for k,v in pairs(player.GetAll()) do
+		if (v:getTeam() == ply:getTeam()) do
+			-- should we kick this geeza?
+		end
+	end
+end
+
 concommand.Add("dr_team_kick", function(ply)
 	deadremains.team.kickPlayer(ply)
+	print("Kicked player from team!")
 end)
