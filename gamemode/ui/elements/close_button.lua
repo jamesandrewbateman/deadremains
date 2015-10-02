@@ -1,3 +1,5 @@
+local matCross = Material("deadremains/menu/cross.png", "noclamp smooth")
+
 local ELEMENT = {}
 function ELEMENT:Init()
 
@@ -25,8 +27,17 @@ end
 
 function ELEMENT:Paint(w, h)
 
-	surface.SetDrawColor(deadremains.ui.colors.clr14)
-	surface.DrawRect(0, 0, w, h)
+	if self.hovered then
+
+		surface.SetDrawColor(deadremains.ui.colors.clr16)
+
+	else
+
+		surface.SetDrawColor(deadremains.ui.colors.clr13)
+
+	end
+	surface.SetMaterial(matCross)
+	surface.DrawTexturedRect(0, 0, w, h)
 
 end
 vgui.Register("deadremains.close_button", ELEMENT, "Panel")

@@ -66,4 +66,4 @@ function ELEMENT:Paint(w, h)
 	end
 
 end
-vgui.Register("deadremains.action_menu_action", ELEMENT, "Panel")
+vgui.Register("deadremains.skill_action_menu_action", ELEMENT, "Panel")

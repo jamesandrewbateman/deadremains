@@ -76,8 +76,17 @@ function deadremains.ui.createMenu()
 		UI_MAIN:SetPos(0, 0)
 
 		local main_panel = vgui.Create("deadremains.main_panel", UI_MAIN)
-		main_panel:SetSize(640, 771)
-		main_panel:SetPos(deadremains.ui.screenSizeX / 2 - 35 / 2 - 640, deadremains.ui.screenSizeY / 2 - 771 / 2)
+		main_panel:SetSize(640, 761)
+		main_panel:SetPos(deadremains.ui.screenSizeX / 2 - 35 / 2 - 640, deadremains.ui.screenSizeY / 2 - 761 / 2)
+
+		UI_MAIN.sec = vgui.Create("deadremains.secondary_inventory_panel", UI_MAIN)
+		UI_MAIN.sec:SetSize(540, 761)
+		UI_MAIN.sec:SetPos(deadremains.ui.screenSizeX / 2 + 35 / 2, deadremains.ui.screenSizeY / 2 - 761 / 2)
+
+		UI_MAIN.sec:addInventory(1, "Backpack", 9, 3, 50)
+		UI_MAIN.sec:addInventory(2, "Pants", 9, 1, 30)
+		UI_MAIN.sec:addInventory(3, "Pockets", 9, 1, 30)
+
 
 	end
 

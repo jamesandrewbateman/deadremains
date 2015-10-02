@@ -54,7 +54,7 @@ function ELEMENT:Paint(w, h)
 	end
 
 	surface.SetMaterial(self.icon)
-	surface.DrawTexturedRect( 0, 0, w, h )
+	surface.DrawTexturedRect(0, 0, w, h)
 
 end
 
@@ -72,7 +72,7 @@ end
 
 function ELEMENT:moveTo(to_x, to_y)
 
-	local x, y = self:GetPos()
+	local _, y = self:GetPos()
 
 	self.a = 0
 

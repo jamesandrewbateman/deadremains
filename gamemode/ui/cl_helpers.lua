@@ -18,6 +18,8 @@ deadremains.ui.colors.clr13 = Color(80, 80, 80, 255)
 deadremains.ui.colors.clr14 = Color(25, 25, 25, 255)
 deadremains.ui.colors.clr15 = Color(245, 245, 245, 200)
 deadremains.ui.colors.clr16 = Color(184, 118, 43, 255)
+deadremains.ui.colors.clr17 = Color(18, 25, 55, 100)
+deadremains.ui.colors.clr18 = Color(75, 160, 100, 100)
 
 function deadremains.ui.lerp(frac, from, to)
 
