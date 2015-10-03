@@ -33,6 +33,18 @@ function ELEMENT:setIcon(icon)
 
 end
 
+function ELEMENT:setActive(b)
+
+	self.active = b
+
+	if !b then
+
+		self.circle_rad_to = 20
+
+	end
+
+end
+
 function ELEMENT:Paint(w, h)
 
 	self.circle_rad = deadremains.ui.lerp(0.15, self.circle_rad, self.circle_rad_to)
@@ -85,14 +97,7 @@ end
 
 function ELEMENT:OnMousePressed(m)
 
-	if self.available then
-
-		self.active = true
-
-		local w, _ = self:GetSize()
-		self.circle_rad_to = w / 2
-
-	end
+	if self.active then return end
 
 	local activeMenu = deadremains.ui.getActiveActionMenu()
 	if activeMenu then
@@ -101,13 +106,26 @@ function ELEMENT:OnMousePressed(m)
 
 	end
 
+	self.active = true
+
+	local w, _ = self:GetSize()
+	self.circle_rad_to = w / 2
+
 	local x, y = gui.MousePos()
-	local actionMenu = vgui.Create("deadremains.action_menu")
+	local actionMenu = vgui.Create("deadremains.skill_action_menu")
 	actionMenu:SetSize(190, 40)
 	actionMenu:setTitle(self.name)
-	actionMenu:setOrigin(x, y)
-	actionMenu:addAction("Share", function() end, Material("deadremains/characteristics/sprintspeed.png"))
-	actionMenu:addAction("Unlock", function() end, Material("deadremains/characteristics/sprintspeed.png"))
+	actionMenu:setOrigin(x + 15, y)
+	actionMenu:setDisableFunc(function() self:setActive(false) end)
+	if self.available then
+
+		actionMenu:addAction("Share", function() end, Material("deadremains/characteristics/sprintspeed.png", "noclamp smooth"))
+
+	else
+
+		actionMenu:addAction("Unlock", function() end, Material("deadremains/characteristics/sprintspeed.png", "noclamp smooth"))
+
+	end
 
 	deadremains.ui.activeActionMenu = actionMenu
 
@@ -132,7 +150,6 @@ function ELEMENT:OnCursorExited()
 
 	if !self.active then
 
-		local w, _ = self:GetSize()
 		self.circle_rad_to = 20
 
 	end

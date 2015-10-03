@@ -13,11 +13,11 @@ function ELEMENT:Init()
 
 	self.tabList = vgui.Create("deadremains.category_tab_list", self)
 	self.tabList:SetPos(0, 0)
-	self.tabList:SetSize(100, 762)
+	self.tabList:SetSize(100, 761)
 
 	self.catSkills = vgui.Create("deadremains.skills_panel", self)
 	self.catSkills:SetPos(101, 102)
-	self.catSkills:SetSize(539, 660)
+	self.catSkills:SetSize(539, 659)
 
 	local skillTypes = deadremains.settings.get("skill_types")
 	for _, name in pairs(skillTypes) do
@@ -41,22 +41,22 @@ function ELEMENT:Init()
 
 	end
 	self.catSkills:updateLayout()
-	self.tabList:addCategory(matHunting, self.catSkills, 2, "SKILLS")
+	self.tabList:addCategory(matHunting, self.catSkills, 2, "SKILLS", function() local main = deadremains.ui.getMenu() main.sec:Hide() end)
 
 	self.catMap = vgui.Create("deadremains.map_panel", self)
 	self.catMap:SetPos(101, 102)
-	self.catMap:SetSize(539, 660)
-	self.tabList:addCategory(matMech, self.catMap, 3, "MAP")
+	self.catMap:SetSize(539, 659)
+	self.tabList:addCategory(matMech, self.catMap, 3, "MAP", function() local main = deadremains.ui.getMenu() main.sec:Hide() end)
 
-	self.catCharacter = vgui.Create("deadremains.character_panel", self)
-	self.catCharacter:SetPos(101, 102)
-	self.catCharacter:SetSize(539, 660)
-	self.tabList:addCategory(matFire, self.catCharacter, 1, "CHARACTER")
+	self.catEquipment = vgui.Create("deadremains.equipment_panel", self)
+	self.catEquipment:SetPos(101, 102)
+	self.catEquipment:SetSize(539, 659)
+	self.tabList:addCategory(matFire, self.catEquipment, 1, "EQUIPMENT", function() local main = deadremains.ui.getMenu() main.sec:Show() end)
 
 	self.catCrafting = vgui.Create("deadremains.crafting_panel", self)
 	self.catCrafting:SetPos(101, 102)
-	self.catCrafting:SetSize(539, 660)
-	self.tabList:addCategory(matFort, self.catCrafting, 4, "CRAFTING")
+	self.catCrafting:SetSize(539, 659)
+	self.tabList:addCategory(matFort, self.catCrafting, 4, "CRAFTING", function() local main = deadremains.ui.getMenu() main.sec:Hide() end)
 
 end
 

@@ -49,6 +49,8 @@ function ELEMENT:updateOrder(tab)
 
 				self:GetParent().titleBar:setTitle(v.title)
 
+				v.func()
+
 			end
 
 		else
@@ -75,6 +77,8 @@ function ELEMENT:updateOrder(tab)
 
 				self:GetParent().titleBar:setTitle(v.title)
 
+				v.func()
+
 			end
 
 			pos = pos + 1
@@ -85,9 +89,9 @@ function ELEMENT:updateOrder(tab)
 
 end
 
-function ELEMENT:addCategory(icon, p, pos, title)
+function ELEMENT:addCategory(icon, p, pos, title, func)
 
-	self.cats[pos] = {icon = icon, panel = p, pos = pos, title = title}
+	self.cats[pos] = {icon = icon, panel = p, pos = pos, title = title, func = func}
 
 	self.cats_tabs[pos] = vgui.Create("deadremains.category_tab", self)
 	self.cats_tabs[pos]:SetPos(0, (100 + 2) * (pos - 1))
@@ -109,6 +113,8 @@ function ELEMENT:addCategory(icon, p, pos, title)
 		self:updateOrder(tab)
 
 		self:GetParent().titleBar:setTitle(title)
+
+		func()
 
 	end
 
