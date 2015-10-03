@@ -33,6 +33,16 @@ function ENT:Initialize()
 	util.AddNetworkString(self:GetNetworkName())
 	util.AddNetworkString(self:GetNetworkName() .. ":OpenUI")
 	util.AddNetworkString(self:GetNetworkName() .. ":ContainerSize")
+	util.AddNetworkString(self:GetNetworkName() .. ":TakeItem")
+	util.AddNetworkString(self:GetNetworkName() .. ":PutItem")
+
+	net.Receive(self:GetNetworkName() .. ":TakeItem", function(bits, ply)
+		local slot_position = net.ReadVector()
+	end)
+
+	net.Receive(self:GetNetworkName() .. ":PutItem", function(bits, ply)
+		local item_unique = net.ReadString()
+	end)
 end
 
 function ENT:Think()
