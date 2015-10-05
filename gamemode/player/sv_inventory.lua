@@ -6,22 +6,34 @@
 	player.inventories[inventory index] =
 		{
 			name = "Backpack"
-			size = Vector(10, 10, 0)
+			size = Vector(10, 10, 0)							-- not networked
 			items =
 				{
 					{
 						unique = "tin_beans"
 						slot_position = Vector(0, 0, 0)
-						contains = { item1, item2, item3 }
+						contains = { item1, item2, item3 }		-- not networked
 					}
 				}
 		}
 
 ]]
+concommand.Add("give_backpack", function(ply)
+	ply:AddInventory("hunting_backpack", 9, 3)
+end)
+
+concommand.Add("Instinbeans", function(ply)
+	ply:AddItemToInventory("feet", "tin_beans")
+end)
+
+concommand.Add("Networkinv", function(ply)
+	print("networking inv...")
+
+	ply:NetworkInventory()
+end)
 
 -- BASE INVENTORY STRUCTURE
 function player_meta:InitInventories()
-	print("INIT INVENTORIES")
 	local invs = deadremains.settings.get("default_inventories")
 
 	self.Inventories = {}
@@ -49,10 +61,6 @@ function player_meta:AddInventory(unique, horiz, vert, inv_index)
 		Items = {}
 	}
 end
-
-concommand.Add("give_backpack", function(ply)
-	ply:AddInventory("hunting_backpack", 9, 3)
-end)
 
 function player_meta:GetInventoryId(name)
 	local invID = 0
@@ -88,7 +96,6 @@ function player_meta:InsertItem(inv_name, unique, inv_type, slot_position, conta
 
 	if (itemData.equip_slot) then
 		if (bit.band(bit.lshift(1, invId), itemData.equip_slot) != 0) then
-			print("can fit it in this inventory space!")
 			table.insert(items, {
 					Unique = unique,
 					SlotPosition = slot_position,
@@ -100,13 +107,11 @@ function player_meta:InsertItem(inv_name, unique, inv_type, slot_position, conta
 		-- after index 7 of inventories, ANYTHING can be placed.
 		if (#self.Inventories > inventory_equip_maximum) then		-- do we have more inventory space?
 			for indx = inventory_equip_maximum + 1, #self.Inventories do
-				print("found extra inventories, checking to fit it in.")
 				local invName = self:GetInventoryName(indx)
 
 				-- loop through all extra inventories, try to fit it in.
 				local s, x, y = self:CanFitItem(invName, unique)
 				if s then
-					print("Fit item in ", indx)
 					table.insert(self:GetInventory(invName).Items, {
 							Unique = unique,
 							SlotPosition = Vector(x, y, 0),
@@ -121,9 +126,6 @@ function player_meta:InsertItem(inv_name, unique, inv_type, slot_position, conta
 		end
 	end
 end
-concommand.Add("Instinbeans", function(ply)
-	ply:AddItemToInventory("feet", "tin_beans")
-end)
 
 function player_meta:AddItemToInventorySlot(inv_name, item_unique, slot_position, contains)
 	local inv = self:GetInventory(inv_name)
@@ -154,7 +156,6 @@ function player_meta:CanFitItem(inv_name, item_unique, contains)
 
 	for ox = 0, it_slotwidth do
 		for oy = 0, it_slotheight do
-			print("Checking origin, ", Vector(ox, oy))
 			local testOriginItem = self:GetItemAt(inv_name, Vector(ox, oy, 0))
 			local slotsFreeArea = 0
 
@@ -172,7 +173,6 @@ function player_meta:CanFitItem(inv_name, item_unique, contains)
 				end
 
 				if slotsFreeArea >= (selectedItemCore.slots_horizontal * selectedItemCore.slots_vertical) then
-					print("free")
 					return true, ox, oy
 				end
 			else
@@ -184,9 +184,19 @@ function player_meta:CanFitItem(inv_name, item_unique, contains)
 	return false
 end
 
+-- for removing from the inventory
+function player_meta:RemoveItem(inv_name, slot_position)
+	local items = self:GetInventory(inv_name).Items
+
+	for k,v in pairs(items) do
+		if (v.SlotPosition == slot_position) then
+			table.remove(items, k)
+		end
+	end
+end
+
 -- for searching the inventory
 function player_meta:GetItemAt(inv_name, position)
-	print(inv_name, position)
 	local items = self:GetInventory(inv_name).Items
 
 	local selected_item = 0
@@ -218,3 +228,82 @@ function player_meta:GetItemBBox(slot_position, item_unique)
 
 	return oX,oY, width,height
 end
+
+util.AddNetworkString("deadremains.networkinventory")
+function player_meta:NetworkInventory()
+	-- calculate how many items need to be sent.
+	-- perf opti would include ignoring entires which haven't changed.
+
+	local c = 0
+	for k,v in pairs(self.Inventories) do
+		for i,j in pairs(v.Items) do
+			c = c + 1
+		end
+	end
+
+	net.Start("deadremains.networkinventory")
+
+		net.WriteUInt(c, 16)
+
+		for invIndex, inv in pairs(self.Inventories) do
+			local name = inv.Name
+			local items = inv.Items
+
+			-- send a condensed version of our inventory.
+			for itemIndex, item in pairs(items) do
+				-- index CL
+				net.WriteString(name)
+
+				-- item data name
+				net.WriteString(item.Unique)
+				net.WriteVector(item.SlotPosition)
+			end
+		end
+
+	net.Send(self)
+end
+
+-- item handing clientside hooks
+util.AddNetworkString("deadremains.itemaction")
+net.Receive("deadremains.itemaction", function(bits, ply)
+	local action_name = net.ReadString()
+	local inventory_name = net.ReadString()
+	local item_unique = net.ReadString()
+	local item_slot_postion = net.ReadVector()
+
+	print("target slot position", item_slot_position)
+
+	-- net library likes to optimize out 0,0,0 value of vector.
+	if (item_slot_position == nil) then item_slot_position = Vector(0,0,0) end
+
+	local itemData = deadremains.item.get(item_unique)
+	local itemInvData = ply:GetItemAt(inventory_name, item_slot_position)
+
+	if (itemInvData ~= 0) then
+		if (action_name == "consume") and (type_to_string(itemData.meta["type"]) == "consumable") then
+			ply:RemoveItem(inventory_name, itemInvData.SlotPosition)
+
+			print("eating ", item_unique, itemInvData.SlotPosition)
+
+			itemData:use(ply)
+		elseif (action_name == "drop") then
+			ply:RemoveItem(inventory_name, itemInvData.SlotPosition)
+
+			print("dropping", item_unique, itemInvData.SlotPosition)
+			if (itemData.inventory_type) then
+				deadremains.item.spawn_meta(ply, itemInvData.Unique, itemInvData.Contains)
+			else
+				deadremains.item.spawn(ply, itemInvData.Unique)
+			end
+		elseif (action_name == "use") then
+			ply:RemoveItem(inventory_name, itemInvData.SlotPosition)
+
+			print("using", item_unique, itemInvData.SlotPosition)
+			itemData:use(ply)
+		end
+	end
+
+	-- if itemInvData == 0, means we tried to select an item which isn't
+	-- here serverside.
+	ply:NetworkInventory()
+end)

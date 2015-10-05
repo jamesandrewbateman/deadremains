@@ -35,6 +35,7 @@ deadremains.netrequest.create("load_deadmin_items", function()
 	return data
 end)
 
+-- for deadmin
 deadremains.netrequest.create("deadremains.spawnitem", function(ply, meta)
 	local i = deadremains.item.get(meta.unique)
 	if (i == nil) then return end
@@ -52,8 +53,7 @@ deadremains.netrequest.create("deadremains.spawnitem", function(ply, meta)
 	deadremains.item.spawn_meta(ply, meta.unique, default_meta)
 end)
 
-
-
+-- for mapconfig
 function deadremains.item.mapSpawn(unique, position, model)
 	local item = deadremains.item.get(unique)
 
@@ -67,6 +67,7 @@ function deadremains.item.mapSpawn(unique, position, model)
 	end
 end
 
+-- for concommand spawning
 function deadremains.item.spawn(player, cmd, args)
 	local item
 	if (args ~= nil) then
@@ -87,6 +88,7 @@ function deadremains.item.spawn(player, cmd, args)
 	end
 end
 
+-- for spawning code
 function deadremains.item.spawn_meta(player, unique, meta_data)
 	local item = deadremains.item.get(unique)
 

@@ -35,4 +35,7 @@ item.context_menu = {item_function_consume, item_function_drop, item_function_de
 ----------------------------------------------------------------------
 
 function item:use(player)
+	if (SERVER) then
+		player:SetHealth(12)
+	end
 end
