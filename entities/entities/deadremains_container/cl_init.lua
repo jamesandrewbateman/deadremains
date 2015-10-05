@@ -2,7 +2,7 @@ include("shared.lua")
 
 function ENT:Initialize()
 	self.Meta = {}
-	self.Meta["Capacity"] = {width = 1, height = 1}
+	self.Meta["Capacity"] = {width = 5, height = 5}
 	self.Meta["Items"] = {}
 
 	net.Receive(self:GetNetworkName(), function(bits)
@@ -24,13 +24,13 @@ function ENT:Initialize()
 
 	-- sent on player use. called before openUI
 	net.Receive(self:GetNetworkName() .. ":ContainerSize", function(bits)
-		print("Updating container size...")
+		-- print("Updating container size...")
 		self.Meta["Capacity"].width = net.ReadUInt(8)
 		self.Meta["Capacity"].height = net.ReadUInt(8)
 	end)
 
 	net.Receive(self:GetNetworkName() .. ":OpenUI", function(bits)
-		print("Opening panel...")
+		-- print("Opening panel...")
 		local frame = vgui.Create("deadremains.container.frame")
 		frame:SetGridSize(self.Meta["Capacity"].width, self.Meta["Capacity"].height)
 
@@ -88,8 +88,21 @@ function PANEL:LinkEntity(ent)
 	local slots_background = vgui.Create("deadremains.container.slot_grid", self)
 end
 
+-- where i handle all the clicking events.
 function PANEL:SetTargetPos(slot_x, slot_y)
 	self.TargetSlot = {x = slot_x, y = slot_y}
+
+	-- slot_x, slot_y are relative to the frame position.
+
+	-- inside the x/y bounds of this panel..
+	if self.TargetSlot.x > self.GridSize.width or self.TargetSlot.x < 0 or self.TargetSlot.y > self.GridSize.height or self.TargetSlot.y < 0 then
+		-- move the item
+		print("Move item: ", self.SelectedSlot.x .. ", " .. self.SelectedSlot.y)
+		print("to:", self.TargetSlot.y .. ", " .. self.TargetSlot.y)
+	else
+		print("Take item: ", self.SelectedSlot.x .. ", " .. self.SelectedSlot.y)
+		print("to:", self.TargetSlot.y .. ", " .. self.TargetSlot.y)
+	end
 end
 
 vgui.Register("deadremains.container.frame", PANEL, "DFrame")
@@ -141,7 +154,12 @@ function PANEL:Init()
 		local i = vgui.Create("DModelPanel", self)
 		i:SetSize(i_data.slots_horizontal * slotWidth, i_data.slots_vertical * slotHeight)
 		i:SetPos(slotpos.X * slotWidth, slotpos.Y * slotHeight)
+		i.SlotPosition = {x=slotpos.X, y=slotpos.Y}
 		i:SetModel(i_data.model)
+		i.DoClick = function(self)
+			local grid_panel = self:GetParent()
+			grid_panel:DModelPanelMousePressed(self.SlotPosition.x, self.SlotPosition.y)
+		end
 	end 
 end
 
@@ -173,9 +191,23 @@ function PANEL:Paint(w, h)
 	end
 end
 
+-- so a mdoel panel can set the selected/target slot pos as its origin
+function PANEL:DModelPanelMousePressed(slot_x, slot_y)
+	-- for dmodelpanel children clicks.
+	if self:GetParent().FirstSelect then
+		self:GetParent().SelectedSlot = {x = slot_x, y = slot_y}
+	else
+		self:GetParent():SetTargetPos(slot_x, slot_y)
+	end
+
+	-- flip the selector.
+	self:GetParent().FirstSelect = !self:GetParent().FirstSelect
+end
+
 function PANEL:OnMousePressed()
 	local slot_x, slot_y = self:MouseGridPos()
 
+	-- for background grid mouse positions.
 	if self:GetParent().FirstSelect then
 		self:GetParent().SelectedSlot = {x = slot_x, y = slot_y}
 	else

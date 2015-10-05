@@ -25,6 +25,10 @@ util.AddNetworkString("deadremains.asktojointeam")
 util.AddNetworkString("deadremains.jointeam")
 
 net.Receive("deadremains.createteam", function(bits, ply)
+	deadremains.team.createTeam(ply)
+end)
+
+function deadremains.team.createTeam(ply)
 	-- lets check whether we can make a team, requires multiple players nearby.
 	if not ply:inTeam() then
 		local nearPlayers = ents.FindInSphere(ply:GetPos(), 600)
@@ -34,7 +38,7 @@ net.Receive("deadremains.createteam", function(bits, ply)
 			end
 		end
 	end
-end)
+end
 
 net.Receive("deadremains.jointeam", function(bits, ply)
 	local gov_steamid = net.ReadString()

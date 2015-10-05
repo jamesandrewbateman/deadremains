@@ -24,9 +24,9 @@ item.rotate = 45
 -- How much this item weighs.
 item.weight = 4
 
-item.meta["type"] = item_type_Gear
+item.meta["type"] = item_type_gear
 
--- What equipment slot this item can be placed in.
+-- What equipment slot this item can be placed in. WHITELIST
 item.equip_slot = bit.lshift(1, inventory_equip_chest)
 
 -- What type of inventory this item creates.

@@ -21,71 +21,140 @@
 
 -- BASE INVENTORY STRUCTURE
 function player_meta:InitInventories()
-	player_meta.Inventories = {}
+	print("INIT INVENTORIES")
+	local invs = deadremains.settings.get("default_inventories")
 
-	-- body inventories
-	self:AddInventory("Feet", Vector(2, 2, 0))
-	self:AddInventory("Legs", Vector(2, 2, 0))
-	self:AddInventory("Head", Vector(2, 2, 0))
-	self:AddInventory("Back", Vector(2, 4, 0))
-	self:AddInventory("Chest", Vector(2, 2, 0))
-	self:AddInventory("Primary", Vector(5, 2, 0))
-	self:AddInventory("Secondary", Vector(3, 2, 0))
+	self.Inventories = {}
 
-	self:InsertItem("Head", "tin_beans", Vector(0, 0, 0))
-end
-
-function player_meta:AddInventory(name, size)
-	table.insert(player_meta.Inventories, {
-			Name = name,
-			Size = size,
+	for k,v in pairs(invs) do
+		self.Inventories[v.inventory_index] = 
+		{
+			Name = v.unique,
+			Size = v.size,
 			Items = {}
-		})
+		}
+	end
+end
+hook.Add("PlayerInitialSpawn", "invPSpawn", function(ply)
+	ply:InitInventories()
+end)
+
+function player_meta:AddInventory(unique, horiz, vert, inv_index)
+	if (inv_index == nil) then inv_index = #self.Inventories + 1 end
+
+	self.Inventories[inv_index] =
+	{
+		Name = unique,
+		Size = Vector(horiz, vert, 0),
+		Items = {}
+	}
 end
 
-function player_meta:RemoveInventory(name)
-	local invID = self:GetInventoryId()
-	table.insert(player_meta.Inventories, invID)
-end
+concommand.Add("give_backpack", function(ply)
+	ply:AddInventory("hunting_backpack", 9, 3)
+end)
 
 function player_meta:GetInventoryId(name)
 	local invID = 0
-	for k,v in pairs(player_meta.Inventories) do if v.Name == name then invID = k end
+	for k,v in pairs(self.Inventories) do if v.Name == name then invID = k end end
 
 	return invID
 end
 
+function player_meta:RemoveInventory(name)
+	local invID = self:GetInventoryId(name)
+	
+end
+
 function player_meta:GetInventory(name)
-	local invID = self:GetInventoryId()
-	return player_meta.Inventories[invID]
+	local invID = self:GetInventoryId(name)
+	return self.Inventories[invID]
+end
+
+function player_meta:GetInventoryName(id)
+	return self.Inventories[id].Name
 end
 
 
 -- ITEM ACTIONS --
-
 -- used internally, does not check for placement collisions.
-function player_meta:InsertItem(inv_name, unique, slot_position, contains)
-	local items = self:GetInventory(inv_name).Items
+-- inv_type is whether it provides a inventory space or not (is the unique).
+function player_meta:InsertItem(inv_name, unique, inv_type, slot_position, contains)
+	local invId = self:GetInventoryId(inv_name)
+	local inv = self:GetInventory(inv_name)
+	local items = inv.Items
 
-	table.insert(items, {
-			Unique = unique,
-			SlotPosition = slot_position,
-			Contains = contains
-		})
+	local itemData = deadremains.item.get(unique)
+
+	if (itemData.equip_slot) then
+		if (bit.band(bit.lshift(1, invId), itemData.equip_slot) != 0) then
+			print("can fit it in this inventory space!")
+			table.insert(items, {
+					Unique = unique,
+					SlotPosition = slot_position,
+					InvType = inv_type,
+					Contains = contains
+				})
+		end
+	else
+		-- after index 7 of inventories, ANYTHING can be placed.
+		if (#self.Inventories > inventory_equip_maximum) then		-- do we have more inventory space?
+			for indx = inventory_equip_maximum + 1, #self.Inventories do
+				print("found extra inventories, checking to fit it in.")
+				local invName = self:GetInventoryName(indx)
+
+				-- loop through all extra inventories, try to fit it in.
+				local s, x, y = self:CanFitItem(invName, unique)
+				if s then
+					print("Fit item in ", indx)
+					table.insert(self:GetInventory(invName).Items, {
+							Unique = unique,
+							SlotPosition = Vector(x, y, 0),
+							InvType = inv_type,
+							Contains = contains
+						})
+					return
+				end
+			end
+		else
+			print("Max inventory number reached")
+		end
+	end
+end
+concommand.Add("Instinbeans", function(ply)
+	ply:AddItemToInventory("feet", "tin_beans")
+end)
+
+function player_meta:AddItemToInventorySlot(inv_name, item_unique, slot_position, contains)
+	local inv = self:GetInventory(inv_name)
+	local selectedItemCore = deadremains.item.get(item_unique)
+	local s, x, y = self:CanFitItem(inv_name, item_unique, contains)
+
+	if s then
+		self:InsertItem(inv_name, item_unique, selectedItemCore.inventory_type, slot_position, contains)
+	end
 end
 
 -- external version of the function above.
 function player_meta:AddItemToInventory(inv_name, item_unique, contains)
+	local s, x, y = self:CanFitItem(inv_name, item_unique, contains)
+	local selectedItemCore = deadremains.item.get(item_unique)
+
+	if s then
+		self:InsertItem(inv_name, item_unique, selectedItemCore.inventory_type, Vector(x, y, 0), contains)
+	end
+end
+
+function player_meta:CanFitItem(inv_name, item_unique, contains)
 	local inv = self:GetInventory(inv_name)
 	local selectedItemCore = deadremains.item.get(item_unique)
 
 	local it_slotwidth = inv.Size.X - selectedItemCore.slots_horizontal
 	local it_slotheight = inv.Size.Y - selectedItemCore.slots_vertical
 
-
 	for ox = 0, it_slotwidth do
 		for oy = 0, it_slotheight do
-
+			print("Checking origin, ", Vector(ox, oy))
 			local testOriginItem = self:GetItemAt(inv_name, Vector(ox, oy, 0))
 			local slotsFreeArea = 0
 
@@ -103,19 +172,21 @@ function player_meta:AddItemToInventory(inv_name, item_unique, contains)
 				end
 
 				if slotsFreeArea >= (selectedItemCore.slots_horizontal * selectedItemCore.slots_vertical) then
-					if contains == nil then contains = {} end
-					self:InsertItem(inv_name, item_unique, selectedItemCore.inventory_type, Vector(ox, oy, 0), contains)
-					return
+					print("free")
+					return true, ox, oy
 				end
 			else
 				--print(testOriginItem.Unique)
 			end
 		end
 	end
+
+	return false
 end
 
 -- for searching the inventory
 function player_meta:GetItemAt(inv_name, position)
+	print(inv_name, position)
 	local items = self:GetInventory(inv_name).Items
 
 	local selected_item = 0

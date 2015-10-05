@@ -26,8 +26,9 @@ net.Receive("deadremains.notifyer.receive", function(bits, ply)
 	callback(response)
 end)
 
+--[[
 concommand.Add("TestNotifyer", function(ply)
-	deadremains.notifyer.popup(ply, "Hello World", 1, function(res)
-		print(res)
+	deadremains.notifyer.popup(ply, "Test message", 2, function(res)
 	end)
 end)
+]]

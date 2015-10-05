@@ -10,14 +10,18 @@ local function default(self)
 		self:setChar(unique, data.default)
 	end
 
+	--[[
 	local inventories = deadremains.settings.get("default_inventories")
 	for _, info in pairs(inventories) do
 		local data = deadremains.inventory.get(info.unique)
 
 		if (data) then
-			self:createInventory(data.unique, data.horizontal, data.vertical, info.inventory_index)
+			print("Added inventory ", data.unique, "at", info.inventory_index);
+			self:AddInventory(data.unique, data.horizontal, data.vertical, info.inventory_index)
+			-- self:createInventory(data.unique, data.horizontal, data.vertical, info.inventory_index)
 		end
 	end
+	]]
 
 	-- default to 0 (no team for group making)
 	self:setTeam(0)
@@ -43,7 +47,6 @@ function player_meta:reset()
 
 	self.dr_character.needs = {}
 	self.dr_character.skills = {}
-	self.dr_character.inventory = {}
 	self.dr_character.characteristics = {}
 	self.dr_character.team = {}
 

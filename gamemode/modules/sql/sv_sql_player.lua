@@ -48,7 +48,7 @@ function deadremains.sql.savePlayer(player)
 	params = params .. " WHERE steam_id = " .. steam_id .. ";"
 	deadremains.sql.query(database_main, params)
 
-	local inventories = player.dr_character.inventory
+	local inventories = player.Inventories or {}
 
 	-- before we do anything, we must clear the db of all saved values for this player.
 	params = ""
@@ -56,15 +56,16 @@ function deadremains.sql.savePlayer(player)
 	deadremains.sql.query(database_main, params, function()
 		for key, data in pairs(inventories) do
 			if (data) then
-				if (#data.slots > 0) then
-					for k,v in pairs(data.slots) do
+
+				if (#data.Items > 0) then
+					for k,v in pairs(data.Items) do
 						params = ""
 						params = params .. "INSERT INTO user_items (steam_id, inventory_unique, item_unique, slot_x, slot_y) VALUES ("
 						params = params .. steam_id .. ", "
-						params = params .. "'" .. data.unique .. "', "
-						params = params .. "'" .. v.unique .. "', "
-						params = params .. v.x .. ", "
-						params = params .. v.y .. ");"
+						params = params .. "'" .. data.Name .. "', "
+						params = params .. "'" .. v.Unique .. "', "
+						params = params .. v.SlotPosition.X .. ", "
+						params = params .. v.SlotPosition.Y .. ");"
 						deadremains.sql.query(database_main, params)
 					end
 				end
@@ -254,6 +255,7 @@ function player_meta:loadFromMysql()
 			-- other items
 			local other_items = {}
 
+			-- for each row in the table.
 			for k,v in pairs(data) do
 				item_type = deadremains.item.type(v.item_unique)
 
@@ -266,12 +268,11 @@ function player_meta:loadFromMysql()
 
 			-- loop through tables and control flow.
 			for k,v in pairs(inv_providers) do
-				local success, message = self:findSuitableInventory(v.item_unique)
+				self:AddItemToInventory(v.inventory_unique, v.item_unique)
 			end
 
 			for k,v in pairs(other_items) do
-				local inv_index = self:findInventoryIndex(v.inventory_unique)
-				local success, message = self:addItem(inv_index, v.item_unique, v.slot_x, v.slot_y)
+				self:AddItemToInventorySlot(v.inventory_unique, v.item_unique, Vector(v.slot_x, v.slot_y, 0))
 			end
 		end
 	end)

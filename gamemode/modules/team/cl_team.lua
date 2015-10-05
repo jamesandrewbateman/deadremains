@@ -29,7 +29,7 @@ end
 
 function deadremains.team.join_no(ply, gov_steamid)
 	if (ply:getTeam() == 0) then
-		net.start("deadremains.jointeam_no")
+		net.Start("deadremains.jointeam_no")
 			net.WriteString(gov_steamid)
 		net.SendToServer()
 	end
@@ -42,6 +42,7 @@ net.Receive("deadremains.asktojointeam", function(bits)
 
 	if (IsValid(gov)) then
 		local gov_name = gov:Nick()
+
 		ShowNotification("Team Invitation", "Would you like to join " .. gov_name .. "'s team?",
 		function()
 			-- yes

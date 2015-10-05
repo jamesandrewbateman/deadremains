@@ -124,13 +124,13 @@ inventory_index_primary = 6
 inventory_index_secondary = 7
 
 local inventories = {
-	{unique = "feet", inventory_index = inventory_index_feet},
-	{unique = "legs", inventory_index = inventory_index_legs},
-	{unique = "head", inventory_index = inventory_index_head},
-	{unique = "back", inventory_index = inventory_index_back},
-	{unique = "chest", inventory_index = inventory_index_chest},
-	{unique = "primary", inventory_index = inventory_index_primary},
-	{unique = "secondary", inventory_index = inventory_index_secondary}
+	{unique = "feet", inventory_index = inventory_index_feet, size = Vector(2, 2, 0)},
+	{unique = "legs", inventory_index = inventory_index_legs, size = Vector(2, 2, 0)},
+	{unique = "head", inventory_index = inventory_index_head, size = Vector(2, 2, 0)},
+	{unique = "back", inventory_index = inventory_index_back, size = Vector(2, 4, 0)},
+	{unique = "chest", inventory_index = inventory_index_chest, size = Vector(2, 2, 0)},
+	{unique = "primary", inventory_index = inventory_index_primary, size = Vector(5, 2, 0)},
+	{unique = "secondary", inventory_index = inventory_index_secondary, size = Vector(3, 2, 0)}
 }
 
 deadremains.settings.new("default_inventories", inventories)
