@@ -88,6 +88,7 @@ function SWEP:SecondaryAttack()
 		return
 	end
 
+	print(trace.Entity:IsLocked())
 	if trace.Entity:IsLocked() then
 		print("Unlocking...")
 		trace.Entity:Unlock(self.Owner)

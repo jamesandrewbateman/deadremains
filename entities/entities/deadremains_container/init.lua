@@ -4,7 +4,7 @@ AddCSLuaFile("shared.lua")
 include("shared.lua")
 
 function ENT:Initialize()
-	self:SetModel("models/props_trainstation/trainstation_post001.mdl")
+	self:SetModel("models/props_wasteland/controlroom_storagecloset001b.mdl")
 
 	self:PhysicsInit(SOLID_VPHYSICS)
 	self:SetMoveType(MOVETYPE_NONE)
@@ -14,15 +14,16 @@ function ENT:Initialize()
 	self:PhysWake()
 
 	self.Meta = {}
-	self.Meta["Type"] = "CONTAINER"
-	self.Meta["Owner"] = nil
-	self.Meta["Capacity"] = {width=5, height=5}
+	self.Meta["Type"] = "CONTAINER"	-- for keys swep to id this ent.
+	self.Meta["Owner"] = nil		-- set to the player who is current using it. (UI close detection)
+	self.Meta["Capacity"] = {width=5, height=5}	-- default
 
 	self:SetNetworkName("ENTID" .. self:EntIndex())
 
 	self.Meta["Flags"] = {}
 	self.Meta["Flags"]["Trapped"] = 0
 	self.Meta["Flags"]["Locked"] = 0
+	self.Meta["Flags"]["Open"] = 1		-- start open
 
 	self.Meta["Items"] = {}
 
@@ -35,6 +36,7 @@ function ENT:Initialize()
 	util.AddNetworkString(self:GetNetworkName() .. ":ContainerSize")
 	util.AddNetworkString(self:GetNetworkName() .. ":TakeItem")
 	util.AddNetworkString(self:GetNetworkName() .. ":PutItem")
+	util.AddNetworkString(self:GetNetworkName() .. ":CloseUI")
 
 	net.Receive(self:GetNetworkName() .. ":TakeItem", function(bits, ply)
 		local slot_position = net.ReadVector()
@@ -42,6 +44,12 @@ function ENT:Initialize()
 
 	net.Receive(self:GetNetworkName() .. ":PutItem", function(bits, ply)
 		local item_unique = net.ReadString()
+	end)
+
+	-- player closes this, then we open it.
+	net.Receive(self:GetNetworkName() .. ":CloseUI", function(bits, ply)
+		print("Set flag open")
+		self:SetFlag("Open")
 	end)
 end
 
@@ -60,11 +68,6 @@ function ENT:Use(player)
 
 		self:UnsetFlag("Trapped")
 		return
-	end
-
-	-- unlock and own if no valid owner
-	if not self:HasOwner() then
-		self:Own(player)
 	end
 
 	self:Open(player)
@@ -92,7 +95,6 @@ end
 
 -- frontend functions
 function ENT:Own(player)
-	-- new container owner.
 	self.Meta["Owner"] = player
 end
 
@@ -107,10 +109,15 @@ function ENT:IsOwner(player)
 end
 
 function ENT:Lock(player)
+	print("Locking container.")
+
 	if self:IsOwner(player) then
+		print("Set locked flag")
 		self:SetFlag("Locked")
-	else
-		self:Own()
+	elseif not self:HasOwner() then	-- no owner, lets own it. :)
+		print("No current owner, claiming.")
+		self:Own(player)
+		self:SetFlag("Locked")
 	end
 end
 
@@ -126,10 +133,13 @@ end
 
 function ENT:Open(player)
 	if self:IsLocked() then print("Container locked.") return end
+	if not self:HasFlag("Open") then print("Container already in use.") return end
 
+	self:UnsetFlag("Open")
 	net.Start(self:GetNetworkName()..":OpenUI")
 	net.Send(player)
 end
+
 
 function ENT:AddItem(item_unique)
 	local selectedItemCore = deadremains.item.get(item_unique)

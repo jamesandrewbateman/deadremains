@@ -47,6 +47,14 @@ end
 -- clientside UI
 local PANEL = {}
 
+function PANEL:OnRemove()
+	print("re-opening the container.")
+	if IsValid(self.LinkedEntity) then
+		net.Start(self.LinkedEntity:GetNetworkName() .. ":CloseUI")
+		net.SendToServer()
+	end
+end
+
 function PANEL:Init()
 	local scrW, scrH = ScrW(), ScrH()
 	local dWidth, dHeight = 400, 300
