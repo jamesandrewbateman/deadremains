@@ -4,31 +4,13 @@ AddCSLuaFile("shared.lua")
 AddCSLuaFile("sh_utilities.lua")
 AddCSLuaFile("cl_init.lua")
 AddCSLuaFile("sh_loader.lua")
-<<<<<<< HEAD
-AddCSLuaFile("modules/sh_inventory.lua")
-AddCSLuaFile("modules/cl_inventory.lua")
-AddCSLuaFile("modules/cl_gear.lua")
-AddCSLuaFile("modules/cl_team.lua")
-AddCSLuaFile("modules/sh_character.lua")
-AddCSLuaFile("modules/cl_character.lua")
-AddCSLuaFile("modules/sh_uiloader.lua")
-=======
->>>>>>> rich-dev
+
 AddCSLuaFile("cl_player.lua")
 AddCSLuaFile("sh_uiloader.lua")
 
 include("shared.lua")
 include("sh_utilities.lua")
 include("sh_loader.lua")
-<<<<<<< HEAD
-include("modules/sv_sql.lua")
-include("modules/sv_team.lua")
-include("modules/sv_map_config.lua")
-include("modules/sh_character.lua")
-include("modules/sv_character.lua")
-include("sv_player.lua")
-include("modules/sh_uiloader.lua")
-=======
 
 LoadModule("netrequest")
 LoadModule("log")
@@ -45,7 +27,7 @@ LoadModule("deadmin")
 LoadModule("notifyer")
 
 include("sh_uiloader.lua")
->>>>>>> rich-dev
+
 
 deadremains.loader.initialize()
 

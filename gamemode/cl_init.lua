@@ -21,8 +21,6 @@ LoadModule("notifyer")
 include("sh_uiloader.lua")
 include("cl_player.lua")
 
-include("modules/sh_uiloader.lua")
-
 deadremains.loader.initialize()
 
 ----------------------------------------------------------------------
@@ -41,8 +39,7 @@ end
 ----------------------------------------------------------------------
 
 function GM:OnEntityCreated(entity)
-<<<<<<< HEAD
-=======
+
 end
 
 ----------------------------------------------------------------------
@@ -70,5 +67,5 @@ local defaultHUD = {
 
 function GM:HUDShouldDraw(id)
 	return !defaultHUD[id]
->>>>>>> rich-dev
+
 end

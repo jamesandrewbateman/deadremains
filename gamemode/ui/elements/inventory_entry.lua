@@ -95,6 +95,8 @@ function ELEMENT:minimize()
 
 	self:SetSize(540, 115)
 
+	self.grid.minimized = true
+
 	self.UI_SEC:minimize(self.id)
 
 end
@@ -111,17 +113,25 @@ function ELEMENT:maximize()
 
 	end
 
+	self.grid.minimized = false
+
 	self.UI_SEC:maximize(self.id)
 
 end
 
-function ELEMENT:addItem(id, slotX, slotY, sizeX, sizeY, weight)
+function ELEMENT:OnMouseWheeled(dt)
 
+	self:GetParent():OnMouseWheeled(dt)
+
+end
+
+local id = 1
+function ELEMENT:addItem(name, slotX, slotY, sizeX, sizeY, weight)
+	print("Added", name, slotX, slotY)
 	local item = vgui.Create("deadremains.item_icon", self)
 	item:setID(id)
-	item:setSlot(slotX, slotY)
 	item:setGridSize(sizeX, sizeY)
-	item:setSlot(slotX, slotY, self.selected)
+	item:setSlot(slotX + 1, slotY + 1, self.selected)
 	item.weight = weight
 
 	self.infoL:add(weight)
@@ -129,13 +139,27 @@ function ELEMENT:addItem(id, slotX, slotY, sizeX, sizeY, weight)
 
 	table.insert(self.items, item)
 
+	id = id + 1
+
 end
 
-function ELEMENT:removeItem(id)
+function ELEMENT:removeItem(x, y)
 
 	for k, v in pairs(self.items) do
 
-		if id == v:getID() then
+		-- if id == v:getID() then
+
+		-- 	self.infoL:add(-v.weight)
+		-- 	self.infoR:add(-v.sizeX * v.sizeY)
+
+		-- 	v:Remove()
+
+		-- 	table.remove(self.items, k)
+
+		-- end
+
+		local slot = v:getSlot()
+		if slot.x == x and slot.y == y then
 
 			self.infoL:add(-v.weight)
 			self.infoR:add(-v.sizeX * v.sizeY)

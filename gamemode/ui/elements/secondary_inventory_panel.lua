@@ -126,6 +126,29 @@ function ELEMENT:removeInventory(id)
 
 end
 
+function ELEMENT:addItem(inv, name, slot)
+
+	self.inventory_panels[inv].panel:addItem(name, slot.x, slot.y, 1, 1, 1)
+
+end
+
+function ELEMENT:removeItem(inv, slot)
+
+	self.inventory_panels[inv].panel:removeItem(slot.x, slot.y)
+
+end
+
+function ELEMENT:OnMouseWheeled(dt)
+
+	for _, v in pairs(self.inventory_panels) do
+
+		local x, y = v.panel:GetPos()
+		v.panel:SetPos(x, y + dt * 10)
+
+	end
+
+end
+
 function ELEMENT:minimize(id)
 
 	local pos = self.inventory_panels[id].pos

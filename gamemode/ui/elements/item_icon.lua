@@ -73,6 +73,12 @@ function ELEMENT:OnMousePressed(m)
 
 end
 
+function ELEMENT:OnMouseWheeled(dt)
+
+	self:GetParent():OnMouseWheeled(dt)
+
+end
+
 function ELEMENT:OnMouseReleased(m)
 
 	if m == MOUSE_LEFT then
@@ -100,13 +106,19 @@ function ELEMENT:setSlot(x, y, selected)
 
 	if selected then
 
-		self:SetPos((x - 1) * 60, (y - 1) * 60 + 83)
+		self:SetPos((x - 1) * 60, (y - 1) * 60)
 
 	else
 
-		self:SetPos((x - 1) * 60, (y - 1) * 60)
+		self:SetPos((x - 1) * 60, (y - 1) * 60 + 83)
 
 	end
+
+end
+
+function ELEMENT:getSlot()
+
+	return Vector(self.slotX, self.slotY, 0)
 
 end
 

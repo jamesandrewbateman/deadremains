@@ -22,6 +22,8 @@ net.Receive("deadremains.networkinventory", function(bits)
 		PrintTable(LocalPlayer().Inventories)
 	end
 	
+	deadremains.ui.rebuildInventory()
+	
 end)
 
 function player_meta:InventoryItemAction(action_name, inventory_name, item_unique, item_slot_position)
