@@ -23,7 +23,7 @@ concommand.Add("give_backpack", function(ply)
 end)
 
 concommand.Add("Instinbeans", function(ply)
-	ply:AddItemToInventory("feet", "tin_beans")
+	ply:AddItemToInventory("feet", "fizzy_drink")
 end)
 
 concommand.Add("Networkinv", function(ply)
@@ -43,6 +43,8 @@ function player_meta:InitInventories()
 		{
 			Name = v.unique,
 			Size = v.size,
+			MaxWeight = v.max_weight,
+			CurrentWeight = 0,
 			Items = {}
 		}
 	end
@@ -51,13 +53,16 @@ hook.Add("PlayerInitialSpawn", "invPSpawn", function(ply)
 	ply:InitInventories()
 end)
 
-function player_meta:AddInventory(unique, horiz, vert, inv_index)
+function player_meta:AddInventory(unique, horiz, vert, inv_index, max_weight)
 	if (inv_index == nil) then inv_index = #self.Inventories + 1 end
+	if (max_weight == nil) then max_weight = 2000 end
 
 	self.Inventories[inv_index] =
 	{
 		Name = unique,
 		Size = Vector(horiz, vert, 0),
+		MaxWeight = max_weight,
+		CurrentWeight = 0,
 		Items = {}
 	}
 end
@@ -95,30 +100,57 @@ function player_meta:InsertItem(inv_name, unique, inv_type, slot_position, conta
 	local itemData = deadremains.item.get(unique)
 
 	if (itemData.equip_slot) then
+		-- can it be placed here?
 		if (bit.band(bit.lshift(1, invId), itemData.equip_slot) != 0) then
-			table.insert(items, {
-					Unique = unique,
-					SlotPosition = slot_position,
-					InvType = inv_type,
-					Contains = contains
-				})
+
+			local s, x, y = self:CanFitItem(inv_name, unique)
+			if s then
+				inv.CurrentWeight = inv.CurrentWeight + itemData.weight
+
+				if (inv.CurrentWeight <= inv.MaxWeight) then
+					table.insert(items, {
+							Unique = unique,
+							SlotPosition = slot_position,
+							InvType = inv_type,
+							Contains = contains
+						})
+					self:NetworkInventory()
+				else
+					-- pretend we didn't do that.
+					inv.CurrentWeight = inv.CurrentWeight - itemData.weight
+					print("Inventory weight limit reached!")
+				end
+			end
 		end
 	else
 		-- after index 7 of inventories, ANYTHING can be placed.
 		if (#self.Inventories > inventory_equip_maximum) then		-- do we have more inventory space?
 			for indx = inventory_equip_maximum + 1, #self.Inventories do
 				local invName = self:GetInventoryName(indx)
-
+				local inv = self:GetInventory(invName);
+					
 				-- loop through all extra inventories, try to fit it in.
 				local s, x, y = self:CanFitItem(invName, unique)
 				if s then
-					table.insert(self:GetInventory(invName).Items, {
-							Unique = unique,
-							SlotPosition = Vector(x, y, 0),
-							InvType = inv_type,
-							Contains = contains
-						})
-					return
+
+					inv.CurrentWeight = inv.CurrentWeight + itemData.weight
+
+					if (inv.CurrentWeight <= inv.MaxWeight) then
+						table.insert(self:GetInventory(invName).Items, {
+								Unique = unique,
+								SlotPosition = Vector(x, y, 0),
+								InvType = inv_type,
+								Contains = contains
+							})
+						
+						self:NetworkInventory()
+						return
+					else
+						-- pretend we didn't do that.
+						inv.CurrentWeight = inv.CurrentWeight - itemData.weight
+						print("Inventory weight limit reached in this bag!")
+						return
+					end
 				end
 			end
 		else
@@ -247,12 +279,18 @@ function player_meta:NetworkInventory()
 
 		for invIndex, inv in pairs(self.Inventories) do
 			local name = inv.Name
+			local maxWeight = inv.MaxWeight
+			local currentWeight = inv.CurrentWeight
 			local items = inv.Items
+			local size = inv.Size
 
 			-- send a condensed version of our inventory.
 			for itemIndex, item in pairs(items) do
-				-- index CL
+				-- inventory index CL
 				net.WriteString(name)
+				net.WriteVector(size)
+				net.WriteUInt(maxWeight, 16)
+				net.WriteUInt(currentWeight, 16)
 
 				-- item data name
 				net.WriteString(item.Unique)
