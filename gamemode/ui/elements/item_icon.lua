@@ -8,6 +8,8 @@ function ELEMENT:Init()
 
 	self.icon = matCircle
 
+	self.parent = self:GetParent()
+
 end
 
 function ELEMENT:setGridSize(x, y)
@@ -24,12 +26,22 @@ function ELEMENT:Paint(w, h)
 	if self.clicked then
 
 		local x, y = gui.MousePos()
-		if math.abs(self.mPosX - x) > 5 or math.abs(self.mPosY - y) > 5 or self.dragging then
+		if (math.abs(self.mPosX - x) > 5 or math.abs(self.mPosY - y) > 5) and !self.dragging then
 
+			self:SetParent()
 			self.dragging = true
+
+			self:SetPos(x - w / 2, y - h / 2)
+
+		elseif self.dragging then
+
 			self:SetPos(x - w / 2, y - h / 2)
 
 		end
+
+		surface.SetDrawColor(255, 255, 255, 255)
+		surface.SetMaterial(self.icon)
+		surface.DrawTexturedRect(0, 0, w, h)
 
 	else
 
@@ -76,16 +88,25 @@ end
 
 function ELEMENT:onDropped()
 
+	self:SetParent(self.parent)
 	self:SetPos(self.xPos, self.yPos)
 
 end
 
-function ELEMENT:setSlot(x, y)
+function ELEMENT:setSlot(x, y, selected)
 
 	self.slotX = x
 	self.slotY = y
 
-	self:SetPos(x * 60, y * 60)
+	if selected then
+
+		self:SetPos((x - 1) * 60, (y - 1) * 60 + 83)
+
+	else
+
+		self:SetPos((x - 1) * 60, (y - 1) * 60)
+
+	end
 
 end
 

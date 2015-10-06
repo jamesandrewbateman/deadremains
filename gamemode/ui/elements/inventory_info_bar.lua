@@ -1,7 +1,7 @@
 local ELEMENT = {}
 function ELEMENT:Init()
 
-	self.title = "XXXX"
+	self.title = ""
 	self.max = 0
 	self.current = 0
 
@@ -16,6 +16,12 @@ end
 function ELEMENT:setCurrent(num)
 
 	self.current = num
+
+end
+
+function ELEMENT:add(num)
+
+	self.current = math.Clamp(self.current + num, 0, self.max)
 
 end
 

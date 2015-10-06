@@ -14,6 +14,8 @@ function ELEMENT:Init()
 	self.infoR:SetPos(271, 120)
 	self.infoR:SetSize(269, 78)
 
+	self.items = {}
+
 end
 
 function ELEMENT:setID(id)
@@ -113,11 +115,38 @@ function ELEMENT:maximize()
 
 end
 
-function ELEMENT:addItem(id, slotX, slotY)
+function ELEMENT:addItem(id, slotX, slotY, sizeX, sizeY, weight)
 
 	local item = vgui.Create("deadremains.item_icon", self)
 	item:setID(id)
 	item:setSlot(slotX, slotY)
+	item:setGridSize(sizeX, sizeY)
+	item:setSlot(slotX, slotY, self.selected)
+	item.weight = weight
+
+	self.infoL:add(weight)
+	self.infoR:add(sizeX * sizeY)
+
+	table.insert(self.items, item)
+
+end
+
+function ELEMENT:removeItem(id)
+
+	for k, v in pairs(self.items) do
+
+		if id == v:getID() then
+
+			self.infoL:add(-v.weight)
+			self.infoR:add(-v.sizeX * v.sizeY)
+
+			v:Remove()
+
+			table.remove(self.items, k)
+
+		end
+
+	end
 
 end
 vgui.Register("deadremains.inventory_entry", ELEMENT, "Panel")
