@@ -4,23 +4,28 @@ LocalPlayer().Inventories = {}
 net.Receive("deadremains.networkinventory", function(bits)
 	local itemCount = net.ReadUInt(16)
 
-	if (itemCount > 0) then
-		LocalPlayer().Inventories = {}
+	LocalPlayer().Inventories = {}
 
-		for i=1, itemCount do
-			local invName = net.ReadString()
-			local itemName = net.ReadString()
-			local itemSlotPos = net.ReadVector()
+	for i=1, itemCount do
+		local invName = net.ReadString()
+		local invSize = net.ReadVector()
+		local invMaxWeight = net.ReadUInt(16)
+		local invCurrentWeight = net.ReadUInt(16)
 
-			table.insert(LocalPlayer().Inventories, {
-					InventoryName = invName,
-					ItemUnique = itemName,
-					SlotPosition = itemSlotPos
-				})
-		end
+		local itemName = net.ReadString()
+		local itemSlotPos = net.ReadVector()
 
-		PrintTable(LocalPlayer().Inventories)
+		table.insert(LocalPlayer().Inventories, {
+				InventoryName = invName,
+				InventorySize = invSize,
+				InventoryMaxWeight = invMaxWeight,
+				InventoryCurrentWeight = invCurrentWeight,
+				ItemUnique = itemName,
+				SlotPosition = itemSlotPos
+			})
 	end
+
+	-- PrintTable(LocalPlayer().Inventories)
 	
 	deadremains.ui.rebuildInventory()
 	
