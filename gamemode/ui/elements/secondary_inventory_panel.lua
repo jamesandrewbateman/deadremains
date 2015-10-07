@@ -140,10 +140,19 @@ end
 
 function ELEMENT:OnMouseWheeled(dt)
 
+	local h = -100
+	local children = self:GetChildren()
+	for _, v in pairs(children) do
+
+			h = h + v:GetTall()
+
+	end
+
 	for _, v in pairs(self.inventory_panels) do
 
 		local x, y = v.panel:GetPos()
-		v.panel:SetPos(x, y + dt * 10)
+		v.panel:SetPos(x, math.Clamp(y + dt * 10, 100, h))
+		print(dt * 10, -h, math.Clamp(y + dt * 10, 100, h))
 
 	end
 

@@ -3,17 +3,7 @@ deadremains.ui.key = KEY_F9
 
 deadremains.ui.enableBlur = true
 
-deadremains.ui.inventories = {
-
-	head = {size = Vector(2, 2, 0)},
-	chest = {size = Vector(2, 2, 0)},
-	feet = {size = Vector(2, 2, 0)},
-	primary = {size = Vector(5, 2, 0)},
-	secondary = {size = Vector(3, 2, 0)},
-	back = {size = Vector(2, 4, 0)},
-	legs = {size = Vector(2, 2, 0)}
-
-}
+deadremains.ui.inventories = {}
 
 local UI_MAIN
 
@@ -79,8 +69,7 @@ function deadremains.ui.addInventory(invName, vec)
 
 	local UI_MAIN = deadremains.ui.getMenu()
 
-	-- UI_MAIN.sec:addInventory(uid, invName, vec.x, vec.y, 50)
-	UI_MAIN.sec:addInventory(invName, invName, 9, 4, 50)
+	UI_MAIN.sec:addInventory(invName, invName, vec.x, vec.y, 50)
 	deadremains.ui.inventories[invName] = {size = vec, items = {}}
 
 end
@@ -91,7 +80,7 @@ function deadremains.ui.addItem(invName, itemName, vec)
 
 	table.insert(deadremains.ui.inventories[invName].items, {name = itemName, slot = vec})
 
-	UI_MAIN.sec:addItem(invName, uid, vec)
+	UI_MAIN.sec:addItem(invName, itemName, vec)
 
 end
 

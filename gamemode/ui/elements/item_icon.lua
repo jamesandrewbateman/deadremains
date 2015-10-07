@@ -88,6 +88,37 @@ function ELEMENT:OnMouseReleased(m)
 
 		self:onDropped()
 
+	elseif m == MOUSE_RIGHT then
+
+		if self.active then return end
+
+		local activeMenu = deadremains.ui.getActiveActionMenu()
+		if activeMenu then
+
+			activeMenu:Remove()
+
+		end
+
+		self.active = true
+
+		local w, _ = self:GetSize()
+		self.circle_rad_to = w / 2
+
+		local x, y = gui.MousePos()
+		local actionMenu = vgui.Create("deadremains.inventory_action_menu")
+		actionMenu:SetSize(190, 40)
+		actionMenu:setOrigin(x + 15, y)
+		actionMenu:setDisableFunc(function() end)
+
+		local actions = deadremains.item.get(self.id).context_menu
+		for _, v in pairs(actions) do
+
+			actionMenu:addAction(v.name, function() local slot = {} v.callback(slot) end, Material("deadremains/characteristics/sprintspeed.png", "noclamp smooth"))
+
+		end
+
+		deadremains.ui.activeActionMenu = actionMenu
+
 	end
 
 end

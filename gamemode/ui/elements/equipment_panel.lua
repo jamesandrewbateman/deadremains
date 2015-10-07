@@ -70,6 +70,10 @@ function ELEMENT:Think()
 
 end
 
+function ELEMENT:OnMouseWheeled()
+
+end
+
 function ELEMENT:Paint(w, h)
 
 	surface.SetDrawColor(deadremains.ui.colors.clr1)

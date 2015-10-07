@@ -127,9 +127,9 @@ end
 
 local id = 1
 function ELEMENT:addItem(name, slotX, slotY, sizeX, sizeY, weight)
-	print("Added", name, slotX, slotY)
+
 	local item = vgui.Create("deadremains.item_icon", self)
-	item:setID(id)
+	item:setID(name)
 	item:setGridSize(sizeX, sizeY)
 	item:setSlot(slotX + 1, slotY + 1, self.selected)
 	item.weight = weight
