@@ -4,6 +4,7 @@ AddCSLuaFile("shared.lua")
 AddCSLuaFile("sh_utilities.lua")
 AddCSLuaFile("cl_init.lua")
 AddCSLuaFile("sh_loader.lua")
+
 AddCSLuaFile("cl_player.lua")
 AddCSLuaFile("sh_uiloader.lua")
 
@@ -27,6 +28,7 @@ LoadModule("notifyer")
 
 include("sh_uiloader.lua")
 
+
 deadremains.loader.initialize()
 
 include("sv_player.lua")
@@ -35,7 +37,7 @@ database_main = "deadremains"
 
 ----------------------------------------------------------------------
 -- Purpose:
---		
+--
 ----------------------------------------------------------------------
 
 function GM:Initialize()
@@ -55,17 +57,17 @@ function GM:Initialize()
 end
 ----------------------------------------------------------------------
 -- Purpose:
---		
+--
 ----------------------------------------------------------------------
 
 function GM:PlayerInitialSpawn(player)
 	player.zombie_kill_count = 0
 	self.BaseClass:PlayerInitialSpawn(player)
-end 
+end
 
 ----------------------------------------------------------------------
 -- Purpose:
---		
+--
 ----------------------------------------------------------------------
 
 function GM:ShowHelp(ply)

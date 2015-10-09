@@ -14,6 +14,8 @@ function ELEMENT:Init()
 	self.infoR:SetPos(271, 120)
 	self.infoR:SetSize(269, 78)
 
+	self.items = {}
+
 end
 
 function ELEMENT:setID(id)
@@ -83,6 +85,14 @@ function ELEMENT:setCapacity(kg)
 
 end
 
+function ELEMENT:setSlotSize(slots)
+
+	self.slots = slots
+
+	self.infoR:setMax(slots)
+
+end
+
 function ELEMENT:getID()
 
 	return self.id
@@ -92,6 +102,8 @@ end
 function ELEMENT:minimize()
 
 	self:SetSize(540, 115)
+
+	self.grid.minimized = true
 
 	self.UI_SEC:minimize(self.id)
 
@@ -109,15 +121,79 @@ function ELEMENT:maximize()
 
 	end
 
+	self.grid.minimized = false
+
 	self.UI_SEC:maximize(self.id)
 
 end
 
-function ELEMENT:addItem(id, slotX, slotY)
+function ELEMENT:OnMouseWheeled(dt)
+
+	self:GetParent():OnMouseWheeled(dt)
+
+end
+
+local id = 1
+function ELEMENT:addItem(name, slotX, slotY, sizeX, sizeY, weight)
 
 	local item = vgui.Create("deadremains.item_icon", self)
-	item:setID(id)
-	item:setSlot(slotX, slotY)
+	item:setID(name)
+	item:setGridSize(sizeX, sizeY)
+	item:setSlot(slotX + 1, slotY + 1, self.selected)
+	item.weight = weight
+
+	self.infoL:add(weight)
+	self.infoR:add(sizeX * sizeY)
+
+	table.insert(self.items, item)
+
+	id = id + 1
+
+end
+
+function ELEMENT:removeItem(x, y)
+
+	for k, v in pairs(self.items) do
+
+		-- if id == v:getID() then
+
+		-- 	self.infoL:add(-v.weight)
+		-- 	self.infoR:add(-v.sizeX * v.sizeY)
+
+		-- 	v:Remove()
+
+		-- 	table.remove(self.items, k)
+
+		-- end
+
+		local slot = v:getSlot()
+		if slot.x == x and slot.y == y then
+
+			self.infoL:add(-v.weight)
+			self.infoR:add(-v.sizeX * v.sizeY)
+
+			v:Remove()
+
+			table.remove(self.items, k)
+
+		end
+
+	end
+
+end
+
+function ELEMENT:clearAllItems()
+
+	for _, v in pairs(self.items) do
+
+		v:Remove()
+
+	end
+
+	self.infoL:setCurrent(0)
+	self.infoR:setCurrent(0)
+
+	self.items = {}
 
 end
 vgui.Register("deadremains.inventory_entry", ELEMENT, "Panel")

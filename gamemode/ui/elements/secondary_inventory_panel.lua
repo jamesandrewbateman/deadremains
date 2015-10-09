@@ -36,6 +36,7 @@ function ELEMENT:rebuild()
 		inv:setID(v.id)
 		inv:setName(v.name)
 		inv:setCapacity(v.capacity)
+		inv:setSlotSize(v.slotX * v.slotY)
 		inv:setSelected(true)
 
 		h = v.slotY * 60 + 78
@@ -56,6 +57,7 @@ function ELEMENT:rebuild()
 				inv:setID(v.id)
 				inv:setName(v.name)
 				inv:setCapacity(v.capacity)
+				inv:setSlotSize(v.slotX * v.slotY)
 				inv:setSelected(true)
 
 				h = v.slotY * 60 + 78
@@ -82,6 +84,7 @@ function ELEMENT:rebuild()
 			inv:setID(v.id)
 			inv:setName(v.name)
 			inv:setCapacity(v.capacity)
+			inv:setSlotSize(v.slotX * v.slotY)
 			inv:setSelected(false)
 
 			self.inventory_panels[v.id] = {pos = pos, panel = inv}
@@ -121,6 +124,48 @@ function ELEMENT:removeInventory(id)
 			end
 
 		end
+
+	end
+
+end
+
+function ELEMENT:addItem(inv, name, slot)
+
+	local slotsX = deadremains.item.get(name).slots_horizontal
+	local slotsY = deadremains.item.get(name).slots_vertical
+	local weight = deadremains.item.get(name).weight
+
+	self.inventory_panels[inv].panel:addItem(name, slot.x, slot.y, slotsX, slotsY, weight)
+
+end
+
+function ELEMENT:removeItem(inv, slot)
+
+	self.inventory_panels[inv].panel:removeItem(slot.x, slot.y)
+
+end
+
+function ELEMENT:clearAllItems(inv)
+
+	self.inventory_panels[inv].panel:clearAllItems()
+
+end
+
+function ELEMENT:OnMouseWheeled(dt)
+
+	local h = -100
+	local children = self:GetChildren()
+	for _, v in pairs(children) do
+
+			h = h + v:GetTall()
+
+	end
+
+	for _, v in pairs(self.inventory_panels) do
+
+		local x, y = v.panel:GetPos()
+		v.panel:SetPos(x, math.Clamp(y + dt * 10, 100, h))
+		print(dt * 10, -h, math.Clamp(y + dt * 10, 100, h))
 
 	end
 

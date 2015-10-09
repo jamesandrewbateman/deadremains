@@ -3,6 +3,10 @@ deadremains.ui.key = KEY_F9
 
 deadremains.ui.enableBlur = true
 
+deadremains.ui.inventories = {}
+
+deadremains.ui.isDragging = false
+
 local UI_MAIN
 
 local keyDown = false
@@ -37,6 +41,58 @@ end)
 function deadremains.ui.getMenu()
 
 	return UI_MAIN
+
+end
+
+function deadremains.ui.rebuildInventory()
+
+	local UI_MAIN = deadremains.ui.getMenu()
+
+	for _, inv in pairs(deadremains.ui.inventories) do
+
+		inv.items = {}
+
+	end
+
+	local items = LocalPlayer().Inventories
+	for _, v in pairs(items) do
+
+		if !deadremains.ui.inventories[v.InventoryName] then
+
+			deadremains.ui.addInventory(v.InventoryName, v.InventorySize, v.InventoryMaxWeight)
+
+		else
+
+			UI_MAIN.sec:clearAllItems(v.InventoryName)
+
+		end
+
+	end
+
+	for _, v in pairs(items) do
+
+		deadremains.ui.addItem(v.InventoryName, v.ItemUnique, v.SlotPosition)
+
+	end
+
+end
+
+function deadremains.ui.addInventory(invName, vec, w)
+
+	local UI_MAIN = deadremains.ui.getMenu()
+
+	UI_MAIN.sec:addInventory(invName, invName, vec.x, vec.y, w)
+	deadremains.ui.inventories[invName] = {size = vec, items = {}}
+
+end
+
+function deadremains.ui.addItem(invName, itemName, vec)
+
+	local UI_MAIN = deadremains.ui.getMenu()
+
+	table.insert(deadremains.ui.inventories[invName].items, {name = itemName, slot = vec})
+
+	UI_MAIN.sec:addItem(invName, itemName, vec)
 
 end
 
@@ -83,10 +139,11 @@ function deadremains.ui.createMenu()
 		UI_MAIN.sec:SetSize(540, 761)
 		UI_MAIN.sec:SetPos(deadremains.ui.screenSizeX / 2 + 35 / 2, deadremains.ui.screenSizeY / 2 - 761 / 2)
 
-		UI_MAIN.sec:addInventory(1, "Backpack", 9, 3, 50)
-		UI_MAIN.sec:addInventory(2, "Pants", 9, 1, 30)
-		UI_MAIN.sec:addInventory(3, "Pockets", 9, 1, 30)
+		for k, v in pairs(deadremains.ui.inventories) do
 
+			deadremains.ui.addInventory(k, v.size)
+
+		end
 
 	end
 
@@ -104,6 +161,13 @@ function deadremains.ui.hideMenu()
 		if deadremains.ui.getHUD() then
 
 			deadremains.ui.getHUD():maximize()
+
+		end
+
+		local activeMenu = deadremains.ui.getActiveActionMenu()
+		if activeMenu then
+
+			activeMenu:Remove()
 
 		end
 

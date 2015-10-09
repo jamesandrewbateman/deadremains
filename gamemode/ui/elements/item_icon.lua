@@ -8,6 +8,8 @@ function ELEMENT:Init()
 
 	self.icon = matCircle
 
+	self.parent = self:GetParent()
+
 end
 
 function ELEMENT:setGridSize(x, y)
@@ -24,12 +26,24 @@ function ELEMENT:Paint(w, h)
 	if self.clicked then
 
 		local x, y = gui.MousePos()
-		if math.abs(self.mPosX - x) > 5 or math.abs(self.mPosY - y) > 5 or self.dragging then
+		if (math.abs(self.mPosX - x) > 5 or math.abs(self.mPosY - y) > 5) and !self.dragging then
 
+			self:SetParent()
 			self.dragging = true
+
+			deadremains.ui.isDragging = true
+
+			self:SetPos(x - w / 2, y - h / 2)
+
+		elseif self.dragging then
+
 			self:SetPos(x - w / 2, y - h / 2)
 
 		end
+
+		surface.SetDrawColor(255, 255, 255, 255)
+		surface.SetMaterial(self.icon)
+		surface.DrawTexturedRect(0, 0, w, h)
 
 	else
 
@@ -61,6 +75,12 @@ function ELEMENT:OnMousePressed(m)
 
 end
 
+function ELEMENT:OnMouseWheeled(dt)
+
+	self:GetParent():OnMouseWheeled(dt)
+
+end
+
 function ELEMENT:OnMouseReleased(m)
 
 	if m == MOUSE_LEFT then
@@ -70,22 +90,70 @@ function ELEMENT:OnMouseReleased(m)
 
 		self:onDropped()
 
+	elseif m == MOUSE_RIGHT then
+
+		if self.active then return end
+
+		local activeMenu = deadremains.ui.getActiveActionMenu()
+		if activeMenu then
+
+			activeMenu:Remove()
+
+		end
+
+		self.active = true
+
+		local w, _ = self:GetSize()
+		self.circle_rad_to = w / 2
+
+		local x, y = gui.MousePos()
+		local actionMenu = vgui.Create("deadremains.inventory_action_menu")
+		actionMenu:SetSize(190, 5)
+		actionMenu:setOrigin(x + 15, y)
+		actionMenu:setDisableFunc(function() self.active = false end)
+
+		local actions = deadremains.item.get(self.id).context_menu
+		for _, v in pairs(actions) do
+
+			actionMenu:addAction(v.name, function() local slot = {} v.callback(slot) end, Material("deadremains/characteristics/sprintspeed.png", "noclamp smooth"))
+
+		end
+
+		deadremains.ui.activeActionMenu = actionMenu
+
 	end
 
 end
 
 function ELEMENT:onDropped()
 
+	self:SetParent(self.parent)
 	self:SetPos(self.xPos, self.yPos)
+
+	deadremains.ui.isDragging = false
 
 end
 
-function ELEMENT:setSlot(x, y)
+function ELEMENT:setSlot(x, y, selected)
 
 	self.slotX = x
 	self.slotY = y
 
-	self:SetPos(x * 60, y * 60)
+	if selected then
+
+		self:SetPos((x - 1) * 60, (y - 1) * 60)
+
+	else
+
+		self:SetPos((x - 1) * 60, (y - 1) * 60 + 83)
+
+	end
+
+end
+
+function ELEMENT:getSlot()
+
+	return Vector(self.slotX, self.slotY, 0)
 
 end
 
