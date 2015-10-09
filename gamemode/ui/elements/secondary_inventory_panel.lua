@@ -36,6 +36,7 @@ function ELEMENT:rebuild()
 		inv:setID(v.id)
 		inv:setName(v.name)
 		inv:setCapacity(v.capacity)
+		inv:setSlotSize(v.slotX * v.slotY)
 		inv:setSelected(true)
 
 		h = v.slotY * 60 + 78
@@ -56,6 +57,7 @@ function ELEMENT:rebuild()
 				inv:setID(v.id)
 				inv:setName(v.name)
 				inv:setCapacity(v.capacity)
+				inv:setSlotSize(v.slotX * v.slotY)
 				inv:setSelected(true)
 
 				h = v.slotY * 60 + 78
@@ -82,6 +84,7 @@ function ELEMENT:rebuild()
 			inv:setID(v.id)
 			inv:setName(v.name)
 			inv:setCapacity(v.capacity)
+			inv:setSlotSize(v.slotX * v.slotY)
 			inv:setSelected(false)
 
 			self.inventory_panels[v.id] = {pos = pos, panel = inv}
@@ -128,7 +131,11 @@ end
 
 function ELEMENT:addItem(inv, name, slot)
 
-	self.inventory_panels[inv].panel:addItem(name, slot.x, slot.y, 1, 1, 1)
+	local slotsX = deadremains.item.get(name).slots_horizontal
+	local slotsY = deadremains.item.get(name).slots_vertical
+	local weight = deadremains.item.get(name).weight
+
+	self.inventory_panels[inv].panel:addItem(name, slot.x, slot.y, slotsX, slotsY, weight)
 
 end
 

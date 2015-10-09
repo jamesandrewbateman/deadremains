@@ -5,6 +5,8 @@ deadremains.ui.enableBlur = true
 
 deadremains.ui.inventories = {}
 
+deadremains.ui.isDragging = false
+
 local UI_MAIN
 
 local keyDown = false
@@ -57,7 +59,7 @@ function deadremains.ui.rebuildInventory()
 
 		if !deadremains.ui.inventories[v.InventoryName] then
 
-			deadremains.ui.addInventory(v.InventoryName, v.InventorySize)
+			deadremains.ui.addInventory(v.InventoryName, v.InventorySize, v.InventoryMaxWeight)
 
 		else
 
@@ -75,11 +77,11 @@ function deadremains.ui.rebuildInventory()
 
 end
 
-function deadremains.ui.addInventory(invName, vec)
+function deadremains.ui.addInventory(invName, vec, w)
 
 	local UI_MAIN = deadremains.ui.getMenu()
 
-	UI_MAIN.sec:addInventory(invName, invName, vec.x, vec.y, 50)
+	UI_MAIN.sec:addInventory(invName, invName, vec.x, vec.y, w)
 	deadremains.ui.inventories[invName] = {size = vec, items = {}}
 
 end

@@ -85,6 +85,14 @@ function ELEMENT:setCapacity(kg)
 
 end
 
+function ELEMENT:setSlotSize(slots)
+
+	self.slots = slots
+
+	self.infoR:setMax(slots)
+
+end
+
 function ELEMENT:getID()
 
 	return self.id

@@ -31,6 +31,8 @@ function ELEMENT:Paint(w, h)
 			self:SetParent()
 			self.dragging = true
 
+			deadremains.ui.isDragging = true
+
 			self:SetPos(x - w / 2, y - h / 2)
 
 		elseif self.dragging then
@@ -127,6 +129,8 @@ function ELEMENT:onDropped()
 
 	self:SetParent(self.parent)
 	self:SetPos(self.xPos, self.yPos)
+
+	deadremains.ui.isDragging = false
 
 end
 

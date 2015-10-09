@@ -20,7 +20,7 @@ function ELEMENT:Think()
 	local mx, my = gui.MousePos()
 	local s_mx, s_my = self:ScreenToLocal(mx, my)
 
-	if s_mx > 0 and s_my > 0 and s_mx < self:GetWide() and s_my < self:GetTall() and !self.minimized then
+	if s_mx > 0 and s_my > 0 and s_mx < self:GetWide() and s_my < self:GetTall() and !self.minimized and deadremains.ui.isDragging then
 
 		self:setHovered(true)
 
