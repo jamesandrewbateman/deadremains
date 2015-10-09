@@ -108,7 +108,7 @@ function ELEMENT:OnMouseReleased(m)
 		local actionMenu = vgui.Create("deadremains.inventory_action_menu")
 		actionMenu:SetSize(190, 40)
 		actionMenu:setOrigin(x + 15, y)
-		actionMenu:setDisableFunc(function() end)
+		actionMenu:setDisableFunc(function() self.active = false end)
 
 		local actions = deadremains.item.get(self.id).context_menu
 		for _, v in pairs(actions) do

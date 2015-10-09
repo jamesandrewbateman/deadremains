@@ -173,4 +173,19 @@ function ELEMENT:removeItem(x, y)
 	end
 
 end
+
+function ELEMENT:clearAllItems()
+
+	for _, v in pairs(self.items) do
+
+		v:Remove()
+
+	end
+
+	self.infoL:setCurrent(0)
+	self.infoR:setCurrent(0)
+
+	self.items = {}
+
+end
 vgui.Register("deadremains.inventory_entry", ELEMENT, "Panel")

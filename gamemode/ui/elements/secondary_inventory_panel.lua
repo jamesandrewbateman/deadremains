@@ -138,6 +138,12 @@ function ELEMENT:removeItem(inv, slot)
 
 end
 
+function ELEMENT:clearAllItems(inv)
+
+	self.inventory_panels[inv].panel:clearAllItems()
+
+end
+
 function ELEMENT:OnMouseWheeled(dt)
 
 	local h = -100

@@ -44,6 +44,8 @@ end
 
 function deadremains.ui.rebuildInventory()
 
+	local UI_MAIN = deadremains.ui.getMenu()
+
 	for _, inv in pairs(deadremains.ui.inventories) do
 
 		inv.items = {}
@@ -57,7 +59,15 @@ function deadremains.ui.rebuildInventory()
 
 			deadremains.ui.addInventory(v.InventoryName, v.InventorySize)
 
+		else
+
+			UI_MAIN.sec:clearAllItems(v.InventoryName)
+
 		end
+
+	end
+
+	for _, v in pairs(items) do
 
 		deadremains.ui.addItem(v.InventoryName, v.ItemUnique, v.SlotPosition)
 
