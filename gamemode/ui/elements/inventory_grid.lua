@@ -38,6 +38,21 @@ function ELEMENT:OnMouseWheeled(dt)
 
 end
 
+function ELEMENT:OnMouseReleased(m)
+
+	if m == MOUSE_RIGHT then
+
+		local activeMenu = deadremains.ui.getActiveActionMenu()
+		if activeMenu then
+
+			activeMenu:Remove()
+
+		end
+
+	end
+
+end
+
 function ELEMENT:Paint(w, h)
 
 	if self.hovered then

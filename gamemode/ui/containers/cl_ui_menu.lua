@@ -162,6 +162,13 @@ function deadremains.ui.hideMenu()
 
 		end
 
+		local activeMenu = deadremains.ui.getActiveActionMenu()
+		if activeMenu then
+
+			activeMenu:Remove()
+
+		end
+
 	end
 
 end

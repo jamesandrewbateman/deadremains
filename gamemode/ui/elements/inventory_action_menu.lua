@@ -15,7 +15,7 @@ function ELEMENT:setOrigin(x, y)
 	self.origin_x = x
 	self.origin_y = y
 
-	self:SetPos(x, y - 40)
+	self:SetPos(x, y - 25)
 
 end
 
@@ -25,7 +25,7 @@ function ELEMENT:addAction(name, callback, icon)
 	local w, h = self:GetSize()
 
 	local action = vgui.Create("deadremains.inventory_action_menu_action", self)
-	action:SetPos(20, 35 + 40 * actions)
+	action:SetPos(20, 40 * actions)
 	action:SetSize(w - 20, 45)
 	action:setName(name)
 	action:setCallback(callback)

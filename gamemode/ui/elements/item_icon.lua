@@ -106,7 +106,7 @@ function ELEMENT:OnMouseReleased(m)
 
 		local x, y = gui.MousePos()
 		local actionMenu = vgui.Create("deadremains.inventory_action_menu")
-		actionMenu:SetSize(190, 40)
+		actionMenu:SetSize(190, 5)
 		actionMenu:setOrigin(x + 15, y)
 		actionMenu:setDisableFunc(function() self.active = false end)
 
