@@ -26,7 +26,8 @@ function ELEMENT:add(num)
 end
 
 function ELEMENT:Paint(w, h)
-
+	if (self.max == nil) then self.max = 2000 end
+	
 	surface.SetDrawColor(deadremains.ui.colors.clr15)
 	surface.DrawRect(0, 0, w, h)
 

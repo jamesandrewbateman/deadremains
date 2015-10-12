@@ -24,8 +24,6 @@ item.rotate = 45
 -- How much this item weighs.
 item.weight = 8
 
-item.label = "unknown"
-
 -- Data about data
 item.meta = {}
 item.meta["type"] = 0

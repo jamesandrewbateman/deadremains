@@ -4,6 +4,7 @@ concommand.Add("deadremains.syncdata", function()
 	deadremains.netrequest.trigger("deadremains.syncdata")
 end)
 
+
 hook.Add("PostDrawOpaqueRenderables", "drawItemTooltip", function()
 	local trace = LocalPlayer():GetEyeTrace()
 

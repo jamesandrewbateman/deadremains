@@ -247,8 +247,6 @@ function player_meta:loadFromMysql()
 	-- to be added to the players inventory FIRST, so any items after can be placed
 	-- in the right inventory index.
 
-	self:InitInventories()
-	
 	deadremains.sql.query(database_main, "SELECT * FROM `user_items` WHERE `steam_id` = " .. steam_id, function(data)
 		if (data and data[1]) then
 

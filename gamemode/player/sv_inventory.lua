@@ -34,7 +34,6 @@ end)
 
 -- BASE INVENTORY STRUCTURE
 function player_meta:InitInventories()
-	print("initializing inventories!!!!!!")
 	local invs = deadremains.settings.get("default_inventories")
 
 	self.Inventories = {}
