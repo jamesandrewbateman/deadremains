@@ -9,7 +9,7 @@ local function default(self)
 	for unique, data in pairs (characteristics) do
 		self:setChar(unique, data.default)
 	end
-
+	
 	--[[
 	local inventories = deadremains.settings.get("default_inventories")
 	for _, info in pairs(inventories) do

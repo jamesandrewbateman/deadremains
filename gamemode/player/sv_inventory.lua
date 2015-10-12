@@ -34,6 +34,7 @@ end)
 
 -- BASE INVENTORY STRUCTURE
 function player_meta:InitInventories()
+	print("initializing inventories!!!!!!")
 	local invs = deadremains.settings.get("default_inventories")
 
 	self.Inventories = {}
@@ -49,9 +50,6 @@ function player_meta:InitInventories()
 		}
 	end
 end
-hook.Add("PlayerInitialSpawn", "invPSpawn", function(ply)
-	ply:InitInventories()
-end)
 
 function player_meta:AddInventory(unique, horiz, vert, inv_index, max_weight)
 	if (inv_index == nil) then inv_index = #self.Inventories + 1 end
@@ -115,6 +113,7 @@ function player_meta:InsertItem(inv_name, unique, inv_type, slot_position, conta
 							Contains = contains
 						})
 					self:NetworkInventory()
+					print("Item added to inventory")
 				else
 					-- pretend we didn't do that.
 					inv.CurrentWeight = inv.CurrentWeight - itemData.weight
@@ -126,6 +125,7 @@ function player_meta:InsertItem(inv_name, unique, inv_type, slot_position, conta
 		-- after index 7 of inventories, ANYTHING can be placed.
 		if (#self.Inventories > inventory_equip_maximum) then		-- do we have more inventory space?
 			for indx = inventory_equip_maximum + 1, #self.Inventories do
+				print("checking")
 				local invName = self:GetInventoryName(indx)
 				local inv = self:GetInventory(invName);
 					
@@ -144,6 +144,7 @@ function player_meta:InsertItem(inv_name, unique, inv_type, slot_position, conta
 							})
 						
 						self:NetworkInventory()
+						print("Item added to inventory")
 						return
 					else
 						-- pretend we didn't do that.
@@ -169,13 +170,23 @@ function player_meta:AddItemToInventorySlot(inv_name, item_unique, slot_position
 	end
 end
 
--- external version of the function above.
+--
+-- EXTERNAL version of the additem.
+--
 function player_meta:AddItemToInventory(inv_name, item_unique, contains)
 	local s, x, y = self:CanFitItem(inv_name, item_unique, contains)
 	local selectedItemCore = deadremains.item.get(item_unique)
 
 	if s then
 		self:InsertItem(inv_name, item_unique, selectedItemCore.inventory_type, Vector(x, y, 0), contains)
+	end
+end
+
+function player_meta:SwitchItemToInventory(inv_name, target_inv_name, item_unique, item_position, contains)
+	local s, x, y = self:CanFitItem(target_inv_name, item_unique, contains)
+	-- will it fit?
+	if s then
+		-- does the inventory we say we are moving stuff from actually contain that item.
 	end
 end
 
@@ -247,6 +258,36 @@ function player_meta:GetItemAt(inv_name, position)
 
 	return selected_item
 end
+
+-- returns a table with all items with that name and their slot positions.
+function player_meta:InventoryGetAll(inv_name, item_name)
+	local items = self:GetInventory(inv_name).Items
+
+	local selected_items = {}
+	for k,v in pairs(items) do
+		if (v.Unique == item_name) then
+			table.insert(selected_items, v)
+		end
+	end
+
+	return selected_items
+end
+
+function player_meta:ContainsItem(inv_name, item_name, position)
+	local items = self:InventoryGetAll(inv_name, item_name)
+
+	for k,v in pairs(items) do
+		if (v.SlotPosition == position) then
+			return true
+		end
+	end
+
+	return false
+end
+
+concommand.Add("invcontains", function(ply)
+	print(ply:ContainsItem("hunting_backpack", "fizzy_drink", Vector(0, 0, 0)))
+end)
 
 -- bbox in slots
 function player_meta:GetItemBBox(slot_position, item_unique)

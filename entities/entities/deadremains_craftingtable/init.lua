@@ -39,7 +39,15 @@ function ENT:Initialize()
 	util.AddNetworkString(self:GetNetworkName() .. ":CloseUI")
 
 	net.Receive(self:GetNetworkName() .. ":TakeItem", function(bits, ply)
+		if not (self.Meta["Owner"] == ply) then print("Begon!") return end
+
 		local slot_position = net.ReadVector()
+		local item_name = self:GetItemAtSlotPos(slot_position)
+
+		-- will find any slot.
+		print(item_name)
+		ply:AddItemToInventory("feet", item_name)
+		print("Take item at", slot_position)
 	end)
 
 	net.Receive(self:GetNetworkName() .. ":PutItem", function(bits, ply)
@@ -51,6 +59,8 @@ function ENT:Initialize()
 		print("Set flag open")
 		self:SetFlag("Open")
 	end)
+
+	self.label = "Crafting\nTable"
 end
 
 function ENT:Think()
@@ -203,6 +213,19 @@ function ENT:MoveItem(SelectedPos, TargetPos)
 	else
 		return "Could not fit item here sorry."
 	end
+end
+
+function ENT:GetItemAtSlotPos(position)
+	local items = self.Meta["Items"]
+	local selected_item = 0
+
+	for k,v in pairs(items) do
+		if v.SlotPosition == position then
+			selected_item = deadremains.item.get(v.Unique)
+		end
+	end
+
+	return selected_item
 end
 
 function ENT:GetItemAt(position)
