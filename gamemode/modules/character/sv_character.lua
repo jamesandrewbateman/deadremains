@@ -18,6 +18,9 @@ end)
 -- Purpose:
 --		
 ----------------------------------------------------------------------
+concommand.Add("newchar", function(ply)
+	ply:newCharacter("models/player/group01/male_03.mdl", "m")
+end)
 
 function player_meta:newCharacter(model, gender)
 	self:SetModel(model)
@@ -61,6 +64,7 @@ function player_meta:newCharacter(model, gender)
 	self.dr_character.buffs["HERO"] = 0
 
 	self.dr_character.created = true
+	print("Created a new character")
 end
 
 deadremains.character = {}
@@ -75,16 +79,33 @@ timer.Create("deadremains.buffschecker", 1, 0, function()
 	for k,ply in pairs(player.GetAll()) do
 		if (ply.dr_character) then
 			if (IsValid(ply) and (ply.dr_character.created == true)) then
-
 				-- process each flag one by one
 				for unique, flag in pairs(ply.dr_character.buffs) do
 					if (flag == 1) then
+						-- does this buff actually have any code to run/check?
 						if (deadremains.character.flagCheckFuncs[unique] ~= nil) then
 							flag = deadremains.character.flagCheckFuncs[unique](ply)
+						end
 
-							if (flag == 1) then
-								deadremains.character.processFlagFuncs[unique](ply)
-							end
+						-- check again incase our flagCheckFunc has returned a 0.
+						-- otherwise the flag is preserved.
+						if (flag == 1) then
+							deadremains.character.processFlagFuncs[unique](ply)
+						end
+					end
+				end
+
+				for unique, flag in pairs(ply.dr_character.debuffs) do
+					if (flag == 1) then
+						-- does this buff actually have any code to run/check?
+						if (deadremains.character.flagCheckFuncs[unique] ~= nil) then
+							flag = deadremains.character.flagCheckFuncs[unique](ply)
+						end
+
+						-- check again incase our flagCheckFunc has returned a 0.
+						-- otherwise the flag is preserved.
+						if (flag == 1) then
+							deadremains.character.processFlagFuncs[unique](ply)
 						end
 					end
 				end
@@ -132,4 +153,8 @@ deadremains.character.processFlagFuncs["FULL"] = function(ply)
 	ply.dr_character.float_hp = newHp
 
 	ply:SetHealth(math.floor(ply.dr_character.float_hp))
+end
+
+deadremains.character.processFlagFuncs["BLEEDING"] = function(ply)
+	--print("bleeding out")
 end
