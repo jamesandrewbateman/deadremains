@@ -125,7 +125,6 @@ function deadremains.ui.createMenu()
 		deadremains.ui.getHUD():minimize()
 
 	else
-
 		gui.EnableScreenClicker(true)
 		menuOpen = true
 
@@ -144,15 +143,18 @@ function deadremains.ui.createMenu()
 		UI_MAIN.sec:SetSize(540, 761)
 		UI_MAIN.sec:SetPos(deadremains.ui.screenSizeX / 2 + 35 / 2, deadremains.ui.screenSizeY / 2 - 761 / 2)
 
-		for k, v in pairs(deadremains.ui.inventories) do
+		timer.Simple(2, function()
+			LocalPlayer():ConCommand("Networkinv")
+			for k, v in pairs(deadremains.ui.inventories) do
 
-			deadremains.ui.addInventory(k, v.size)
+				deadremains.ui.addInventory(k, v.size)
 
-		end
-
+			end
+		end)
 	end
 
 end
+
 
 function deadremains.ui.hideMenu()
 

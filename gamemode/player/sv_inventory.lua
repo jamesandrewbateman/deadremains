@@ -18,6 +18,7 @@
 		}
 
 ]]
+
 concommand.Add("give_backpack", function(ply)
 	ply:AddInventory("hunting_backpack", 9, 3)
 end)
