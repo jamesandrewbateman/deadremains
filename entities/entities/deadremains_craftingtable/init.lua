@@ -42,11 +42,13 @@ function ENT:Initialize()
 		if not (self.Meta["Owner"] == ply) then print("Begon!") return end
 
 		local slot_position = net.ReadVector()
-		local item_name = self:GetItemAtSlotPos(slot_position)
+		local item = self:GetItemAtSlotPos(slot_position)
 
 		-- will find any slot.
-		print(item_name)
-		ply:AddItemToInventory("feet", item_name)
+		print("ITEM")
+		print(item.unique)
+		-- search all inventories.
+		ply:AddItemToInventory("feet", item.unique)
 		print("Take item at", slot_position)
 	end)
 
@@ -145,9 +147,16 @@ function ENT:Open(player)
 	if self:IsLocked() then print("Container locked.") return end
 	if not self:HasFlag("Open") then print("Container already in use.") return end
 
-	self:UnsetFlag("Open")
-	net.Start(self:GetNetworkName()..":OpenUI")
-	net.Send(player)
+	local selfPos = self:GetPos()
+	local plyPos = player:GetPos()
+
+	if (math.Distance(plyPos.X,plyPos.Y, selfPos.X,selfPos.Y) > 250) then
+		return false
+	else
+		self:UnsetFlag("Open")
+		net.Start(self:GetNetworkName()..":OpenUI")
+		net.Send(player)
+	end
 end
 
 

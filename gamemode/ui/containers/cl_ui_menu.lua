@@ -40,6 +40,11 @@ end)
 
 function deadremains.ui.getMenu()
 
+	if (not UI_MAIN) then
+		deadremains.ui.createMenu()
+		deadremains.ui.hideMenu()
+	end
+
 	return UI_MAIN
 
 end

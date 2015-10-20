@@ -11,6 +11,7 @@ local function default(self)
 	end
 	
 	self:InitInventories()
+
 	--[[
 	local inventories = deadremains.settings.get("default_inventories")
 	for _, info in pairs(inventories) do

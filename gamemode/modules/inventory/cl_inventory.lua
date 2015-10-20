@@ -25,7 +25,7 @@ net.Receive("deadremains.networkinventory", function(bits)
 			})
 	end
 
-	-- PrintTable(LocalPlayer().Inventories)
+	--PrintTable(LocalPlayer().Inventories)
 	
 	deadremains.ui.rebuildInventory()
 	

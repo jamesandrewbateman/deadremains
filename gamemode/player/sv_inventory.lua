@@ -23,13 +23,17 @@ concommand.Add("give_backpack", function(ply)
 end)
 
 concommand.Add("Instinbeans", function(ply)
-	ply:AddItemToInventory("feet", "fizzy_drink")
+	ply:AddItemToInventory("primary", "pistol")
 end)
 
 concommand.Add("Networkinv", function(ply)
 	print("networking inv...")
 
 	ply:NetworkInventory()
+end)
+
+concommand.Add("invcontains", function(ply)
+	print(ply:ContainsItem("hunting_backpack", "fizzy_drink", Vector(0, 0, 0)))
 end)
 
 -- BASE INVENTORY STRUCTURE
@@ -48,6 +52,8 @@ function player_meta:InitInventories()
 			Items = {}
 		}
 	end
+
+	self:NetworkInventory()
 end
 
 function player_meta:AddInventory(unique, horiz, vert, inv_index, max_weight)
@@ -173,6 +179,7 @@ end
 -- EXTERNAL version of the additem.
 --
 function player_meta:AddItemToInventory(inv_name, item_unique, contains)
+	print("Adding item " .. item_unique)
 	local s, x, y = self:CanFitItem(inv_name, item_unique, contains)
 	local selectedItemCore = deadremains.item.get(item_unique)
 
@@ -186,10 +193,17 @@ function player_meta:SwitchItemToInventory(inv_name, target_inv_name, item_uniqu
 	-- will it fit?
 	if s then
 		-- does the inventory we say we are moving stuff from actually contain that item.
+		if self:ContainsItem(inv_name, item_unique, item_position) then
+			-- remove item from inv_ and add to target_inv_
+			self:RemoveItem(inv_name, item_position)
+
+			self:AddItemToInventory(target_inv_name, item_unique, contains)
+		end
 	end
 end
 
 function player_meta:CanFitItem(inv_name, item_unique, contains)
+	print(item_unique)
 	local inv = self:GetInventory(inv_name)
 	local selectedItemCore = deadremains.item.get(item_unique)
 
@@ -283,10 +297,6 @@ function player_meta:ContainsItem(inv_name, item_name, position)
 
 	return false
 end
-
-concommand.Add("invcontains", function(ply)
-	print(ply:ContainsItem("hunting_backpack", "fizzy_drink", Vector(0, 0, 0)))
-end)
 
 -- bbox in slots
 function player_meta:GetItemBBox(slot_position, item_unique)
