@@ -19,10 +19,38 @@ function ELEMENT:setGridSize(x, y)
 
 	self:SetSize(x * 60, y * 60)
 
+	--print(self.sizeX, self.sizeY)
+	--print(self:GetSize())
+	self.modelPanel = vgui.Create("DModelPanel", self)
+	self.modelPanel:SetSize(self.sizeX * 60, self.sizeY * 60)
+
+	local i_data = deadremains.item.get(self.id)
+	local sX, sY = self:GetPos()
+
+	self.modelPanel:SetPos(sX, sY)
+
+	self.modelPanel:SetModel(i_data.model)
+	self.modelPanel:SetCamPos(i_data.cam_pos)
+	self.modelPanel:SetLookAt(i_data.look_at)
+	self.modelPanel:SetFOV(i_data.fov)
+	self.modelPanel:SetMouseInputEnabled(true)
+
+	self.modelPanel.item_icon = self
+
+	function self.modelPanel:OnMousePressed(m)
+		self.item_icon:OnMousePressed(m)
+	end
+
+	function self.modelPanel:OnMouseReleased(m)
+		self.item_icon:OnMouseReleased(m)
+	end
+
+	function self.modelPanel:OnMouseWheeled(dt)
+		self.item_icon:OnMouseWheeled(dt)
+	end
 end
 
 function ELEMENT:Paint(w, h)
-
 	if self.clicked then
 
 		local x, y = gui.MousePos()
@@ -41,21 +69,20 @@ function ELEMENT:Paint(w, h)
 
 		end
 
-		surface.SetDrawColor(255, 255, 255, 255)
-		surface.SetMaterial(self.icon)
-		surface.DrawTexturedRect(0, 0, w, h)
+		--surface.SetDrawColor(255, 255, 255, 255)
+		--surface.SetMaterial(self.icon)
+		--surface.DrawTexturedRect(0, 0, w, h)
 
 	else
 
 		surface.SetDrawColor(deadremains.ui.colors.clr2)
 		surface.DrawRect(0, 0, w, h)
 
-		surface.SetDrawColor(255, 255, 255, 255)
-		surface.SetMaterial(self.icon)
-		surface.DrawTexturedRect(0, 0, w, h)
+		--surface.SetDrawColor(255, 255, 255, 255)
+		--surface.SetMaterial(self.icon)
+		--surface.DrawTexturedRect(0, 0, w, h)
 
 	end
-
 end
 
 function ELEMENT:OnMousePressed(m)
@@ -91,6 +118,21 @@ function ELEMENT:OnMouseReleased(m)
 		self:onDropped()
 
 	elseif m == MOUSE_RIGHT then
+		-- find item information about this entry.
+		local items = LocalPlayer().Inventories
+		local foundItem = false
+		local sX, sY = self:GetPos()
+
+		for k,v in pairs(items) do
+			if (v.SlotPosition.X == sX) then
+				if (v.SlotPosition.Y == sY) then
+					foundItem = v
+				end
+			end
+		end
+
+		-- does it exist?
+		if not foundItem then return end
 
 		if self.active then return end
 
@@ -112,10 +154,26 @@ function ELEMENT:OnMouseReleased(m)
 		actionMenu:setOrigin(x + 15, y)
 		actionMenu:setDisableFunc(function() self.active = false end)
 
+		-- item meta to send to server
+		actionMenu.inventoryName = foundItem.InventoryName
+		actionMenu.itemUnique = foundItem.ItemUnique
+
 		local actions = deadremains.item.get(self.id).context_menu
 		for _, v in pairs(actions) do
 
-			actionMenu:addAction(v.name, function() local slot = {} v.callback(slot) end, Material("deadremains/characteristics/sprintspeed.png", "noclamp smooth"))
+			actionMenu:addAction(v.name, function()
+				local slot = {}
+				slot.action_name = v.name
+				slot.inventory_name = actionMenu.inventoryName
+				slot.item_unique = actionMenu.itemUnique
+				slot.slot_position = Vector(sX, sY, 0)
+
+				v.callback(slot)
+				deadremains.ui.getActiveActionMenu():Remove()
+
+				deadremains.ui.destroyMenu()
+				deadremains.ui.createMenu()
+			end, Material("deadremains/characteristics/sprintspeed.png", "noclamp smooth"))
 
 		end
 

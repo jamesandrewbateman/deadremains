@@ -38,6 +38,9 @@ function ELEMENT:OnCursorExited()
 end
 
 function ELEMENT:OnMouseReleased(m)
+	if m == MOUSE_LEFT then
+		self.callback()
+	end
 
 	if m == MOUSE_RIGHT then
 

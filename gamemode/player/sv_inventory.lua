@@ -24,7 +24,7 @@ concommand.Add("give_backpack", function(ply)
 end)
 
 concommand.Add("Instinbeans", function(ply)
-	ply:AddItemToInventory("primary", "pistol")
+	ply:AddItemToInventory("primary", "tin_beans")
 end)
 
 concommand.Add("Networkinv", function(ply)
@@ -203,6 +203,7 @@ function player_meta:SwitchItemToInventory(inv_name, target_inv_name, item_uniqu
 	end
 end
 
+
 function player_meta:CanFitItem(inv_name, item_unique, contains)
 	print(item_unique)
 	local inv = self:GetInventory(inv_name)
@@ -369,13 +370,13 @@ net.Receive("deadremains.itemaction", function(bits, ply)
 	local itemInvData = ply:GetItemAt(inventory_name, item_slot_position)
 
 	if (itemInvData ~= 0) then
-		if (action_name == "consume") and (type_to_string(itemData.meta["type"]) == "consumable") then
+		if (action_name == "Consume") and (type_to_string(itemData.meta["type"]) == "consumable") then
 			ply:RemoveItem(inventory_name, itemInvData.SlotPosition)
 
 			print("eating ", item_unique, itemInvData.SlotPosition)
 
 			itemData:use(ply)
-		elseif (action_name == "drop") then
+		elseif (action_name == "Drop") then
 			ply:RemoveItem(inventory_name, itemInvData.SlotPosition)
 
 			print("dropping", item_unique, itemInvData.SlotPosition)
@@ -384,7 +385,7 @@ net.Receive("deadremains.itemaction", function(bits, ply)
 			else
 				deadremains.item.spawn(ply, itemInvData.Unique)
 			end
-		elseif (action_name == "use") then
+		elseif (action_name == "Use") then
 			ply:RemoveItem(inventory_name, itemInvData.SlotPosition)
 
 			print("using", item_unique, itemInvData.SlotPosition)

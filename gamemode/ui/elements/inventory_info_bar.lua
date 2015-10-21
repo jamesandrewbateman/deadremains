@@ -20,7 +20,8 @@ function ELEMENT:setCurrent(num)
 end
 
 function ELEMENT:add(num)
-
+	if (self.max == nil) then self.max = 2000 end
+	
 	self.current = math.Clamp(self.current + num, 0, self.max)
 
 end

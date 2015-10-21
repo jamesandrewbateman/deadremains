@@ -59,31 +59,28 @@ if (CLIENT) then
 
 item_function_use = {name = "Use", callback = function(slot)
 	net.Start("deadremains.itemaction")
-		net.WriteUInt(slot.inventory_index, 8)
-		net.WriteString(slot.unique)
-		net.WriteUInt(slot.x, 32)
-		net.WriteUInt(slot.y, 32)
-		net.WriteUInt(item_action_use, 8)
+		net.WriteString(slot.action_name)
+		net.WriteString(slot.inventory_name)
+		net.WriteString(slot.item_unique)
+		net.WriteVector(slot.slot_position)
 	net.SendToServer()
 end}
 
 item_function_drop = {name = "Drop", callback = function(slot)
 	net.Start("deadremains.itemaction")
-		net.WriteUInt(slot.inventory_index, 8)
-		net.WriteString(slot.unique)
-		net.WriteUInt(slot.x, 32)
-		net.WriteUInt(slot.y, 32)
-		net.WriteUInt(item_action_drop, 8)
+		net.WriteString(slot.action_name)
+		net.WriteString(slot.inventory_name)
+		net.WriteString(slot.item_unique)
+		net.WriteVector(slot.slot_position)
 	net.SendToServer()
 end}
 
 item_function_destroy = {name = "Destroy", callback = function(slot)
 	net.Start("deadremains.itemaction")
-		net.WriteUInt(slot.inventory_index, 8)
-		net.WriteString(slot.unique)
-		net.WriteUInt(slot.x, 32)
-		net.WriteUInt(slot.y, 32)
-		net.WriteUInt(item_action_destroy, 8)
+		net.WriteString(slot.action_name)
+		net.WriteString(slot.inventory_name)
+		net.WriteString(slot.item_unique)
+		net.WriteVector(slot.slot_position)
 	net.SendToServer()
 end}
 
