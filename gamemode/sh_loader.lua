@@ -5,7 +5,11 @@ deadremains.loader = {}
 --		
 ----------------------------------------------------------------------
 
+deadremains.loader.loaded = false
 function deadremains.loader.initialize()
+	if (deadremains.loader.loaded) then return end
+	deadremains.loader.loaded = true
+
 	local GAMEMODE = GM
 	local map = string.lower(game.GetMap())
 	local directory = GAMEMODE.FolderName .. "/gamemode/settings/" .. map
@@ -18,7 +22,7 @@ function deadremains.loader.initialize()
 	include(directory .. "/sh_settings.lua")
 	
 	deadremains.log.write(deadremains.log.loader, "Initialized settings.")
-	
+
 	-- Load the folders.
 	local _, folders = file.Find(directory .. "/*", "LUA")
 	
@@ -60,4 +64,42 @@ function deadremains.loader.initialize()
 		else
 		end
 	end
+end
+
+function LoadInfoFile(data)
+	print("Loading Module...", data.Name)
+	local path_to_module = GM.FolderName .. "/gamemode/modules/" .. data.Name
+
+	for k,v in ipairs(data.Dependencies) do
+		-- Recursive module loading, failsafe?
+		LoadModule(v.Name)
+	end
+
+	for k,file in ipairs(data.Order) do
+		file = path_to_module .. "/" .. file
+
+		if (string.find(file, "sv_")) then
+			if (SERVER) then
+				include(file)
+			end
+		elseif (string.find(file, "sh_")) then
+			if (SERVER) then
+				AddCSLuaFile(file)
+			end
+			include(file)
+		elseif (string.find(file, "cl_")) then
+			if (SERVER) then
+				AddCSLuaFile(file)
+			else
+				include(file)
+			end
+		end
+	end
+end
+
+function LoadModule(name)
+	local path_to_folder = GM.FolderName .. "/gamemode/modules/" .. name
+	if (SERVER) then AddCSLuaFile(path_to_folder .. "/sh_info.lua") end
+	include (path_to_folder .. "/sh_info.lua")
+	-- should call LoadInfoFile()
 end
