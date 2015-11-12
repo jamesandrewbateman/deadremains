@@ -44,12 +44,11 @@ function ENT:Initialize()
 		local slot_position = net.ReadVector()
 		local item = self:GetItemAtSlotPos(slot_position)
 
-		-- will find any slot.
-		print("ITEM")
-		print(item.unique)
-		-- search all inventories.
-		ply:AddItemToInventory("feet", item.unique)
-		print("Take item at", slot_position)
+		if self:RemoveItemAtSlotPos(slot_position) then
+			ply:AddItemToInventory("feet", item.unique) -- will search all inventories.
+		end
+
+		self:NetworkItems()
 	end)
 
 	net.Receive(self:GetNetworkName() .. ":PutItem", function(bits, ply)
@@ -58,7 +57,6 @@ function ENT:Initialize()
 
 	-- player closes this, then we open it.
 	net.Receive(self:GetNetworkName() .. ":CloseUI", function(bits, ply)
-		print("Set flag open")
 		self:SetFlag("Open")
 	end)
 
@@ -221,6 +219,27 @@ function ENT:MoveItem(SelectedPos, TargetPos)
 		return "Done!"
 	else
 		return "Could not fit item here sorry."
+	end
+end
+
+function ENT:RemoveItemAtSlotPos(position)
+	local items = self.Meta["Items"]
+	local selected_item_index = -1
+
+	for k,v in pairs(items) do
+		if v.SlotPosition == position then
+			selected_item_index = k
+		end
+	end
+
+	if selected_item_index > -1 then
+		print("Removed item at position", position)
+
+		table.remove(self.Meta["Items"], selected_item_index)
+
+		return true
+	else
+		return false
 	end
 end
 
