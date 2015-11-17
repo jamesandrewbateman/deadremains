@@ -147,6 +147,7 @@ end
 
 function ELEMENT:clearAllItems(inv)
 
+	-- PrintTable(self.inventory_panels)
 	self.inventory_panels[inv].panel:clearAllItems()
 
 end

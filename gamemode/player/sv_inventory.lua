@@ -120,6 +120,8 @@ function player_meta:InsertItem(inv_name, unique, inv_type, slot_position, conta
 						})
 					self:NetworkInventory()
 					print("Item added to inventory")
+
+					return true
 				else
 					-- pretend we didn't do that.
 					inv.CurrentWeight = inv.CurrentWeight - itemData.weight
@@ -151,12 +153,11 @@ function player_meta:InsertItem(inv_name, unique, inv_type, slot_position, conta
 						
 						self:NetworkInventory()
 						print("Item added to inventory")
-						return
+						return true
 					else
 						-- pretend we didn't do that.
 						inv.CurrentWeight = inv.CurrentWeight - itemData.weight
 						print("Inventory weight limit reached in this bag!")
-						return
 					end
 				end
 			end
@@ -185,7 +186,7 @@ function player_meta:AddItemToInventory(inv_name, item_unique, contains)
 	local selectedItemCore = deadremains.item.get(item_unique)
 
 	if s then
-		self:InsertItem(inv_name, item_unique, selectedItemCore.inventory_type, Vector(x, y, 0), contains)
+		return self:InsertItem(inv_name, item_unique, selectedItemCore.inventory_type, Vector(x, y, 0), contains)
 	end
 end
 
@@ -205,8 +206,9 @@ end
 
 
 function player_meta:CanFitItem(inv_name, item_unique, contains)
-	print(item_unique)
+	print("CanFitItem", item_unique, inv_name)
 	local inv = self:GetInventory(inv_name)
+
 	local selectedItemCore = deadremains.item.get(item_unique)
 
 	local it_slotwidth = inv.Size.X - selectedItemCore.slots_horizontal

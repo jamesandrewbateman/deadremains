@@ -44,20 +44,40 @@ function ENT:Initialize()
 		local slot_position = net.ReadVector()
 		local item = self:GetItemAtSlotPos(slot_position)
 
-		if self:RemoveItemAtSlotPos(slot_position) then
-			ply:AddItemToInventory("feet", item.unique) -- will search all inventories.
+		local rFlag = ply:AddItemToInventory("feet", item.unique)
+		if rFlag then
+			self:RemoveItemAtSlotPos(slot_position)
 		end
 
 		self:NetworkItems()
 	end)
 
 	net.Receive(self:GetNetworkName() .. ":PutItem", function(bits, ply)
+		print("PUT ITEM PLEASE", item_unique)
+		if not (self.Meta["Owner"] == ply) then print("Begon you sly person!") return end
+
 		local item_unique = net.ReadString()
+		local item_inventory = net.ReadString()
+		local item_slot_position = net.ReadVector()
+
+		-- check distance of player.etc
+
+		-- put item into this crafting table, network.
+		local isPut = self:AddItem(item_unique)
+		if isPut then
+			-- remove item from player inventory sv then network cl.
+			ply:RemoveItem(item_inventory, item_slot_position)
+			ply:NetworkInventory()
+		end
+
+		self:NetworkItems()
 	end)
 
 	-- player closes this, then we open it.
 	net.Receive(self:GetNetworkName() .. ":CloseUI", function(bits, ply)
 		self:SetFlag("Open")
+
+		ply:SetNWString("OpenedContainerID", "")
 	end)
 
 	self.label = "Crafting\nTable"
@@ -152,8 +172,11 @@ function ENT:Open(player)
 		return false
 	else
 		self:UnsetFlag("Open")
+		
 		net.Start(self:GetNetworkName()..":OpenUI")
 		net.Send(player)
+
+		player:SetNWString("OpenedContainerID", self:GetNetworkName())
 	end
 end
 
@@ -180,13 +203,15 @@ function ENT:AddItem(item_unique)
 
 				if slotArea >= (selectedItemCore.slots_horizontal * selectedItemCore.slots_vertical) then
 					table.insert(self.Meta["Items"], {Unique = item_unique, SlotPosition = Vector(ox, oy, 0)})
-					return
+					return true
 				end
 			else
 				--print(testOriginItem.Unique)
 			end
 		end
 	end
+
+	return false
 end
 
 -- ITEM MOVEMENTS
