@@ -197,13 +197,15 @@ function ELEMENT:OnMouseReleased(m)
 				slot.action_name = v.name
 				slot.inventory_name = actionMenu.inventoryName
 				slot.item_unique = actionMenu.itemUnique
-				slot.slot_position = Vector(sX, sY, 0)
+				slot.slot_position = Vector(sX/60, sY/60, 0)
 
 				v.callback(slot)
 				deadremains.ui.getActiveActionMenu():Remove()
 
+				deadremains.ui.rebuildInventory()
 				deadremains.ui.destroyMenu()
 				deadremains.ui.createMenu()
+
 			end, Material("deadremains/characteristics/sprintspeed.png", "noclamp smooth"))
 
 		end

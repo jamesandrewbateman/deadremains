@@ -32,6 +32,7 @@ net.Receive("deadremains.networkinventory", function(bits)
 end)
 
 function player_meta:InventoryItemAction(action_name, inventory_name, item_unique, item_slot_position)
+	print("inventory item action ", item_slot_position)
 	net.Start("deadremains.itemaction")
 		net.WriteString(action_name)
 		net.WriteString(inventory_name)
@@ -40,5 +41,5 @@ function player_meta:InventoryItemAction(action_name, inventory_name, item_uniqu
 	net.SendToServer()
 end
 concommand.Add("dropbeans", function()
-	LocalPlayer():InventoryItemAction("consume", "hunting_backpack", "tin_beans", Vector(0,0,0))
+	LocalPlayer():InventoryItemAction("consume", "hunting_backpack", "tin_beans", Vector(0,1,0))
 end)

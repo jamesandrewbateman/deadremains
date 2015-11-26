@@ -2,57 +2,6 @@
 -- Purpose:
 --		
 ----------------------------------------------------------------------
--- always listen
-deadremains.netrequest.create("load_deadmin_items", function()
-	local data = {}
-
-	local temp_data = {}
-	for k,v in pairs(ents.GetAll()) do
-		if IsValid(v) then
-			if v.item then
-				local i = deadremains.item.get(v.item)
-
-				if temp_data[v.item] then
-					-- specify data to send back.
-					temp_data[v.item] = {
-						count = 1 + temp_data[v.item].count,
-						type = i.meta["type"]
-					}
-				else
-					temp_data[v.item] = {
-						count = 1,
-						type = i.meta["type"]
-					}
-				end
-			end
-		end
-	end
-
-	for k,v in pairs(temp_data) do
-		table.insert(data, {unique=k, count=v.count, type=v.type})
-	end
-
-	return data
-end)
-
--- for deadmin
-deadremains.netrequest.create("deadremains.spawnitem", function(ply, meta)
-	local i = deadremains.item.get(meta.unique)
-	if (i == nil) then return end
-
-	-- preserve the default values.
-	local default_meta = i.meta
-
-	if (meta.frequency) then
-		default_meta["frequency"] = meta.frequency
-	end
-	if (meta.rarity) then
-		default_meta["rarity"] = meta.rarity
-	end
-
-	deadremains.item.spawn_meta(ply, meta.unique, default_meta)
-end)
-
 -- for mapconfig
 function deadremains.item.mapSpawn(unique, position, model)
 	local item = deadremains.item.get(unique)
@@ -87,6 +36,7 @@ function deadremains.item.spawn(player, cmd, args)
 		entity.item = item.unique
 	end
 end
+concommand.Add("dr_item_spawn", deadremains.item.spawn)
 
 -- for spawning code
 function deadremains.item.spawn_meta(player, unique, meta_data)

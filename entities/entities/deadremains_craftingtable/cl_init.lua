@@ -26,8 +26,8 @@ function ENT:Initialize()
 			})
 		end
 
+		-- if we have the frame open, refresh the view.
 		if this.LinkedFrame ~= 0 then
-			print("Rebuilding")
 			if (this.LinkedFrame:IsValid()) then
 				this.LinkedFrame:Rebuild()
 			end

@@ -60,23 +60,16 @@ item.context_menu = {item_function_drop, item_function_destroy}
 ----------------------------------------------------------------------
 
 function item:worldUse(player, entity)
-	-- adds the item to the inventory system too, if it is one.
-	local success, message = player:findSuitableInventory(self.unique)
+	local success = false
+	local itemName = entity.item
 
-	if (entity.meta) then
-		if (entity.meta.items) then
-			-- find the index of the inventory we just picked up
-			local inv_index = player:findInventoryIndex(self.unique)
-
-			for k,v in pairs(entity.meta.items) do
-				local s, m = player:addItem(inv_index, v.unique, v.slot_x, v.slot_y)
-			end
-		end
+	if itemName then
+		success = player:AddItemToInventory("feet", itemName)
 	end
 
 
 	if (!success) then
-		player:ChatPrint(message)
+		player:ChatPrint("Could not pick up item")
 	else
 		entity:Remove()
 	end

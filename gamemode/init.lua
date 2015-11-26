@@ -22,7 +22,7 @@ LoadModule("character")
 LoadModule("team")
 LoadModule("map_config")
 LoadModule("gear")
-LoadModule("container")
+LoadModule("crafting")
 LoadModule("deadmin")
 LoadModule("notifyer")
 

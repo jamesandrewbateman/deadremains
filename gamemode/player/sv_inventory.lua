@@ -69,6 +69,8 @@ function player_meta:AddInventory(unique, horiz, vert, inv_index, max_weight)
 		CurrentWeight = 0,
 		Items = {}
 	}
+
+	self:NetworkInventory()
 end
 
 function player_meta:GetInventoryId(name)
@@ -233,6 +235,7 @@ function player_meta:CanFitItem(inv_name, item_unique, contains)
 				end
 
 				if slotsFreeArea >= (selectedItemCore.slots_horizontal * selectedItemCore.slots_vertical) then
+					
 					return true, ox, oy
 				end
 			else
@@ -361,7 +364,7 @@ net.Receive("deadremains.itemaction", function(bits, ply)
 	local action_name = net.ReadString()
 	local inventory_name = net.ReadString()
 	local item_unique = net.ReadString()
-	local item_slot_postion = net.ReadVector()
+	local item_slot_position = net.ReadVector()
 
 	print("target slot position", item_slot_position)
 

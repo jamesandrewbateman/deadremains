@@ -42,7 +42,6 @@ if (CLIENT) then
 
 end
 
-
 inventory_equip_feet = 1
 inventory_equip_legs = 2
 inventory_equip_head = 3

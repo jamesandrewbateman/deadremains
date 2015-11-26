@@ -1,8 +1,8 @@
 LoadInfoFile({
-	Name = "container",
+	Name = "crafting",
 	Order = 
 	{
-		"sv_container.lua"
+		"sh_crafting.lua"
 	},
 	Dependencies =
 	{

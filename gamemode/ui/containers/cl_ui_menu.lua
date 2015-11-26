@@ -11,6 +11,7 @@ local UI_MAIN
 
 local keyDown = false
 local menuOpen = false
+local uiOpen = false
 
 hook.Add("Think", "deadremains.ui.detectKey", function()
 
@@ -20,15 +21,13 @@ hook.Add("Think", "deadremains.ui.detectKey", function()
 
 			keyDown = true
 
-			deadremains.ui.createMenu()
-
-			timer.Simple(0.5, function() keyDown = false end)
-
-		elseif input.IsKeyDown(KEY_F10) then
-
-			keyDown = true
-
-			deadremains.ui.hideMenu()
+			if not uiOpen then
+				deadremains.ui.createMenu()
+				uiOpen = true
+			else
+				deadremains.ui.hideMenu()
+				uiOpen = false
+			end
 
 			timer.Simple(0.5, function() keyDown = false end)
 
@@ -40,13 +39,10 @@ end)
 
 function deadremains.ui.getMenu()
 
-	if (not UI_MAIN) then
-		deadremains.ui.createMenu()
-		deadremains.ui.hideMenu()
+	if UI_MAIN then
+		return UI_MAIN
 	end
-
-	return UI_MAIN
-
+	
 end
 
 function deadremains.ui.rebuildInventory()
@@ -68,7 +64,9 @@ function deadremains.ui.rebuildInventory()
 
 		else
 
-			UI_MAIN.sec:clearAllItems(v.InventoryName)
+			if not UI_MAIN.sec:clearAllItems(v.InventoryName) then
+				deadremains.ui.addInventory(v.InventoryName, v.InventorySize, v.InventoryMaxWeight)
+			end
 
 		end
 
@@ -82,11 +80,11 @@ function deadremains.ui.rebuildInventory()
 
 end
 
-function deadremains.ui.addInventory(invName, vec, w)
+function deadremains.ui.addInventory(invName, vec, maxWeight)
 
 	local UI_MAIN = deadremains.ui.getMenu()
 
-	UI_MAIN.sec:addInventory(invName, invName, vec.x, vec.y, w)
+	UI_MAIN.sec:addInventory(invName, invName, vec.x, vec.y, maxWeight)
 	deadremains.ui.inventories[invName] = {size = vec, items = {}}
 
 end
@@ -117,13 +115,13 @@ function deadremains.ui.createMenu()
 
 	-- Do not re-create the whole menu so players can stay on the same tab when re-opening
 	if UI_MAIN then
+		LocalPlayer():ConCommand("Networkinv")
 
 		UI_MAIN:Show()
 		gui.EnableScreenClicker(true)
 		menuOpen = true
 
 		deadremains.ui.getHUD():minimize()
-
 	else
 		gui.EnableScreenClicker(true)
 		menuOpen = true
@@ -145,8 +143,9 @@ function deadremains.ui.createMenu()
 
 		timer.Simple(2, function()
 			LocalPlayer():ConCommand("Networkinv")
-			for k, v in pairs(deadremains.ui.inventories) do
 
+			for k, v in pairs(deadremains.ui.inventories) do
+				-- inventory name, size
 				deadremains.ui.addInventory(k, v.size)
 
 			end

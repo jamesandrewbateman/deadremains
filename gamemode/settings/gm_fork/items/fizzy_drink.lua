@@ -1,7 +1,7 @@
 item.unique = "fizzy_drink"
 
 -- The model that this item should have.
-item.model = "models/props_urban/tire001.mdl"
+item.model = "models/props_junk/garbage_plasticbottle003a.mdl"
 
 -- How many horizontal slots this item should take.
 item.slots_horizontal = 1
@@ -22,7 +22,7 @@ item.fov = 20
 item.rotate = 45
 
 -- How much this item weighs.
-item.weight = 300
+item.weight = 4
 
 item.meta["type"] = item_type_consumable
 
@@ -35,4 +35,7 @@ item.context_menu = {item_function_consume, item_function_drop, item_function_de
 ----------------------------------------------------------------------
 
 function item:use(player)
+	if (SERVER) then
+		player:increaseThirst(10)
+	end
 end

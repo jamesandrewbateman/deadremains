@@ -101,16 +101,14 @@ function ELEMENT:rebuild()
 
 end
 
-function ELEMENT:addInventory(id, name, slotX, slotY, capacity)
-
-	table.insert(self.inventories, {id = id, name = name, slotX = slotX, slotY = slotY, capacity = capacity})
+function ELEMENT:addInventory(id, name, slotX, slotY, maxWeight)
+	table.insert(self.inventories, {id = id, name = name, slotX = slotX, slotY = slotY, capacity = maxWeight})
 
 	self:rebuild()
 
 end
 
 function ELEMENT:removeInventory(id)
-
 	for k, v in pairs(self.inventories) do
 
 		if v.id == id then
@@ -135,8 +133,9 @@ function ELEMENT:addItem(inv, name, slot)
 	local slotsY = deadremains.item.get(name).slots_vertical
 	local weight = deadremains.item.get(name).weight
 
-	self.inventory_panels[inv].panel:addItem(name, slot.x, slot.y, slotsX, slotsY, weight)
-
+	if (self.inventory_panels[inv] ~= nil) then
+		self.inventory_panels[inv].panel:addItem(name, slot.x, slot.y, slotsX, slotsY, weight)
+	end
 end
 
 function ELEMENT:removeItem(inv, slot)
@@ -146,10 +145,14 @@ function ELEMENT:removeItem(inv, slot)
 end
 
 function ELEMENT:clearAllItems(inv)
+	--print("inv panels", self.inventory_panels, #self.inventory_panels)
 
-	-- PrintTable(self.inventory_panels)
-	self.inventory_panels[inv].panel:clearAllItems()
-
+	if self.inventory_panels[inv] ~= nil then 
+		self.inventory_panels[inv].panel:clearAllItems()
+		return true
+	else
+		return false
+	end
 end
 
 function ELEMENT:OnMouseWheeled(dt)
