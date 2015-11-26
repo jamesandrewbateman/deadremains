@@ -61,6 +61,8 @@ function player_meta:AddInventory(unique, horiz, vert, inv_index, max_weight)
 	if (inv_index == nil) then inv_index = #self.Inventories + 1 end
 	if (max_weight == nil) then max_weight = 2000 end
 
+	if (self.Inventories[inv_index] ~= nil) then return false end
+
 	self.Inventories[inv_index] =
 	{
 		Name = unique,
@@ -71,6 +73,8 @@ function player_meta:AddInventory(unique, horiz, vert, inv_index, max_weight)
 	}
 
 	self:NetworkInventory()
+
+	return true
 end
 
 function player_meta:GetInventoryId(name)

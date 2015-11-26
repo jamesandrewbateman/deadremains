@@ -257,11 +257,11 @@ function player_meta:loadFromMysql()
 
 			-- for each row in the table.
 			for k,v in pairs(data) do
-				item_type = deadremains.item.type(v.item_unique)
+				local is_inv = deadremains.item.isInventory(v.item_unique)
 
-				if (item_type == deadremains.item.types.inventory_provider) then
+				if is_inv then
 					table.insert(inv_providers, v)
-				elseif (item_type == deadremains.item.types.normal) then
+				else
 					table.insert(other_items, v)
 				end
 			end

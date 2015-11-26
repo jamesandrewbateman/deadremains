@@ -60,11 +60,7 @@ end
 --	Find out whether the item provides inventory expansion.	
 ----------------------------------------------------------------------
 
-deadremains.item.types = {}
-deadremains.item.types.normal = 1
-deadremains.item.types.inventory_provider = 2
-
-function deadremains.item.type(unique)
+function deadremains.item.isInventory(unique)
 	local item = deadremains.item.get(unique)
 
 	-- items which provide the space name.
@@ -75,9 +71,9 @@ function deadremains.item.type(unique)
 
 	for _, u in pairs(inventory_uniques) do
 		if (u == item.unique) then
-			return deadremains.item.types.inventory_provider
+			return true
 		end
 	end
 
-	return deadremains.item.types.normal
+	return false
 end

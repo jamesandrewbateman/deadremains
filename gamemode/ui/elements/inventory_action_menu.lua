@@ -37,15 +37,19 @@ function ELEMENT:addAction(name, callback, icon)
 
 end
 
+function ELEMENT:disable()
+	self.active = false
+end
+
 function ELEMENT:setDisableFunc(func)
 
-	self.disable = func
+	--self.disable = func
 
 end
 
 function ELEMENT:OnRemove()
 
-	self.disable()
+	self:disable()
 
 end
 

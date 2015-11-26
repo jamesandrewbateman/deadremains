@@ -36,6 +36,6 @@ item.context_menu = {item_function_consume, item_function_drop, item_function_de
 
 function item:use(player)
 	if (SERVER) then
-		player:increaseThirst(10)
+		player:setThirst(player:getThirst() + 10)
 	end
 end
