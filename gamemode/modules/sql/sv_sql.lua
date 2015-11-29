@@ -104,7 +104,7 @@ end
 
 function deadremains.sql.connect()
 	deadremains.sql.intialize(database_main, "localhost", "root", "_debug", "deadremains", 3306)
-	deadremains.map_config.initialize(database_main, "gm_flatgrass")
+	deadremains.map_config.initialize(database_main, "gm_fork")
 end
 
 function deadremains.sql.isConnected(name)

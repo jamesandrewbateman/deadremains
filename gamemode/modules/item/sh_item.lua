@@ -58,39 +58,19 @@ item_action_consume = 4
 if (CLIENT) then
 
 item_function_use = {name = "Use", callback = function(slot)
-	net.Start("deadremains.itemaction")
-		net.WriteString(slot.action_name)
-		net.WriteString(slot.inventory_name)
-		net.WriteString(slot.item_unique)
-		net.WriteVector(slot.slot_position)
-	net.SendToServer()
+	LocalPlayer():InventoryItemAction(slot.action_name, slot.inventory_name, slot.item_unique, slot.slot_position)
 end}
 
 item_function_drop = {name = "Drop", callback = function(slot)
-	net.Start("deadremains.itemaction")
-		net.WriteString(slot.action_name)
-		net.WriteString(slot.inventory_name)
-		net.WriteString(slot.item_unique)
-		net.WriteVector(slot.slot_position)
-	net.SendToServer()
+	LocalPlayer():InventoryItemAction(slot.action_name, slot.inventory_name, slot.item_unique, slot.slot_position)
 end}
 
 item_function_destroy = {name = "Destroy", callback = function(slot)
-	net.Start("deadremains.itemaction")
-		net.WriteString(slot.action_name)
-		net.WriteString(slot.inventory_name)
-		net.WriteString(slot.item_unique)
-		net.WriteVector(slot.slot_position)
-	net.SendToServer()
+	LocalPlayer():InventoryItemAction(slot.action_name, slot.inventory_name, slot.item_unique, slot.slot_position)
 end}
 
 item_function_consume = {name = "Consume", callback = function(slot)
-	net.Start("deadremains.itemaction")
-		net.WriteString(slot.action_name)
-		net.WriteString(slot.inventory_name)
-		net.WriteString(slot.item_unique)
-		net.WriteVector(slot.slot_position)
-	net.SendToServer()
+	LocalPlayer():InventoryItemAction(slot.action_name, slot.inventory_name, slot.item_unique, slot.slot_position)
 end}
 
 end

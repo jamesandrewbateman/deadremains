@@ -23,9 +23,13 @@ hook.Add("Think", "deadremains.ui.detectKey", function()
 
 			if not uiOpen then
 				deadremains.ui.createMenu()
+
+				LocalPlayer():ConCommand("Networkinv")
+
 				uiOpen = true
 			else
 				deadremains.ui.hideMenu()
+				
 				uiOpen = false
 			end
 
@@ -77,7 +81,6 @@ function deadremains.ui.rebuildInventory()
 		deadremains.ui.addItem(v.InventoryName, v.ItemUnique, v.SlotPosition)
 
 	end
-
 end
 
 function deadremains.ui.addInventory(invName, vec, maxWeight)
@@ -138,15 +141,6 @@ function deadremains.ui.createMenu()
 		UI_MAIN.sec = vgui.Create("deadremains.secondary_inventory_panel", UI_MAIN)
 		UI_MAIN.sec:SetSize(540, 761)
 		UI_MAIN.sec:SetPos(deadremains.ui.screenSizeX / 2 + 35 / 2, deadremains.ui.screenSizeY / 2 - 761 / 2)
-
-		LocalPlayer():ConCommand("Networkinv")
-
-		timer.Simple(1, function()
-			for k, v in pairs(deadremains.ui.inventories) do
-				-- inventory name, size
-				deadremains.ui.addInventory(k, v.size)
-			end
-		end)
 	end
 
 end

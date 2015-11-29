@@ -36,7 +36,6 @@ item.context_menu = {item_function_consume, item_function_drop, item_function_de
 
 function item:use(player)
 	if (SERVER) then
-		sound.Play("ambient/explosions/exp1.wav", player:GetPos(), 75, 100, 0.25)
-		player:SetHealth(math.Clamp(player:Health() + 10, 0, 100))
+		print(player:getNeed("hunger"))
 	end
 end

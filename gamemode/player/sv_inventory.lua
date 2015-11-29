@@ -23,18 +23,10 @@ concommand.Add("give_backpack", function(ply)
 	ply:AddInventory("hunting_backpack", 9, 3)
 end)
 
-concommand.Add("Instinbeans", function(ply)
-	ply:AddItemToInventory("primary", "tin_beans")
-end)
-
 concommand.Add("Networkinv", function(ply)
 	print("networking inv...")
 
 	ply:NetworkInventory()
-end)
-
-concommand.Add("invcontains", function(ply)
-	print(ply:ContainsItem("hunting_backpack", "fizzy_drink", Vector(0, 0, 0)))
 end)
 
 -- BASE INVENTORY STRUCTURE
@@ -139,7 +131,6 @@ function player_meta:InsertItem(inv_name, unique, inv_type, slot_position, conta
 		-- after index 7 of inventories, ANYTHING can be placed.
 		if (#self.Inventories > inventory_equip_maximum) then		-- do we have more inventory space?
 			for indx = inventory_equip_maximum + 1, #self.Inventories do
-				print("checking")
 				local invName = self:GetInventoryName(indx)
 				local inv = self:GetInventory(invName);
 					
@@ -187,7 +178,6 @@ end
 -- EXTERNAL version of the additem.
 --
 function player_meta:AddItemToInventory(inv_name, item_unique, contains)
-	print("Adding item " .. item_unique)
 	local s, x, y = self:CanFitItem(inv_name, item_unique, contains)
 	local selectedItemCore = deadremains.item.get(item_unique)
 
@@ -212,7 +202,6 @@ end
 
 
 function player_meta:CanFitItem(inv_name, item_unique, contains)
-	print("CanFitItem", item_unique, inv_name)
 	local inv = self:GetInventory(inv_name)
 
 	local selectedItemCore = deadremains.item.get(item_unique)
@@ -386,8 +375,6 @@ net.Receive("deadremains.itemaction", function(bits, ply)
 	local item_unique = net.ReadString()
 	local item_slot_position = net.ReadVector()
 
-	print("target slot position", item_slot_position)
-
 	-- net library likes to optimize out 0,0,0 value of vector.
 	if (item_slot_position == nil) then item_slot_position = Vector(0,0,0) end
 
@@ -398,13 +385,13 @@ net.Receive("deadremains.itemaction", function(bits, ply)
 		if (action_name == "Consume") and (type_to_string(itemData.meta["type"]) == "consumable") then
 			ply:RemoveItem(inventory_name, itemInvData.SlotPosition)
 
-			print("eating ", item_unique, itemInvData.SlotPosition)
+			--print("eating ", item_unique, itemInvData.SlotPosition)
 
 			itemData:use(ply)
 		elseif (action_name == "Drop") then
 			ply:RemoveItem(inventory_name, itemInvData.SlotPosition)
 
-			print("dropping", item_unique, itemInvData.SlotPosition)
+			--print("dropping", item_unique, itemInvData.SlotPosition)
 			if (itemData.inventory_type) then
 				deadremains.item.spawn_meta(ply, itemInvData.Unique, itemInvData.Contains)
 			else
@@ -413,7 +400,7 @@ net.Receive("deadremains.itemaction", function(bits, ply)
 		elseif (action_name == "Use") then
 			ply:RemoveItem(inventory_name, itemInvData.SlotPosition)
 
-			print("using", item_unique, itemInvData.SlotPosition)
+			--print("using", item_unique, itemInvData.SlotPosition)
 			itemData:use(ply)
 		end
 	end
