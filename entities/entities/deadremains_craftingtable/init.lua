@@ -27,16 +27,14 @@ function ENT:Initialize()
 
 	self.Meta["Items"] = {}
 
-	self:AddItem("tin_beans")
-	self:AddItem("hunting_backpack")
-	self:AddItem("hunting_backpack")
-
 	util.AddNetworkString(self:GetNetworkName())
 	util.AddNetworkString(self:GetNetworkName() .. ":OpenUI")
 	util.AddNetworkString(self:GetNetworkName() .. ":ContainerSize")
 	util.AddNetworkString(self:GetNetworkName() .. ":TakeItem")
 	util.AddNetworkString(self:GetNetworkName() .. ":PutItem")
 	util.AddNetworkString(self:GetNetworkName() .. ":CloseUI")
+	util.AddNetworkString(self:GetNetworkName() .. ":CraftItem")
+	util.AddNetworkString(self:GetNetworkName() .. ":UpdateCraftables")
 
 	net.Receive(self:GetNetworkName() .. ":TakeItem", function(bits, ply)
 		if not (self.Meta["Owner"] == ply) then print("Begon!") return end
@@ -49,11 +47,12 @@ function ENT:Initialize()
 			self:RemoveItemAtSlotPos(slot_position)
 		end
 
+		self:UpdateCraftables()
+
 		self:NetworkItems()
 	end)
 
 	net.Receive(self:GetNetworkName() .. ":PutItem", function(bits, ply)
-		print("PUT ITEM PLEASE", item_unique)
 		if not (self.Meta["Owner"] == ply) then print("Begon you sly person!") return end
 
 		local item_unique = net.ReadString()
@@ -70,6 +69,38 @@ function ENT:Initialize()
 			ply:NetworkInventory()
 		end
 
+		self:UpdateCraftables()
+
+		self:NetworkItems()
+	end)
+
+	net.Receive(self:GetNetworkName() .. ":CraftItem", function(bits, ply)
+		self:UpdateCraftables()		
+
+		if not (self.Meta["Owner"] == ply) then print("Begon you sly person!") return end
+
+		local requested_craftable_item = net.ReadString()
+		local requested_item_quantity = net.ReadInt(8)
+
+		-- check craft item against serverside items and serverside recipes
+		local canCraft, craft_count = deadremains.crafting.canCraft(self, requested_craftable_item)
+
+		if not canCraft or not craft_count then ply:ChatPrint("Cannot craft that, bugger off scrublord.") return end
+
+		local item = deadremains.item.get(deadremains.crafting.craft(self, requested_craftable_item))
+
+		-- we can craft
+		for i=1, craft_count do
+			if ply:AddItemToInventory("feet", item.unique) then
+				ply:ChatPrint("Crafted " .. item.unique .. "!")
+			else
+				ply:ChatPrint("Cannot craft", item.unique)
+			end
+		end
+
+		self:UpdateCraftables()
+
+		-- now items are removed from the table and the player has the item.
 		self:NetworkItems()
 	end)
 
@@ -139,13 +170,9 @@ function ENT:IsOwner(player)
 end
 
 function ENT:Lock(player)
-	print("Locking container.")
-
 	if self:IsOwner(player) then
-		print("Set locked flag")
 		self:SetFlag("Locked")
 	elseif not self:HasOwner() then	-- no owner, lets own it. :)
-		print("No current owner, claiming.")
 		self:Own(player)
 		self:SetFlag("Locked")
 	end
@@ -162,8 +189,8 @@ function ENT:IsLocked()
 end
 
 function ENT:Open(player)
-	if self:IsLocked() then print("Container locked.") return end
-	if not self:HasFlag("Open") then print("Container already in use.") return end
+	if self:IsLocked() then return end
+	if not self:HasFlag("Open") then player:ChatPrint("Container already in use.") return end
 
 	local selfPos = self:GetPos()
 	local plyPos = player:GetPos()
@@ -241,6 +268,7 @@ function ENT:MoveItem(SelectedPos, TargetPos)
 		-- with no collisions.
 		selectedItem.SlotPosition = TargetPos
 		self:NetworkItems()
+
 		return "Done!"
 	else
 		return "Could not fit item here sorry."
@@ -258,8 +286,6 @@ function ENT:RemoveItemAtSlotPos(position)
 	end
 
 	if selected_item_index > -1 then
-		print("Removed item at position", position)
-
 		table.remove(self.Meta["Items"], selected_item_index)
 
 		return true
@@ -316,6 +342,35 @@ function ENT:GetItemSlotBBox(slot_position, item_unique)
 	return oX,oY, width,height
 end
 
+function ENT:GetItemCount(item_unique)
+	local item_count = 0
+
+	for k,v in pairs(self.Meta["Items"]) do
+		if (v.Unique == item_unique) then
+			item_count = item_count + 1
+		end
+	end
+
+	return item_count
+end
+
+function ENT:RemoveItem(item_unique)
+	local remove_list = {}
+
+	local done = false
+	for k,v in pairs(self.Meta["Items"]) do
+		if not done then
+			if (v.Unique == item_unique) then
+				table.insert(remove_list, v.SlotPosition)
+				done = true
+			end
+		end
+	end
+
+	for k,v in pairs(remove_list) do
+		self:RemoveItemAtSlotPos(v)
+	end
+end
 
 -- NETWORKING
 function ENT:NetworkItems()
@@ -340,5 +395,22 @@ function ENT:NetworkContainerSize()
 	net.Start(self:GetNetworkName() .. ":ContainerSize")
 		net.WriteUInt(self.Meta["Capacity"].width, 8)
 		net.WriteUInt(self.Meta["Capacity"].height, 8)
+	net.Broadcast()
+end
+
+function ENT:UpdateCraftables()
+	local craftable_items = deadremains.crafting.getCraftables(self)
+
+	net.Start(self:GetNetworkName() .. ":UpdateCraftables")
+
+		net.WriteUInt(table.Count(craftable_items), 16)
+
+		for k,v in pairs(craftable_items) do
+			local thisName = k
+
+			net.WriteString(thisName)
+		end
+
+	-- send to everyone?
 	net.Broadcast()
 end

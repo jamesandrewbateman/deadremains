@@ -4,14 +4,13 @@ function ENT:Initialize()
 	self.Meta = {}
 	self.Meta["Capacity"] = {width = 5, height = 5}
 	self.Meta["Items"] = {}
+	self.Meta["CraftableItems"] = {}
 
 	-- ui hooks to serverside.
 	local this = self
 	this.LinkedFrame = 0
 
 	net.Receive(self:GetNetworkName(), function(bits)
-		print("Got item update...")
-
 		this.Meta["Items"] = {}
 
 		local item_count = net.ReadUInt(16)
@@ -26,10 +25,9 @@ function ENT:Initialize()
 			})
 		end
 
-		-- if we have the frame open, refresh the view.
-		if this.LinkedFrame ~= 0 then
-			if (this.LinkedFrame:IsValid()) then
-				this.LinkedFrame:Rebuild()
+		if (this.LinkedFrame ~= 0) then
+			if this.LinkedFrame:IsValid() then
+				this.LinkedFrame:RebuildCraftingPanel()
 			end
 		end
 	end)
@@ -53,6 +51,27 @@ function ENT:Initialize()
 		this.LinkedFrame:LinkEntity(this)
 	end)
 
+	net.Receive(self:GetNetworkName() .. ":UpdateCraftables", function(bits)
+		if (this.LinkedFrame == 0) then return end
+
+		this.Meta["CraftableItems"] = {}
+
+		local item_count = net.ReadUInt(16)
+
+		for i=1, item_count do
+			local item_name = net.ReadString()
+
+			table.insert(this.Meta["CraftableItems"], item_name)
+		end
+
+		if (this.LinkedFrame ~= 0) then
+			if this.LinkedFrame:IsValid() then
+				timer.Simple(1, function()
+					this.LinkedFrame:RebuildCraftablesPanel()
+				end)
+			end
+		end
+	end)
 
 	self.label = "Crafting\nTable"
 end
@@ -66,7 +85,6 @@ end
 local PANEL = {}
 
 function PANEL:OnRemove()
-	print("re-opening the container.")
 	if IsValid(self.LinkedEntity) then
 		net.Start(self.LinkedEntity:GetNetworkName() .. ":CloseUI")
 		net.SendToServer()
@@ -125,6 +143,18 @@ function PANEL:Rebuild()
 	end
 end
 
+function PANEL:RebuildCraftablesPanel()
+	if (self.slots_background) then
+		self.slots_background:RebuildCraftableItemPanel()
+	end
+end
+
+function PANEL:RebuildCraftingPanel()
+	if (self.slots_background) then
+		self.slots_background:RebuildCraftingItemsPanel()
+	end
+end
+
 -- where i handle all the clicking events.
 function PANEL:SetTargetPos(slot_x, slot_y)
 	self.TargetSlot = {x = slot_x, y = slot_y}
@@ -133,11 +163,11 @@ function PANEL:SetTargetPos(slot_x, slot_y)
 	-- inside the x/y bounds of this panel..
 	if self.TargetSlot.x > self.GridSize.width or self.TargetSlot.x < 0 or self.TargetSlot.y > self.GridSize.height or self.TargetSlot.y < 0 then
 		-- move the item
-		print("Move item: ", self.SelectedSlot.x .. ", " .. self.SelectedSlot.y)
-		print("to:", self.TargetSlot.y .. ", " .. self.TargetSlot.y)
+		--print("Move item: ", self.SelectedSlot.x .. ", " .. self.SelectedSlot.y)
+		--print("to:", self.TargetSlot.y .. ", " .. self.TargetSlot.y)
 	else
-		print("Take item: ", self.SelectedSlot.x .. ", " .. self.SelectedSlot.y)
-		print("to:", self.TargetSlot.y .. ", " .. self.TargetSlot.y)
+		--print("Take item: ", self.SelectedSlot.x .. ", " .. self.SelectedSlot.y)
+		--print("to:", self.TargetSlot.y .. ", " .. self.TargetSlot.y)
 	end
 end
 
@@ -148,20 +178,18 @@ vgui.Register("deadremains.container.frame", PANEL, "DFrame")
 local PANEL = {}
 
 function PANEL:Rebuild()
-	print("Rebuilding slot grid...")
-
 	self:RebuildCraftingItemsPanel()
 	self:RebuildCraftableItemPanel()
 end
 
 function PANEL:Init()
 	if not self:GetParent() then
-		print("NO PARENT FOR SLOT GRID")
+		--print("NO PARENT FOR SLOT GRID")
 		return
 	end
 
 	if not IsValid(self:GetParent().LinkedEntity) then
-		print("NO ENTITY LINKED TO FRAME")
+		--print("NO ENTITY LINKED TO FRAME")
 	end
 
 
@@ -187,8 +215,6 @@ function PANEL:Init()
 
 	-- craftable items currently
 	self.CraftableItems = {}
-	table.insert(self.CraftableItems, deadremains.item.get("tin_beans"))
-	table.insert(self.CraftableItems, deadremains.item.get("hunting_backpack"))
 
 	-- craft button.
 	local button = vgui.Create("DButton", self)
@@ -250,11 +276,18 @@ end
 
 function PANEL:RebuildCraftableItemPanel()
 	local slotWidth, slotHeight = self:GetParent().SlotWidth, self:GetParent().SlotHeight
-
 	local width, height = self:GetSize()
 
-	for k,v in pairs(self.CraftableItems) do
-		local unique = v.unique
+	if (self.CraftableItemModelPanels ~= nil) then
+		for k,v in pairs(self.CraftableItemModelPanels) do
+			v:Remove()
+		end
+	end
+
+	self.CraftableItemModelPanels = {}
+
+	for k,v in pairs(self:GetParent().LinkedEntity.Meta["CraftableItems"]) do
+		local unique = tostring(v)
 		local i_data = deadremains.item.get(unique)
 
 		local i = vgui.Create("DModelPanel", self:GetParent())
@@ -270,8 +303,12 @@ function PANEL:RebuildCraftableItemPanel()
 
 		i.Unique = unique
 		i.DoClick = function(self)
-			print(self.Unique)
+			net.Start(self:GetParent().LinkedEntity:GetNetworkName() .. ":CraftItem")
+				net.WriteString(i.Unique)
+			net.SendToServer()
 		end
+
+		table.insert(self.CraftableItemModelPanels, i)
 	end
 end
 

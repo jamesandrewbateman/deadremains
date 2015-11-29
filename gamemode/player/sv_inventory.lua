@@ -297,6 +297,22 @@ function player_meta:InventoryGetAll(inv_name, item_name)
 	return selected_items
 end
 
+function player_meta:InventoryGetItemCount(item_name)
+	local item_count = 0
+
+	for k,v in pairs(self.Inventories) do
+		local items = v.Items
+
+		for k,v in pairs(items) do
+			if (v.Unique == item_name) then
+				item_count = item_count + 1
+			end
+		end
+	end
+
+	return item_count
+end
+
 function player_meta:ContainsItem(inv_name, item_name, position)
 	local items = self:InventoryGetAll(inv_name, item_name)
 

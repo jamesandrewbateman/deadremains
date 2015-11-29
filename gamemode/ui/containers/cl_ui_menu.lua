@@ -1,5 +1,5 @@
 
-deadremains.ui.key = KEY_F9
+deadremains.ui.key = KEY_F4
 
 deadremains.ui.enableBlur = true
 
@@ -115,8 +115,6 @@ function deadremains.ui.createMenu()
 
 	-- Do not re-create the whole menu so players can stay on the same tab when re-opening
 	if UI_MAIN then
-		LocalPlayer():ConCommand("Networkinv")
-
 		UI_MAIN:Show()
 		gui.EnableScreenClicker(true)
 		menuOpen = true
@@ -141,13 +139,12 @@ function deadremains.ui.createMenu()
 		UI_MAIN.sec:SetSize(540, 761)
 		UI_MAIN.sec:SetPos(deadremains.ui.screenSizeX / 2 + 35 / 2, deadremains.ui.screenSizeY / 2 - 761 / 2)
 
-		timer.Simple(2, function()
-			LocalPlayer():ConCommand("Networkinv")
+		LocalPlayer():ConCommand("Networkinv")
 
+		timer.Simple(1, function()
 			for k, v in pairs(deadremains.ui.inventories) do
 				-- inventory name, size
 				deadremains.ui.addInventory(k, v.size)
-
 			end
 		end)
 	end
