@@ -61,6 +61,7 @@ function deadremains.crafting.craft(pCraftingTableEnt, pItemName)
 			for i=1, v do
 				pCraftingTableEnt:RemoveItem(k)
 			end
+
 		end
 	end
 

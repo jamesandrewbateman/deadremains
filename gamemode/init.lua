@@ -62,6 +62,8 @@ end
 
 function GM:PlayerInitialSpawn(player)
 	player.zombie_kill_count = 0
+	player.dr_character.created = false
+
 	self.BaseClass:PlayerInitialSpawn(player)
 end
 
@@ -76,6 +78,8 @@ end
 
 hook.Add("PlayerSpawn", "drPlayerSpawn", function(ply)
 	ply.alive_timer = 0
+	ply.dr_character.float_hp = 100
+	ply:DefaultFlags()
 
 	timer.Create("dr_alive_timer" .. ply:UniqueID(), 1, 0, function()
 		if (IsValid(ply)) then

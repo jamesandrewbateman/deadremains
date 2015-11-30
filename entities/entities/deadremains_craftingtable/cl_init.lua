@@ -9,6 +9,7 @@ function ENT:Initialize()
 	-- ui hooks to serverside.
 	local this = self
 	this.LinkedFrame = 0
+	this.IsOpen = false
 
 	net.Receive(self:GetNetworkName(), function(bits)
 		this.Meta["Items"] = {}
@@ -42,6 +43,8 @@ function ENT:Initialize()
 	net.Receive(self:GetNetworkName() .. ":OpenUI", function(bits)
 		if (this.LinkedFrame ~= 0) then this.LinkedFrame:Remove() this.LinkedFrame = 0 end
 
+		this.IsOpen = false
+
 		-- print("Opening panel...")
 		this.LinkedFrame = vgui.Create("deadremains.container.frame")
 		this.LinkedFrame:SetGridSize(this.Meta["Capacity"].width, this.Meta["Capacity"].height)
@@ -65,11 +68,11 @@ function ENT:Initialize()
 		end
 
 		if (this.LinkedFrame ~= 0) then
-			if this.LinkedFrame:IsValid() then
-				timer.Simple(1, function()
+			timer.Simple(1, function()
+				if this.LinkedFrame:IsValid() then
 					this.LinkedFrame:RebuildCraftablesPanel()
-				end)
-			end
+				end
+			end)
 		end
 	end)
 
@@ -86,6 +89,7 @@ local PANEL = {}
 
 function PANEL:OnRemove()
 	if IsValid(self.LinkedEntity) then
+		self.LinkedEntity.IsOpen = true
 		net.Start(self.LinkedEntity:GetNetworkName() .. ":CloseUI")
 		net.SendToServer()
 	end

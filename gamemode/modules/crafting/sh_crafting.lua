@@ -1,7 +1,7 @@
 deadremains.crafting = {}
 
 deadremains.crafting.recipes = {}
-deadremains.crafting.recipes["tin_beans"] = {
+deadremains.crafting.recipes["bandage"] = {
 	cloth = 2,
 	string = 1,
 	entry_count = 2

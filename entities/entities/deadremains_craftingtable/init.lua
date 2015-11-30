@@ -37,8 +37,6 @@ function ENT:Initialize()
 	util.AddNetworkString(self:GetNetworkName() .. ":UpdateCraftables")
 
 	net.Receive(self:GetNetworkName() .. ":TakeItem", function(bits, ply)
-		if not (self.Meta["Owner"] == ply) then print("Begon!") return end
-
 		local slot_position = net.ReadVector()
 		local item = self:GetItemAtSlotPos(slot_position)
 
@@ -53,8 +51,6 @@ function ENT:Initialize()
 	end)
 
 	net.Receive(self:GetNetworkName() .. ":PutItem", function(bits, ply)
-		if not (self.Meta["Owner"] == ply) then print("Begon you sly person!") return end
-
 		local item_unique = net.ReadString()
 		local item_inventory = net.ReadString()
 		local item_slot_position = net.ReadVector()
@@ -75,10 +71,6 @@ function ENT:Initialize()
 	end)
 
 	net.Receive(self:GetNetworkName() .. ":CraftItem", function(bits, ply)
-		self:UpdateCraftables()		
-
-		if not (self.Meta["Owner"] == ply) then print("Begon you sly person!") return end
-
 		local requested_craftable_item = net.ReadString()
 		local requested_item_quantity = net.ReadInt(8)
 
@@ -90,12 +82,10 @@ function ENT:Initialize()
 		local item = deadremains.item.get(deadremains.crafting.craft(self, requested_craftable_item))
 
 		-- we can craft
-		for i=1, craft_count do
-			if ply:AddItemToInventory("feet", item.unique) then
-				ply:ChatPrint("Crafted " .. item.unique .. "!")
-			else
-				ply:ChatPrint("Cannot craft", item.unique)
-			end
+		if ply:AddItemToInventory("feet", item.unique) then
+			ply:ChatPrint("Crafted " .. item.unique .. "!")
+		else
+			ply:ChatPrint("Cannot craft", item.unique)
 		end
 
 		self:UpdateCraftables()
@@ -120,10 +110,9 @@ end
 function ENT:Use(player)
 	self:NetworkContainerSize()
 	self:NetworkItems()
+	self:UpdateCraftables()
 
-	-- hack: can be used to make sure items aren't stolen
-	-- 		 when you dc?
-	if not self:IsOwner(player) and self:HasFlag("Trapped") then
+	if self:HasFlag("Trapped") and self:HasFlag("Locked") then
 		sound.Play("ambient/explosions/exp1.wav", self:GetPos(), 75, 100, 0.25)
 		util.BlastDamage(self, player, self:GetPos(), 256, math.random(0, 20))
 
@@ -170,12 +159,8 @@ function ENT:IsOwner(player)
 end
 
 function ENT:Lock(player)
-	if self:IsOwner(player) then
-		self:SetFlag("Locked")
-	elseif not self:HasOwner() then	-- no owner, lets own it. :)
-		self:Own(player)
-		self:SetFlag("Locked")
-	end
+	self:SetFlag("Locked")
+	self:Own(player)
 end
 
 function ENT:Unlock(player)
@@ -195,7 +180,7 @@ function ENT:Open(player)
 	local selfPos = self:GetPos()
 	local plyPos = player:GetPos()
 
-	if (math.Distance(plyPos.X,plyPos.Y, selfPos.X,selfPos.Y) > 250) then
+	if (math.Distance(plyPos.X,plyPos.Y, selfPos.X,selfPos.Y) > 150) then
 		return false
 	else
 		self:UnsetFlag("Open")
