@@ -74,8 +74,15 @@ function item:worldUse(player, entity)
 					slot_size = v.size
 				end
 			end
-
-			success = player:AddInventory("hunting_backpack", slot_size.X, slot_size.Y)
+			--print("item name", itemName)
+			--PrintTable(entity.meta["contains"])
+			if entity.meta then
+				if (entity.meta["contains"] ~= nil) then
+					success = player:AddInventoryContains(itemName, slot_size.X, slot_size.Y, entity.meta["contains"])
+				end
+			else
+				success = player:AddInventory(itemName, slot_size.X, slot_size.Y)
+			end
 		else
 			success = player:AddItemToInventory("feet", itemName)
 		end

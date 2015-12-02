@@ -34,8 +34,9 @@ item.context_menu = {item_function_consume, item_function_drop}
 --		
 ----------------------------------------------------------------------
 
-function item:use(player)
+function item:use(ply)
 	if SERVER then
 		-- stop bleeding
+		deadremains.character.setDebuff(ply, "BLEEDING", 0)
 	end
 end

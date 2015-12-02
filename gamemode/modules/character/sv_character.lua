@@ -231,7 +231,7 @@ function deadremains.character.startFlagsChecker()
 	timer.Create("deadremains.buffschecker", 1, 0, function()
 		for k,ply in pairs(player.GetAll()) do
 			if (ply.dr_character) then
-				if (IsValid(ply) and (ply.dr_character.created == true)) and ply:Alive() then
+				if (IsValid(ply) and (ply.dr_character.created == true)) then
 
 					-- process each flag one by one
 					for unique, flag in pairs(ply.dr_character.buffs) do
@@ -248,7 +248,6 @@ function deadremains.character.startFlagsChecker()
 						-- check again incase our flagCheckFunc has returned a 0.
 						-- otherwise the flag is preserved.
 						if tonumber(ply:hasBuff(unique)) == 1 then
-							print(unique)
 							if (deadremains.character.processFlagFuncs[unique] ~= nil) then
 								deadremains.character.processFlagFuncs[unique](ply)
 							end
@@ -269,7 +268,6 @@ function deadremains.character.startFlagsChecker()
 						-- check again incase our flagCheckFunc has returned a 0.
 						-- otherwise the flag is preserved.
 						if tonumber(ply:hasDebuff(unique)) == 1 then
-							print(unique)
 							if (deadremains.character.processFlagFuncs[unique] ~= nil) then
 								deadremains.character.processFlagFuncs[unique](ply)
 							end
@@ -368,7 +366,7 @@ end
 deadremains.character.flagCheckFuncs["STARVATION"] = function(ply)
 	if (ply:getHunger() < 25) then return 1 else return 0 end
 end
-deadremains.character.finishFlagFuncs["FULL"] = function(ply)
+deadremains.character.finishFlagFuncs["STARVATION"] = function(ply)
 	ply:ChatPrint("You are not starving...")
 	ply:SetWalkSpeed(180)
 	ply:SetRunSpeed(200)
@@ -422,10 +420,6 @@ deadremains.character.processFlagFuncs["BLEEDING"] = function(ply)
 
 	local addVal = 1/60	-- 1 hp every 60 seconds.
 	local newHp = ply.dr_character.float_hp - addVal
-
-	if (newHp <= 1) then
-		ply:Kill()
-	end
 
 	-- track float value.
 	ply.dr_character.float_hp = newHp

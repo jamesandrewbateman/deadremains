@@ -23,9 +23,19 @@ concommand.Add("give_backpack", function(ply)
 	ply:AddInventory("hunting_backpack", 9, 3)
 end)
 
-concommand.Add("Networkinv", function(ply)
-	print("networking inv...")
+function player_meta:DropInventory(unique)
+	deadremains.item.spawn_contains(self, unique, self:GetInventory(unique).Items)
 
+	self:RemoveInventory("hunting_backpack")
+
+	self:NetworkInventory()
+
+	net.Start("deadremains.refreshinv")
+	net.Send(self)
+end
+util.AddNetworkString("deadremains.refreshinv")
+
+concommand.Add("Networkinv", function(ply)
 	ply:NetworkInventory()
 end)
 
@@ -36,37 +46,72 @@ function player_meta:InitInventories()
 	self.Inventories = {}
 
 	for k,v in pairs(invs) do
-		self.Inventories[v.inventory_index] = 
-		{
-			Name = v.unique,
-			Size = v.size,
-			MaxWeight = v.max_weight,
-			CurrentWeight = 0,
-			Items = {}
-		}
+		if (v.inventory_index ~= -1) then 
+			self.Inventories[v.inventory_index] = 
+			{
+				Name = v.unique,
+				Size = v.size,
+				MaxWeight = v.max_weight,
+				CurrentWeight = 0,
+				Items = {}
+			}
+		end
 	end
 
 	self:NetworkInventory()
 end
 
 function player_meta:AddInventory(unique, horiz, vert, inv_index, max_weight)
-	if (inv_index == nil) then inv_index = #self.Inventories + 1 end
+	local found = false
+
+	if (inv_index == nil) then
+		for k,v in pairs(self.Inventories) do
+			if v.Name == unique and not found then
+				inv_index = k
+				found = true
+			end
+		end
+
+		if not found then
+			inv_index = #self.Inventories + 1
+		end
+	end
+
 	if (max_weight == nil) then max_weight = 2000 end
 
-	if (self.Inventories[inv_index] ~= nil) then return false end
-
-	self.Inventories[inv_index] =
-	{
-		Name = unique,
-		Size = Vector(horiz, vert, 0),
-		MaxWeight = max_weight,
-		CurrentWeight = 0,
-		Items = {}
-	}
+	if found then
+		return false
+	else
+		self.Inventories[inv_index] =
+		{
+			Name = unique,
+			Size = Vector(horiz, vert, 0),
+			MaxWeight = max_weight,
+			CurrentWeight = 0,
+			Items = {}
+		}
+	end
 
 	self:NetworkInventory()
 
 	return true
+end
+
+function player_meta:AddInventoryContains(unique, horiz, vert, contains)
+	if self:AddInventory(unique, horiz, vert) then
+		for k,v in pairs(contains) do
+			local item_unique = v.Unique
+			self:AddItemToInventory(unique, item_unique)
+		end
+		return true
+	else
+		for k,v in pairs(contains) do
+			local item_unique = v.Unique
+			self:AddItemToInventory(unique, item_unique)
+		end
+		return true
+	end
+	return false
 end
 
 function player_meta:GetInventoryId(name)
@@ -78,7 +123,7 @@ end
 
 function player_meta:RemoveInventory(name)
 	local invID = self:GetInventoryId(name)
-	
+	self.Inventories[invID] = nil
 end
 
 function player_meta:GetInventory(name)

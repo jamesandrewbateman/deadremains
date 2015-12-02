@@ -55,6 +55,23 @@ function deadremains.item.spawn_meta(player, unique, meta_data)
 	end
 end
 
+function deadremains.item.spawn_contains(player, unique, contains)
+	local item = deadremains.item.get(unique)
+
+	if (item) then
+		local trace = player:eyeTrace(192)
+
+		local entity = ents.Create("deadremains_item")
+		entity:SetPos(trace.HitPos)
+		entity:SetModel(item.model)
+		entity:Spawn()
+
+		entity.item = item.unique
+		entity.meta = {}
+		entity.meta["contains"] = contains
+	end
+end
+
 ----------------------------------------------------------------------
 -- Purpose:
 --	Find out whether the item provides inventory expansion.	

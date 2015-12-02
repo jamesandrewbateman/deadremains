@@ -11,7 +11,7 @@ local UI_MAIN
 
 local keyDown = false
 local menuOpen = false
-local uiOpen = false
+uiOpen = false
 
 hook.Add("Think", "deadremains.ui.detectKey", function()
 
@@ -60,26 +60,29 @@ function deadremains.ui.rebuildInventory()
 	end
 
 	local items = LocalPlayer().Inventories
-	for _, v in pairs(items) do
 
-		if !deadremains.ui.inventories[v.InventoryName] then
+	if items then
+		for _, v in pairs(items) do
 
-			deadremains.ui.addInventory(v.InventoryName, v.InventorySize, v.InventoryMaxWeight)
+			if !deadremains.ui.inventories[v.InventoryName] then
 
-		else
-
-			if not UI_MAIN.sec:clearAllItems(v.InventoryName) then
 				deadremains.ui.addInventory(v.InventoryName, v.InventorySize, v.InventoryMaxWeight)
+
+			else
+				if (UI_MAIN) then
+					if not UI_MAIN.sec:clearAllItems(v.InventoryName) then
+						deadremains.ui.addInventory(v.InventoryName, v.InventorySize, v.InventoryMaxWeight)
+					end
+				end
 			end
 
 		end
 
-	end
+		for _, v in pairs(items) do
 
-	for _, v in pairs(items) do
+			deadremains.ui.addItem(v.InventoryName, v.ItemUnique, v.SlotPosition)
 
-		deadremains.ui.addItem(v.InventoryName, v.ItemUnique, v.SlotPosition)
-
+		end
 	end
 end
 
@@ -87,7 +90,7 @@ function deadremains.ui.addInventory(invName, vec, maxWeight)
 
 	local UI_MAIN = deadremains.ui.getMenu()
 
-	UI_MAIN.sec:addInventory(invName, invName, vec.x, vec.y, maxWeight)
+	if (UI_MAIN) then UI_MAIN.sec:addInventory(invName, invName, vec.x, vec.y, maxWeight) end
 	deadremains.ui.inventories[invName] = {size = vec, items = {}}
 
 end
@@ -98,8 +101,9 @@ function deadremains.ui.addItem(invName, itemName, vec)
 
 	table.insert(deadremains.ui.inventories[invName].items, {name = itemName, slot = vec})
 
-	UI_MAIN.sec:addItem(invName, itemName, vec)
-
+	if (UI_MAIN) then
+		UI_MAIN.sec:addItem(invName, itemName, vec)
+	end
 end
 
 function deadremains.ui.getActiveActionMenu()
