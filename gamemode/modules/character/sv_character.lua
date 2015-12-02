@@ -33,6 +33,7 @@ function player_meta:newCharacter(model, gender)
 
 	self.dr_character.float_hp = self:Health()
 
+	-- do not sure set/buff/debuff because that would trigger end/start funcs.
 	self.dr_character.debuffs = {}
 	self.dr_character.debuffs["COLD"] = 0
 	self.dr_character.debuffs["SICKNESS"] = 0
@@ -64,10 +65,23 @@ function player_meta:newCharacter(model, gender)
 
 	self.dr_character.created = true
 
-	deadremains.character.networkFlags(ply)
+	deadremains.character.networkFlags(self)
 
 	print("Created a new character")
 end
+
+hook.Add("PlayerInitialSpawn", "deadremains_init_spawn_char", function(ply)
+	ply:resetData()
+
+	timer.Simple(1, function()
+		ply:loadDataFromMysql()
+	end)
+
+	ply.dr_loaded = true
+
+	ply:newCharacter("models/player/group01/male_03.mdl", "m")
+	ply.zombie_kill_count = 0
+end)
 
 function player_meta:hasBuff(name)
 	if (self.dr_character.created) then
@@ -96,7 +110,6 @@ deadremains.character.finishFlagFuncs = {}
 
 function deadremains.character.resetFlags(ply)
 	-- trigger on/off functions too.
-	print("reseting flags")
 	deadremains.character.setDebuff(ply, "COLD", 0, 1)
 	deadremains.character.setDebuff(ply, "SICKNESS", 0, 1)
 	deadremains.character.setDebuff(ply, "HEART_ATTACK", 0, 1)
@@ -117,7 +130,7 @@ function deadremains.character.resetFlags(ply)
 	deadremains.character.setBuff(ply, "ZINVISIBLE", 0, 1)
 	deadremains.character.setBuff(ply, "BOOST", 0, 1)
 	deadremains.character.setBuff(ply, "PAUSE", 0, 1)
-	deadremains.character.setBuff(ply, "HEALTHY", 0, 1)
+	deadremains.character.setBuff(ply, "HEALTHY", 1, 1)
 	deadremains.character.setBuff(ply, "ATHLETIC", 0, 1)
 	deadremains.character.setBuff(ply, "IRON_MAN", 0, 1)
 	deadremains.character.setBuff(ply, "RIPPED", 0, 1)
@@ -225,13 +238,20 @@ function deadremains.character.startFlagsChecker()
 
 						-- does this buff actually have any code to run/check?
 						if (deadremains.character.flagCheckFuncs[unique] ~= nil) then
-							flag = tonumber(deadremains.character.flagCheckFuncs[unique](ply))
+							local newFlag = tonumber(deadremains.character.flagCheckFuncs[unique](ply))
+
+							if newFlag ~= flag then
+								deadremains.character.setBuff(ply, unique, newFlag)
+							end
 						end
 
 						-- check again incase our flagCheckFunc has returned a 0.
 						-- otherwise the flag is preserved.
 						if tonumber(ply:hasBuff(unique)) == 1 then
-							deadremains.character.processFlagFuncs[unique](ply)
+							print(unique)
+							if (deadremains.character.processFlagFuncs[unique] ~= nil) then
+								deadremains.character.processFlagFuncs[unique](ply)
+							end
 						end
 					end
 
@@ -239,13 +259,20 @@ function deadremains.character.startFlagsChecker()
 
 						-- does this buff actually have any code to run/check?
 						if (deadremains.character.flagCheckFuncs[unique] ~= nil) then
-							flag = tonumber(deadremains.character.flagCheckFuncs[unique](ply))
+							local newFlag = tonumber(deadremains.character.flagCheckFuncs[unique](ply))
+
+							if newFlag ~= flag then
+								deadremains.character.setDebuff(ply, unique, newFlag)
+							end
 						end
 
 						-- check again incase our flagCheckFunc has returned a 0.
 						-- otherwise the flag is preserved.
 						if tonumber(ply:hasDebuff(unique)) == 1 then
-							deadremains.character.processFlagFuncs[unique](ply)
+							print(unique)
+							if (deadremains.character.processFlagFuncs[unique] ~= nil) then
+								deadremains.character.processFlagFuncs[unique](ply)
+							end
 						end
 					end
 				end
@@ -257,11 +284,16 @@ deadremains.character.startFlagsChecker()
 
 
 -- Hydrated --
-
-
 -- ran every second if enabled.
+deadremains.character.startFlagFuncs["HYDRATED"] = function(ply)
+	ply:ChatPrint("You are hydrated!")
+end
 deadremains.character.flagCheckFuncs["HYDRATED"] = function(ply)
-	if (ply:getThirst() > 80) then return 1 else return 0 end
+	if (ply:getThirst() > 80) then
+		return 1
+	else
+		return 0
+	end
 end
 deadremains.character.processFlagFuncs["HYDRATED"] = function(ply)
 	local addVal = 1/60	-- 1 hp every 60 seconds.
@@ -277,11 +309,36 @@ deadremains.character.processFlagFuncs["HYDRATED"] = function(ply)
 	-- floor the tracked float value
 	ply:SetHealth(math.floor(ply.dr_character.float_hp))
 end
+deadremains.character.finishFlagFuncs["HYDRATED"] = function(ply)
+	ply:ChatPrint("You are not hydrated...")
+end
+
+-- Dehydrated --
+
+deadremains.character.startFlagFuncs["DEHYDRATED"] = function (ply)
+	ply:ChatPrint("You are dehydrated!")
+	ply:SetWalkSpeed(180)
+	ply:SetRunSpeed(200)
+end
+deadremains.character.flagCheckFuncs["DEHYDRATED"] = function(ply)
+	if (ply:getThirst() < 25) then
+		return 1
+	else
+		return 0
+	end
+end
+deadremains.character.finishFlagFuncs["DEHYDRATED"] = function(ply)
+	ply:ChatPrint("You are not dehydrated anymore...")
+	ply:SetWalkSpeed(180)	-- change these
+	ply:SetRunSpeed(200)	-- change these
+end 
 
 
 
 -- Full --
-
+deadremains.character.startFlagFuncs["FULL"] = function(ply)
+	ply:ChatPrint("You are full!")
+end
 deadremains.character.flagCheckFuncs["FULL"] = function(ply)
 	if (ply:getHunger() > 80) then return 1 else return 0 end
 end
@@ -298,36 +355,90 @@ deadremains.character.processFlagFuncs["FULL"] = function(ply)
 
 	ply:SetHealth(math.floor(ply.dr_character.float_hp))
 end
+deadremains.character.finishFlagFuncs["FULL"] = function(ply)
+	ply:ChatPrint("You are not full...")
+end
 
+-- STARVATION
+deadremains.character.startFlagFuncs["STARVATION"] = function(ply)
+	ply:ChatPrint("You are starving!")
+	ply:SetWalkSpeed(180)
+	ply:SetRunSpeed(200)
+end
+deadremains.character.flagCheckFuncs["STARVATION"] = function(ply)
+	if (ply:getHunger() < 25) then return 1 else return 0 end
+end
+deadremains.character.finishFlagFuncs["FULL"] = function(ply)
+	ply:ChatPrint("You are not starving...")
+	ply:SetWalkSpeed(180)
+	ply:SetRunSpeed(200)
+end
+
+
+
+
+-- Healthy --
+deadremains.character.startFlagFuncs["HEALTHY"] = function(ply)
+	ply:ChatPrint("You are healthy!")
+end
+deadremains.character.flagCheckFuncs["HEALTHY"] = function(ply)
+	if (ply:Health() > 80) then return 1 else return 0 end
+end
+deadremains.character.processFlagFuncs["HEALTHY"] = function(ply)
+	if (ply:hasDebuff("COLD")) then
+		deadremains.character.setDebuff(ply, "COLD", 0)
+	end
+end
+deadremains.character.finishFlagFuncs["HEALTHY"] = function(ply)
+	ply:ChatPrint("You are not healthy...")
+end
+
+-- Sickness --
+deadremains.character.startFlagFuncs["SICKNESS"] = function(ply)
+	ply:ChatPrint("You are sick brah!")
+	ply:SetWalkSpeed(180)
+	ply:SetRunSpeed(200)
+end
+deadremains.character.flagCheckFuncs["SICKNESS"] = function(ply)
+	if (ply:Health() < 30 and ply.dr_character.bleed_time > 120) then return 1 else return 0 end
+end
+deadremains.character.finishFlagFuncs["SICKNESS"] = function(ply)
+	ply:ChatPrint("You are not sick... brah.")
+	ply:SetWalkSpeed(180)
+	ply:SetRunSpeed(200)
+end
 
 
 -- Bleeding --
 
 deadremains.character.startFlagFuncs["BLEEDING"] = function (ply)
-	ply:SetWalkSpeed(0)
+	ply:ChatPrint("You are bleeding out!")
+	ply:SetWalkSpeed(180)
 	ply:SetRunSpeed(200)
+	ply.dr_character.bleed_time = 0
 end
+deadremains.character.processFlagFuncs["BLEEDING"] = function(ply)
+	ply.dr_character.bleed_time = ply.dr_character.bleed_time + 1
 
-deadremains.character.processFlagFuncs["BLEEDING"] = function(pl)
-	local addVal = 2	-- 1 hp every 60 seconds.
-	local newHp = pl.dr_character.float_hp - addVal
+	local addVal = 1/60	-- 1 hp every 60 seconds.
+	local newHp = ply.dr_character.float_hp - addVal
 
 	if (newHp <= 1) then
-		pl:Kill()
+		ply:Kill()
 	end
 
 	-- track float value.
-	pl.dr_character.float_hp = newHp
+	ply.dr_character.float_hp = newHp
 
-	pl:SetHealth(math.floor(pl.dr_character.float_hp))
+	ply:SetHealth(math.floor(ply.dr_character.float_hp))
 
 	-- jamez + bambo
 	-- spawn a decal every multiple of 4 of HP.
-	if pl:Health() % 4 == 0 then
+	if ply:Health() % 4 == 0 then
 		local traceb = {}
-		traceb.start = pl:GetPos() + pl:GetUp()*20 - pl:GetForward()*20
+		traceb.start = ply:GetPos() + ply:GetUp()*20 - ply:GetForward()*20
 		traceb.endpos = traceb.start + (Vector(0,0,-1) * 9999)
-		traceb.filter = pl
+		traceb.filter = ply
 		traceb.mask = MASK_NPCWORLDSTATIC
 		local trb = util.TraceLine(traceb)
 		local tb1 = trb.HitPos + trb.HitNormal
@@ -335,14 +446,13 @@ deadremains.character.processFlagFuncs["BLEEDING"] = function(pl)
 		util.Decal("Blood", tb1, tb2)
 	end
 end
-
 deadremains.character.finishFlagFuncs["BLEEDING"] = function(ply)
-	print("Done bleeding")
+	ply:ChatPrint("You have stopped bleeding...")
 	ply:SetWalkSpeed(230)
 	ply:SetRunSpeed(330)
 	ply:SetJumpPower( 200 )
+	ply.dr_character.bleed_time = 0
 end
-
 hook.Add("EntityTakeDamage", "BloodDamageCheck", function(ent, dmgInfo)
 	local amount = dmginfo:GetDamage() --jamez
 	local BleedRandomize = 4--math.random(0,17)

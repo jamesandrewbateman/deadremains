@@ -195,7 +195,7 @@ function deadremains.sql.newPlayer(player)
 end
 
 
-function player_meta:loadFromMysql()
+function player_meta:loadDataFromMysql()
 	local steam_id = deadremains.sql.escape(database_main, self:SteamID())
 	local needs = deadremains.settings.get("needs")
 	local skills = deadremains.settings.get("skills")

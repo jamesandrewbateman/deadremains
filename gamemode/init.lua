@@ -55,18 +55,6 @@ function GM:Initialize()
 		end
 	end)
 end
-----------------------------------------------------------------------
--- Purpose:
---
-----------------------------------------------------------------------
-
-function GM:PlayerInitialSpawn(player)
-	player.zombie_kill_count = 0
-
-	player:ConCommand("newcharp")
-
-	self.BaseClass:PlayerInitialSpawn(player)
-end
 
 ----------------------------------------------------------------------
 -- Purpose:

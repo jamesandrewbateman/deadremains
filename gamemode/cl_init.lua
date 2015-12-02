@@ -29,8 +29,6 @@ deadremains.loader.initialize()
 ----------------------------------------------------------------------
 
 function GM:InitPostEntity()
-	net.Start("deadremains.player.initalize")
-	net.SendToServer()
 end
 
 ----------------------------------------------------------------------

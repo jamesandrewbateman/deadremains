@@ -1,7 +1,7 @@
-local skills = {}
-local characteristics = {}
-local buffs = {}
-local debuffs = {}
+skills = {}
+characteristics = {}
+buffs = {}
+debuffs = {}
 
 ----------------------------------------------------------------------
 -- Purpose:
@@ -14,6 +14,7 @@ function player_meta:newCharacter(model, gender)
 		net.WriteString(gender)
 	net.SendToServer()
 end
+
 concommand.Add("newcharp", function()
 	LocalPlayer():newCharacter("models/player/group01/male_03.mdl", "m")
 end)
