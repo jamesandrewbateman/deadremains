@@ -33,13 +33,6 @@ function player_meta:newCharacter(model, gender)
 
 	self.dr_character.float_hp = self:Health()
 
-	self:DefaultFlags()
-
-	self.dr_character.created = true
-	print("Created a new character")
-end
-
-function player_meta:DefaultFlags()
 	self.dr_character.debuffs = {}
 	self.dr_character.debuffs["COLD"] = 0
 	self.dr_character.debuffs["SICKNESS"] = 0
@@ -68,8 +61,13 @@ function player_meta:DefaultFlags()
 	self.dr_character.buffs["RIPPED"] = 0
 	self.dr_character.buffs["WARM"] = 0
 	self.dr_character.buffs["HERO"] = 0
-end
 
+	self.dr_character.created = true
+
+	deadremains.character.networkFlags(ply)
+
+	print("Created a new character")
+end
 
 function player_meta:hasBuff(name)
 	if (self.dr_character.created) then
@@ -96,7 +94,43 @@ deadremains.character.processFlagFuncs = {}
 -- end points.
 deadremains.character.finishFlagFuncs = {}
 
+function deadremains.character.resetFlags(ply)
+	-- trigger on/off functions too.
+	print("reseting flags")
+	deadremains.character.setDebuff(ply, "COLD", 0, 1)
+	deadremains.character.setDebuff(ply, "SICKNESS", 0, 1)
+	deadremains.character.setDebuff(ply, "HEART_ATTACK", 0, 1)
+	deadremains.character.setDebuff(ply, "UNCONCIOUS", 0, 1)
+	deadremains.character.setDebuff(ply, "TIREDNESS", 0, 1)
+	deadremains.character.setDebuff(ply, "BANDIT", 0, 1)
+	deadremains.character.setDebuff(ply, "DEPRESSION", 0, 1)
+	deadremains.character.setDebuff(ply, "PSYCHOSIS", 0, 1)
+	deadremains.character.setDebuff(ply, "ZINFECTED_HIT", 0, 1)
+	deadremains.character.setDebuff(ply, "ZINFECTED_BLOOD", 0, 1)
+	deadremains.character.setDebuff(ply, "DEHYDRATED", 0, 1)
+	deadremains.character.setDebuff(ply, "STARVATION", 0, 1)
+	deadremains.character.setDebuff(ply, "BLEEDING", 0, 1)
+	deadremains.character.setDebuff(ply, "RESTRAINED", 0, 1)
 
+	deadremains.character.setBuff(ply, "HYDRATED", 1, 1)
+	deadremains.character.setBuff(ply, "FULL", 1, 1)
+	deadremains.character.setBuff(ply, "ZINVISIBLE", 0, 1)
+	deadremains.character.setBuff(ply, "BOOST", 0, 1)
+	deadremains.character.setBuff(ply, "PAUSE", 0, 1)
+	deadremains.character.setBuff(ply, "HEALTHY", 0, 1)
+	deadremains.character.setBuff(ply, "ATHLETIC", 0, 1)
+	deadremains.character.setBuff(ply, "IRON_MAN", 0, 1)
+	deadremains.character.setBuff(ply, "RIPPED", 0, 1)
+	deadremains.character.setBuff(ply, "WARM", 0, 1)
+	deadremains.character.setBuff(ply, "HERO", 0, 1)
+
+	deadremains.character.networkFlags(ply)
+end
+
+
+hook.Add("PlayerSpawn", "deadremains_player_spawn_char", function(ply)
+	deadremains.character.resetFlags(ply)
+end)
 
 
 concommand.Add("dr_setflag", function(ply, cmd, args)
@@ -114,7 +148,7 @@ concommand.Add("dr_setflag", function(ply, cmd, args)
 	deadremains.character.networkFlags(ply)
 end)
 
-function deadremains.character.setBuff(ply, name, val)
+function deadremains.character.setBuff(ply, name, val, disableNetwork)
 	if (ply.dr_character.created) then
 		ply.dr_character.buffs[name] = val
 
@@ -128,11 +162,13 @@ function deadremains.character.setBuff(ply, name, val)
 			end
 		end			
 
-		deadremains.character.networkFlags(ply)
+		if not (disableNetwork == 1) then
+			deadremains.character.networkFlags(ply)
+		end
 	end
 end
 
-function deadremains.character.setDebuff(ply, name, val)
+function deadremains.character.setDebuff(ply, name, val, disableNetwork)
 	if (ply.dr_character.created) then
 		ply.dr_character.debuffs[name] = val
 
@@ -146,7 +182,9 @@ function deadremains.character.setDebuff(ply, name, val)
 			end
 		end	
 
-		deadremains.character.networkFlags(ply)
+		if not (disableNetwork == 1) then
+			deadremains.character.networkFlags(ply)
+		end
 	end
 end
 
@@ -284,6 +322,7 @@ deadremains.character.processFlagFuncs["BLEEDING"] = function(pl)
 	pl:SetHealth(math.floor(pl.dr_character.float_hp))
 
 	-- jamez + bambo
+	-- spawn a decal every multiple of 4 of HP.
 	if pl:Health() % 4 == 0 then
 		local traceb = {}
 		traceb.start = pl:GetPos() + pl:GetUp()*20 - pl:GetForward()*20
@@ -298,6 +337,7 @@ deadremains.character.processFlagFuncs["BLEEDING"] = function(pl)
 end
 
 deadremains.character.finishFlagFuncs["BLEEDING"] = function(ply)
+	print("Done bleeding")
 	ply:SetWalkSpeed(230)
 	ply:SetRunSpeed(330)
 	ply:SetJumpPower( 200 )
