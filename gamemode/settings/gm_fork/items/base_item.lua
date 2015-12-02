@@ -1,4 +1,5 @@
 item.unique = "base"
+item.label = "Unknown"
 
 -- The model that this item should have.
 item.model = "models/captainbigbutt/skeyler/hats/bear_hat.mdl"
@@ -74,6 +75,7 @@ function item:worldUse(player, entity)
 					slot_size = v.size
 				end
 			end
+			
 			--print("item name", itemName)
 			--PrintTable(entity.meta["contains"])
 			if entity.meta then

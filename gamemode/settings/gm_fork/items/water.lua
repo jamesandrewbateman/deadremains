@@ -1,4 +1,5 @@
 item.unique = "water"
+item.label = "Water"
 
 -- The model that this item should have.
 item.model = "models/props/cs_militia/paintbucket01.mdl"

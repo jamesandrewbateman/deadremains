@@ -1,4 +1,5 @@
 item.unique = "matches"
+item.label = "Matches"
 
 -- The model that this item should have.
 item.model = "models/props_docks/dock01_pole01a_256.mdl"

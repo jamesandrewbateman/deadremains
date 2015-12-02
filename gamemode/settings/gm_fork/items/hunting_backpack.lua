@@ -1,4 +1,5 @@
 item.unique = "hunting_backpack"
+item.label = "Hunting Backpack"
 
 -- The model that this item should have.
 item.model = "models/lamps/torch.mdl"

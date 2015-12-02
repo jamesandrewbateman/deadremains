@@ -1,4 +1,5 @@
 item.unique = "fire_2"
+item.label = "Fire No.2"
 
 -- The model that this item should have.
 item.model = "models/props/de_inferno/fireplace.mdl"

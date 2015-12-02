@@ -1,4 +1,5 @@
 item.unique = "wire_wool"
+item.label = "Wire Wool"
 
 -- The model that this item should have.
 item.model = "models/props_c17/playground_teetertoter_seat.mdl"

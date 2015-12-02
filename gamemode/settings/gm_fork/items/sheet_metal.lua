@@ -1,4 +1,5 @@
 item.unique = "sheet_metal"
+item.label = "Sheet Metal"
 
 -- The model that this item should have.
 item.model = "models/props_lab/blastdoor001c.mdl"

@@ -23,17 +23,9 @@ concommand.Add("give_backpack", function(ply)
 	ply:AddInventory("hunting_backpack", 9, 3)
 end)
 
-function player_meta:DropInventory(unique)
-	deadremains.item.spawn_contains(self, unique, self:GetInventory(unique).Items)
-
-	self:RemoveInventory("hunting_backpack")
-
-	self:NetworkInventory()
-
-	net.Start("deadremains.refreshinv")
-	net.Send(self)
-end
-util.AddNetworkString("deadremains.refreshinv")
+concommand.Add("dr_drop_inv", function(ply, cmd, args)
+	ply:DropInventory(args[1])
+end)
 
 concommand.Add("Networkinv", function(ply)
 	ply:NetworkInventory()
@@ -135,6 +127,17 @@ function player_meta:GetInventoryName(id)
 	return self.Inventories[id].Name
 end
 
+function player_meta:DropInventory(unique)
+	deadremains.item.spawn_contains(self, unique, self:GetInventory(unique).Items)
+
+	self:RemoveInventory(unique)
+
+	self:NetworkInventory()
+
+	net.Start("deadremains.refreshinv")
+	net.Send(self)
+end
+util.AddNetworkString("deadremains.refreshinv")
 
 -- ITEM ACTIONS --
 -- used internally, does not check for placement collisions.

@@ -1,4 +1,5 @@
 item.unique = "car_radio"
+item.label = "Car Radio"
 
 -- The model that this item should have.
 item.model = "models/props/cs_office/radio_p1.mdl"

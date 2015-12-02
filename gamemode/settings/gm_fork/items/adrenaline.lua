@@ -1,4 +1,5 @@
 item.unique = "adrenaline"
+item.label = "Adrenaline"
 
 -- The model that this item should have.
 item.model = "models/props_junk/garbage_plasticbottle001a.mdl"

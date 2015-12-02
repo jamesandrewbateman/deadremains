@@ -1,4 +1,5 @@
 item.unique = "crafted_feather"
+item.label = "Crafted Feather"
 
 -- The model that this item should have.
 item.model = "models/Gibs/wood_gib01d.mdl"

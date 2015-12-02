@@ -1,10 +1,11 @@
 ENT.Type = "anim"
 ENT.Base = "base_anim"
---[[
+
 function ENT:SetupDataTables()
-	self:DTVar("Int", 0, "item_id")
+	self:NetworkVar("String", 0, "DRName")
 end
 
+--[[
 function ENT:SetItemID(network)
 	self.dt.item_id = network
 	

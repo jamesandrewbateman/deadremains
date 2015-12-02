@@ -1,4 +1,5 @@
 item.unique = "bandage"
+item.label = "Bandage"
 
 -- The model that this item should have.
 item.model = "models/bambo/roll_center.mdl"

@@ -1,4 +1,5 @@
 item.unique = "packet_crisps"
+item.label = "Packet of Crisps"
 
 -- The model that this item should have.
 item.model = "models/props_junk/MetalBucket02a.mdl"

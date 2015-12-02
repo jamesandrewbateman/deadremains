@@ -1,4 +1,5 @@
 item.unique = "scrap_metal"
+item.label = "Scrap Metal"
 
 -- The model that this item should have.
 item.model = "models/props_debris/metal_panel02a.mdl"

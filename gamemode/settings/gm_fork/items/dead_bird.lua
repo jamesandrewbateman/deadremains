@@ -1,4 +1,5 @@
 item.unique = "dead_bird"
+item.label = "A dead bird"
 
 -- The model that this item should have.
 item.model = "models/Gibs/Antlion_gib_Large_2.mdl"

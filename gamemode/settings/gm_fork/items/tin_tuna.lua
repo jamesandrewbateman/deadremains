@@ -1,4 +1,5 @@
 item.unique = "tin_tuna"
+item.label = "Tin o' Tuna"
 
 -- The model that this item should have.
 item.model = "models/props_junk/MetalBucket02a.mdl"

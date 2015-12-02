@@ -1,4 +1,5 @@
 item.unique = "rat_poison"
+item.label = "Ray Poison"
 
 -- The model that this item should have.
 item.model = "models/props_urban/tire001.mdl"

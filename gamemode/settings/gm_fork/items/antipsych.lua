@@ -1,4 +1,5 @@
 item.unique = "antipsych"
+item.label = "Antipsychotic"
 
 -- The model that this item should have.
 item.model = "models/props_junk/shoe001a.mdl"

@@ -1,4 +1,5 @@
 item.unique = "plank"
+item.label = "Plank"
 
 -- The model that this item should have.
 item.model = "models/props/CS_militia/bathroomwallhole01_wood_broken.mdl"

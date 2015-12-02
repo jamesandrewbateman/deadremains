@@ -1,4 +1,5 @@
 item.unique = "vine"
+item.label = "Vine"
 
 -- The model that this item should have.
 item.model = "models/Items/CrossbowRounds.mdl"

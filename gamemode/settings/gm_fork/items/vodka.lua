@@ -1,4 +1,5 @@
 item.unique = "vodka"
+item.label = "YODKA"
 
 -- The model that this item should have.
 item.model = "models/props_urban/tire001.mdl"

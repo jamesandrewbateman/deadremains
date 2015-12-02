@@ -1,4 +1,5 @@
 item.unique = "stick"
+item.label = "Stick"
 
 -- The model that this item should have.
 item.model = "models/props_wasteland/dockplank01b.mdl"

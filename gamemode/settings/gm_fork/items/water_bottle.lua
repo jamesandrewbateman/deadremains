@@ -1,4 +1,5 @@
 item.unique = "water_bottle"
+item.label = "Bottle for Water"
 
 -- The model that this item should have.
 item.model = "models/props/cs_office/water_bottle.mdl"

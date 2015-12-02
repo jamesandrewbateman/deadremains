@@ -1,4 +1,5 @@
 item.unique = "padlock"
+item.label = "Padlock"
 
 -- The model that this item should have.
 item.model = "models/props/cs_militia/soap_rope.mdl"

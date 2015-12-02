@@ -11,7 +11,7 @@ function ELEMENT:Init()
 end
 
 function ELEMENT:rebuild()
-
+	print(self.activeInventory)
 	local activeID = 0
 	if self.activeInventory then
 
@@ -169,7 +169,7 @@ function ELEMENT:OnMouseWheeled(dt)
 
 		local x, y = v.panel:GetPos()
 		v.panel:SetPos(x, math.Clamp(y + dt * 10, 100, h))
-		print(dt * 10, -h, math.Clamp(y + dt * 10, 100, h))
+		--print(dt * 10, -h, math.Clamp(y + dt * 10, 100, h))
 
 	end
 

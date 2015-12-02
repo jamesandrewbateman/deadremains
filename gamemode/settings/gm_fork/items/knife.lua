@@ -1,4 +1,5 @@
 item.unique = "knife"
+item.label = "Knife"
 
 -- The model that this item should have.
 item.model = "models/weapons/w_knife_t.mdl"

@@ -1,4 +1,5 @@
 item.unique = "screw_driver"
+item.label = "Screw Driver"
 
 -- The model that this item should have.
 item.model = "models/props_c17/TrapPropeller_Lever.mdl"

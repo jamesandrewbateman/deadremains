@@ -1,4 +1,5 @@
 item.unique = "metal_pipe"
+item.label = "Metal Pipe"
 
 -- The model that this item should have.
 item.model = "models/props_pipes/concrete_pipe001a.mdl"

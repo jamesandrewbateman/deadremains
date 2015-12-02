@@ -1,4 +1,5 @@
 item.unique = "cloth"
+item.label = "Scrap of Cloth"
 
 -- The model that this item should have.
 item.model = "models/props_c17/FurnitureMattress001a.mdl"

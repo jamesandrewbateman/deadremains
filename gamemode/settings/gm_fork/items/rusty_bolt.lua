@@ -1,4 +1,5 @@
 item.unique = "rusty_bolt"
+item.label = "Rusty Bolt"
 
 -- The model that this item should have.
 item.model = "models/crossbow_bolt.mdl"

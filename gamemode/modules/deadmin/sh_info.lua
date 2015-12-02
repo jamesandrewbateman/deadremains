@@ -2,7 +2,9 @@ LoadInfoFile({
 	Name = "deadmin",
 	Order = 
 	{
-		"sv_deadmin.lua"
+		"sh_deadmin.lua",
+		"sv_deadmin.lua",
+		"cl_deadmin.lua"
 	},
 	Dependencies =
 	{

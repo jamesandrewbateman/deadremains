@@ -1,4 +1,5 @@
 item.unique = "twine"
+item.label = "Twine... you swine!"
 
 -- The model that this item should have.
 item.model = "models/Items/CrossbowRounds.mdl"

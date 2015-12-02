@@ -1,4 +1,5 @@
 item.unique = "9v_battery"
+item.label = "9V Battery"
 
 -- The model that this item should have.
 item.model = "models/items/car_battery01.mdl"

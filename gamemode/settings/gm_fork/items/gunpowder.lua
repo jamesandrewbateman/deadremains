@@ -1,4 +1,5 @@
 item.unique = "gunpowder"
+item.label = "Gunpowder"
 
 -- The model that this item should have.
 item.model = "models/props_c17/oildrum001_explosive.mdl"

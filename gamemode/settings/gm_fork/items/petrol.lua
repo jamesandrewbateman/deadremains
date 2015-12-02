@@ -1,4 +1,5 @@
 item.unique = "petrol"
+item.label = "Petrol"
 
 -- The model that this item should have.
 item.model = "models/props_junk/gascan001a.mdl"

@@ -1,4 +1,5 @@
 item.unique = "anti_biotics"
+item.label = "Antibiotics"
 
 -- The model that this item should have.
 item.model = "models/props_junk/garbage_milkcarton002a.mdl"

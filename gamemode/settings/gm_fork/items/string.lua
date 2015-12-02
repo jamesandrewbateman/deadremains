@@ -1,4 +1,5 @@
 item.unique = "string"
+item.label = "String"
 
 -- The model that this item should have.
 item.model = "models/Gibs/HGIBS_rib.mdl"
