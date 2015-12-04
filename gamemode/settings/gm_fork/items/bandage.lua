@@ -2,7 +2,7 @@ item.unique = "bandage"
 item.label = "Bandage"
 
 -- The model that this item should have.
-item.model = "models/bambo/roll_center.mdl"
+item.model = "models/nordkit/bandages.mdl"
 
 -- How many horizontal slots this item should take.
 item.slots_horizontal = 2

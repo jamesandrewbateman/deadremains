@@ -11,7 +11,6 @@ function ELEMENT:Init()
 end
 
 function ELEMENT:rebuild()
-	print(self.activeInventory)
 	local activeID = 0
 	if self.activeInventory then
 

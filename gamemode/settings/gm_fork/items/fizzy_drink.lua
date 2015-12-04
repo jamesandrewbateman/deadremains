@@ -1,8 +1,8 @@
 item.unique = "fizzy_drink"
-item.label = "Fizzy Drink"
+item.label = "Zoca Zola"
 
 -- The model that this item should have.
-item.model = "models/props_junk/garbage_plasticbottle003a.mdl"
+item.model = "models/norddrink/7upcan01a.mdl"
 
 -- How many horizontal slots this item should take.
 item.slots_horizontal = 1

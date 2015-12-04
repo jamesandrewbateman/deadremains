@@ -76,6 +76,25 @@ function deadremains.item.spawn_contains(player, unique, contains)
 	end
 end
 
+function deadremains.item.zombie_drop(name, position)
+	local items = deadremains.item.getAll()
+
+	for i=1,math.random(0,5) do
+		if (math.random(0,100) > 50) then
+
+			local entity = ents.Create("deadremains_item")
+			entity:SetPos(position)
+			entity:SetModel(item.model)
+			entity:Spawn()
+
+			entity.item = item.unique
+			entity:SetDRName(item.label)
+			entity.meta = {}
+
+		end
+	end
+end
+
 ----------------------------------------------------------------------
 -- Purpose:
 --	Find out whether the item provides inventory expansion.	

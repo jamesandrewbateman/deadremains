@@ -23,7 +23,7 @@ deadremains.settings.new("needs", needs)
 ----------------------------------------------------------------------
 
 local characteristics = {
-	sight = {name = "Sight", default = 0, icon = "materials/deadremains/characteristics/sight.png"},
+	speed = {name = "Speed", default = 0, icon = "materials/deadremains/characteristics/sight.png"},
 	thirst = {name = "Thirst", default = 0, icon = "materials/deadremains/characteristics/thirst.png"},
 	health = {name = "Health", default = 0, icon = "materials/deadremains/characteristics/health.png"},
 	hunger = {name = "Hunger", default = 0, icon = "materials/deadremains/characteristics/hunger.png"},
@@ -131,7 +131,7 @@ local inventories = {
 	{unique = "chest", inventory_index = inventory_index_chest, size = Vector(2, 2, 0), max_weight = 2000},
 	{unique = "primary", inventory_index = inventory_index_primary, size = Vector(5, 2, 0), max_weight = 2000},
 	{unique = "secondary", inventory_index = inventory_index_secondary, size = Vector(3, 2, 0), max_weight = 2000},
-	{unique = "hunting_backpack", inventory_index = -1, size = Vector(11, 3, 0), max_weight = 2000}
+	{unique = "hunting_backpack", inventory_index = -1, size = Vector(11, 6, 0), max_weight = 2000}
 }
 
 deadremains.settings.new("default_inventories", inventories)

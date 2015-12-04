@@ -203,7 +203,7 @@ function PANEL:Init()
 
 	-- calculate the size in pixels needed to contain this number of slots.
 	local slotWidth, slotHeight = self:GetParent().SlotWidth, self:GetParent().SlotHeight
-	self:SetSize(slotWidth * width, slotHeight * height + 32)
+	self:SetSize(slotWidth * width, (slotHeight * height) + 128)
 
 	-- resize our frame to fit these slots
 	local currentWidth, currentHeight = self:GetSize()
@@ -219,26 +219,6 @@ function PANEL:Init()
 
 	-- craftable items currently
 	self.CraftableItems = {}
-
-	-- craft button.
-	local button = vgui.Create("DButton", self)
-	local pWidth, pHeight = self:GetSize()
-	button:SetText("CRAFT")
-	button:SetPos(0, pHeight-32)
-	button:SetSize(pWidth, 32)
-	button.Paint = function (self, w, h)
-		draw.RoundedBox(0, 0,0, w,h, Color(30, 30, 30, 255))
-	end
-	button.DoClick = function (self)
-		sound.Play("ambient/energy/spark6.wav", LocalPlayer():GetPos(), 75, 100, 0.25)
-
-		local effPos = self:GetParent().LinkedEntity:GetPos()
-		local effData = EffectData()
-		effData:SetStart(effPos)
-		effData:SetOrigin(effPos)
-		effData:SetScale(25)
-		util.Effect("ManhackSparks", effData)
-	end
 
 	self:Rebuild()
 end
@@ -295,17 +275,16 @@ function PANEL:RebuildCraftableItemPanel()
 		local i_data = deadremains.item.get(unique)
 
 		local i = vgui.Create("DModelPanel", self:GetParent())
-		i:SetSize(slotWidth/2, slotHeight/2)
+		i:SetSize(slotWidth, slotHeight)
 
-		local offsetX = (slotWidth/4) + ((slotWidth/2) * (k-1))
-		i:SetPos(offsetX, height + 4)
-
+		local offsetX = (slotWidth/4) + ((slotWidth) * (k-1))
+		i:SetPos(offsetX, self:GetParent():GetTall()-64)
 		i:SetModel(i_data.model)
 		i:SetCamPos(i_data.cam_pos)
 		i:SetLookAt(i_data.look_at)
 		i:SetFOV(i_data.fov)
 
-		i.Unique = unique
+		i.Unique = i_data.unique
 		i.DoClick = function(self)
 			net.Start(self:GetParent().LinkedEntity:GetNetworkName() .. ":CraftItem")
 				net.WriteString(i.Unique)
@@ -320,8 +299,9 @@ function PANEL:Paint(w, h)
 	local gridSize = self:GetParent().GridSize
 	-- size in slots.
 	local width, height = gridSize.width, gridSize.height
-
 	local slotWidth, slotHeight = self:GetParent().SlotWidth, self:GetParent().SlotHeight
+
+	draw.RoundedBox(0, 0, 0, w, h + slotHeight*((#self.CraftableItemModelPanels - 1) / width), Color(55, 55, 55, 255))
 
 	for y = 0, width do
 		for x = 0, height do

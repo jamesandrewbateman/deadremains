@@ -143,6 +143,7 @@ function deadremains.character.resetFlags(ply)
 end
 
 
+util.AddNetworkString("deadremains_refreshinv")
 hook.Add("PlayerSpawn", "deadremains_player_spawn_char", function(ply)
 	deadremains.character.resetFlags(ply)
 
@@ -423,7 +424,7 @@ end
 deadremains.character.processFlagFuncs["BLEEDING"] = function(ply)
 	ply.dr_character.bleed_time = ply.dr_character.bleed_time + 1
 
-	local addVal = 1/60	-- 1 hp every 60 seconds.
+	local addVal = 1	-- 1 hp every 60 seconds.
 	local newHp = ply.dr_character.float_hp - addVal
 
 	-- track float value.
@@ -433,7 +434,7 @@ deadremains.character.processFlagFuncs["BLEEDING"] = function(ply)
 
 	-- jamez + bambo
 	-- spawn a decal every multiple of 4 of HP.
-	if ply:Health() % 4 == 0 then
+	if ply:Health() % 2 == 0 then
 		local traceb = {}
 		traceb.start = ply:GetPos() + ply:GetUp()*20 - ply:GetForward()*20
 		traceb.endpos = traceb.start + (Vector(0,0,-1) * 9999)

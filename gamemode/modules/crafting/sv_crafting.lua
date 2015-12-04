@@ -10,7 +10,36 @@ function deadremains.crafting.getCraftables(pCraftingTableEnt)
 		craftable_items[craftable_name] = 100
 
 		for item_name, required_item_count in pairs(required_items) do
-			if tostring(item_name) ~= "entry_count" then
+			if type(required_item_count) == "table" then
+				
+				local recipe_item_found = false
+
+				-- ANY of the items in this table.
+				for recipe_item_name, recipe_item_quantity in pairs(required_item_count) do
+
+					if not recipe_item_found then
+						
+						local item_count = pCraftingTableEnt:GetItemCount( recipe_item_name )
+						local craft_count = math.floor(item_count / recipe_item_quantity) or 0
+
+						if item_count >= recipe_item_quantity then
+
+							if craft_count < craftable_items[craftable_name] then
+								craftable_items[craftable_name] = craft_count
+
+								recipe_item_found = true
+							end
+
+						else
+
+							craftable_items[craftable_name] = 0
+
+						end
+
+					end
+				end
+
+			elseif tostring(item_name) ~= "entry_count" then
 
 				local item_count = pCraftingTableEnt:GetItemCount(item_name)
 				local craft_count = math.floor(item_count / required_item_count) or 0
@@ -24,6 +53,7 @@ function deadremains.crafting.getCraftables(pCraftingTableEnt)
 				else
 
 					craftable_items[craftable_name] = 0
+
 				end
 
 			end
@@ -56,7 +86,7 @@ function deadremains.crafting.craft(pCraftingTableEnt, pItemName)
 
 	-- by this point the crafting table has been verified to have the items.
 	for k,v in pairs(required_items) do
-		if tostring(k) ~= "entry_count" then
+		if tostring(k) ~= "entry_count" and not deadremains.crafting.IsPersisted(pItemName) then
 		
 			for i=1, v do
 				pCraftingTableEnt:RemoveItem(k)

@@ -229,10 +229,13 @@ function player_meta:AddItemToInventory(inv_name, item_unique, contains)
 	local s, x, y = self:CanFitItem(inv_name, item_unique, contains)
 	local selectedItemCore = deadremains.item.get(item_unique)
 
-	if s then
-		return self:InsertItem(inv_name, item_unique, selectedItemCore.inventory_type, Vector(x, y, 0), contains)
-	end
+
+	return self:InsertItem(inv_name, item_unique, selectedItemCore.inventory_type, Vector(x, y, 0), contains)
+
 end
+concommand.Add("add_shovel", function(ply)
+	ply:AddItemToInventory("feet", "tfm_sharp_screwdriver")
+end)
 
 function player_meta:SwitchItemToInventory(inv_name, target_inv_name, item_unique, item_position, contains)
 	local s, x, y = self:CanFitItem(target_inv_name, item_unique, contains)
@@ -251,8 +254,11 @@ end
 
 function player_meta:CanFitItem(inv_name, item_unique, contains)
 	local inv = self:GetInventory(inv_name)
-
 	local selectedItemCore = deadremains.item.get(item_unique)
+
+	if selectedItemCore == nil then
+		return false, -1, -1
+	end
 
 	local it_slotwidth = inv.Size.X - selectedItemCore.slots_horizontal
 	local it_slotheight = inv.Size.Y - selectedItemCore.slots_vertical
@@ -285,7 +291,7 @@ function player_meta:CanFitItem(inv_name, item_unique, contains)
 		end
 	end
 
-	return false
+	return false, 0, 0
 end
 
 -- for removing from the inventory
@@ -449,7 +455,11 @@ net.Receive("deadremains.itemaction", function(bits, ply)
 			ply:RemoveItem(inventory_name, itemInvData.SlotPosition)
 
 			--print("using", item_unique, itemInvData.SlotPosition)
-			itemData:use(ply)
+			if (itemData.use ~= nil) then
+				itemData:use(ply)
+			else
+				ply:Give(item_unique)
+			end
 		end
 	end
 

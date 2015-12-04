@@ -1,14 +1,14 @@
-item.unique = "hunting_backpack"
-item.label = "Hunting Backpack"
+item.unique = "fire"
+item.label = "Fire No.1"
 
 -- The model that this item should have.
-item.model = "models/fallout3/campish_pack.mdl"
+item.model = "models/props_foliage/campfire02.mdl"
 
 -- How many horizontal slots this item should take.
-item.slots_horizontal = 2
+item.slots_horizontal = 1
 
 -- How many vertical slots this item should take.
-item.slots_vertical = 4
+item.slots_vertical = 1
 
 -- Used the modify the position of the camera on DModelPanel.
 item.cam_pos = Vector(50, 30, -2)
@@ -25,13 +25,10 @@ item.rotate = 45
 -- How much this item weighs.
 item.weight = 4
 
-item.meta["type"] = item_type_gear
+item.meta["type"] = item_type_consumable
 
--- What equipment slot this item can be placed in.
-item.equip_slot = bit.lshift(1, inventory_equip_back)
-
--- What type of inventory this item creates.
-item.inventory_type = "hunting_backpack"
+-- What functions exists on the context menu.
+item.context_menu = {item_function_drop}
 
 ----------------------------------------------------------------------
 -- Purpose:

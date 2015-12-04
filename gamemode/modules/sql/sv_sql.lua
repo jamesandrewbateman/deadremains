@@ -167,7 +167,7 @@ function deadremains.sql.setupTables()
 	  `characteristic_thirst` decimal(65,0) DEFAULT NULL,
 	  `characteristic_hunger` decimal(65,0) DEFAULT NULL,
 	  `characteristic_health` decimal(65,0) DEFAULT NULL,
-	  `characteristic_sight` decimal(65,0) DEFAULT NULL,
+	  `characteristic_speed` decimal(65,0) DEFAULT NULL,
 	  `gender` int(2) DEFAULT NULL,
 	  PRIMARY KEY (`steam_id`)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8]])

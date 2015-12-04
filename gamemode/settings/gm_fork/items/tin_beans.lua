@@ -2,7 +2,7 @@ item.unique = "tin_beans"
 item.label = "Tin of Beans"
 
 -- The model that this item should have.
-item.model = "models/props_c17/canister01a.mdl"
+item.model = "models/props_junk/garbage_metalcan001a.mdl"
 
 -- How many horizontal slots this item should take.
 item.slots_horizontal = 1

@@ -25,7 +25,22 @@ end
 ----------------------------------------------------------------------
 
 function deadremains.item.get(unique)
-	return stored[unique]
+	local i = stored[unique]
+	if i == nil then
+		local w = DR_GetWeaponInfo(unique)
+
+		w.meta = {}
+		w.meta["type"] = item_type_weapon
+
+		if CLIENT then
+
+			w.context_menu = {item_function_use, item_function_drop}
+		end
+
+		return w
+	else
+		return i
+	end
 end
 
 function deadremains.item.getAll()

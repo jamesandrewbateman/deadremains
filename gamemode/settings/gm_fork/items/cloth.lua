@@ -2,7 +2,7 @@ item.unique = "cloth"
 item.label = "Scrap of Cloth"
 
 -- The model that this item should have.
-item.model = "models/props_c17/FurnitureMattress001a.mdl"
+item.model = "models/school/paper.mdl"
 
 -- How many horizontal slots this item should take.
 item.slots_horizontal = 1

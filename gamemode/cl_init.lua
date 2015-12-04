@@ -57,10 +57,10 @@ local defaultHUD = {
 	["CHudHealth"] 			= true,
 	["CHudBattery"] 		= true,
 	--["CHudChat"] 			= true,
-	["CHudAmmo"] 			= true,
-	["CHudCrosshair"]		= true,
-	["CHudSecondaryAmmo"] 	= true,
-	["CHudWeaponSelection"] = true
+	["CHudAmmo"] 			= false,
+	["CHudCrosshair"]		= false,
+	["CHudSecondaryAmmo"] 	= false,
+	["CHudWeaponSelection"] = false
 }
 
 function GM:HUDShouldDraw(id)

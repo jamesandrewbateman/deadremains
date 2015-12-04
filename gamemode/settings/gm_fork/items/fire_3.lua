@@ -2,7 +2,7 @@ item.unique = "fire_3"
 item.label = "Fire No.3"
 
 -- The model that this item should have.
-item.model = "models/props/de_inferno/fireplace.mdl"
+item.model = "models/props_foliage/campfire02.mdl"
 
 -- How many horizontal slots this item should take.
 item.slots_horizontal = 1
