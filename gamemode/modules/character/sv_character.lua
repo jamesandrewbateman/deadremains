@@ -83,8 +83,6 @@ hook.Add("PlayerInitialSpawn", "deadremains_init_spawn_char", function(ply)
 	ply.zombie_kill_count = 0
 end)
 
-hook.Add("PlayerSpawn", "deadremains_player_spawn_char")
-
 function player_meta:hasBuff(name)
 	if (self.dr_character.created) then
 		return self.dr_character.buffs[name]

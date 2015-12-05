@@ -73,6 +73,9 @@ hook.Add("PlayerSpawn", "deadremains_main_ply_spawn", function(ply)
 			ply.alive_timer = ply.alive_timer + 1
 		end
 	end)
+
+	net.Start("deadremains_refreshinv")
+	net.Send(ply)
 end)
 
 hook.Add("PlayerDisconnect", "deadremains_main_ply_dc", function(ply)

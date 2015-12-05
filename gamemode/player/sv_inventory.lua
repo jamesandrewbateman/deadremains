@@ -455,11 +455,11 @@ net.Receive("deadremains.itemaction", function(bits, ply)
 			ply:RemoveItem(inventory_name, itemInvData.SlotPosition)
 
 			--print("using", item_unique, itemInvData.SlotPosition)
-			if (itemData.use ~= nil) then
-				itemData:use(ply)
-			else
-				ply:Give(item_unique)
-			end
+			itemData:use(ply)
+		elseif (action_name == "Equip") then
+			ply:RemoveItem(inventory_name, itemInvData.SlotPosition)
+			--PrintTable(itemData)
+			ply:Give(itemData.unique)
 		end
 	end
 

@@ -36,6 +36,9 @@ function deadremains.item.spawn(player, cmd, args)
 
 		entity.item = item.unique
 		entity:SetDRName(item.label)
+		entity.Use = function(self)
+			deadremains.item.worldUse(player, self.Entity)
+		end
 	end
 end
 concommand.Add("dr_item_spawn", deadremains.item.spawn)
