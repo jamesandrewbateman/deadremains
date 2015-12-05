@@ -103,7 +103,7 @@ function deadremains.sql.intialize(name, hostname, username, password, database,
 end
 
 function deadremains.sql.connect()
-	deadremains.sql.intialize(database_main, "knby.site.nfoservers.com", "knby", "XZ7ZLmVmEL", "knby_deadremains", 3306)
+	deadremains.sql.intialize(database_main, "localhost", "root", "_debug", "deadremains", 3306)
 	deadremains.map_config.initialize(database_main, "gm_fork")
 end
 
@@ -167,7 +167,7 @@ function deadremains.sql.setupTables()
 	  `characteristic_thirst` decimal(65,0) DEFAULT NULL,
 	  `characteristic_hunger` decimal(65,0) DEFAULT NULL,
 	  `characteristic_health` decimal(65,0) DEFAULT NULL,
-	  `characteristic_sight` decimal(65,0) DEFAULT NULL,
+	  `characteristic_speed` decimal(65,0) DEFAULT NULL,
 	  `gender` int(2) DEFAULT NULL,
 	  PRIMARY KEY (`steam_id`)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8]])

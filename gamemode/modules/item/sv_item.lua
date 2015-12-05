@@ -36,8 +36,8 @@ function deadremains.item.spawn(player, cmd, args)
 
 		entity.item = item.unique
 		entity:SetDRName(item.label)
-		entity.Use = function(self)
-			deadremains.item.worldUse(player, self.Entity)
+		entity.Use = function(self, activator, caller)
+			deadremains.item.worldUse(activator, self.Entity)
 		end
 	end
 end
@@ -79,22 +79,81 @@ function deadremains.item.spawn_contains(player, unique, contains)
 	end
 end
 
-function deadremains.item.zombie_drop(name, position)
+function deadremains.item.zombie_drop(zname, zposition)
 	local items = deadremains.item.getAll()
 
-	for i=1,math.random(0,5) do
-		if (math.random(0,100) > 50) then
+	for i=1,math.random(1,15) do
+		if (math.random(0,100) > 20) then
 
-			local entity = ents.Create("deadremains_item")
-			entity:SetPos(position)
-			entity:SetModel(item.model)
-			entity:Spawn()
+			local item = 0
+			local target_i = math.random(1, table.Count(items))
+			--print(target_i)
+			local c = 0
+			local reached = false
+			for k,v in pairs(items) do
+				if not reached then
+					if c == target_i then
+						item = v
+						reached = true
+					end
 
-			entity.item = item.unique
-			entity:SetDRName(item.label)
-			entity.meta = {}
+					c = c + 1
+				end
+			end
+			--print(item)
+			if item ~= 0 then
+				--print(item.unique)
+				local entity = ents.Create("deadremains_item")
+				entity:SetPos(zposition + Vector(0, target_i*5, 0))
+				entity:SetModel(item.model)
+				entity:Spawn()
+
+				entity.item = item.unique
+				entity:SetDRName(item.label)
+				entity.meta = {}
+			else
+				print("could not find item with index", target_i)
+			end
 
 		end
+	end
+end
+
+function deadremains.item.worldUse(player, entity)
+	local success = false
+	local itemName = entity.item
+
+	if itemName then
+		if deadremains.item.isInventory(itemName) then
+			local dr_item_info = deadremains.settings.get("default_inventories")
+			
+			local slot_size = 0
+
+			for k,v in pairs(dr_item_info) do
+				if v.unique == itemName then
+					slot_size = v.size
+				end
+			end
+			
+			--print("item name", itemName)
+			--PrintTable(entity.meta["contains"])
+			if entity.meta then
+				if (entity.meta["contains"] ~= nil) then
+					success = player:AddInventoryContains(itemName, slot_size.X, slot_size.Y, entity.meta["contains"])
+				end
+			else
+				success = player:AddInventory(itemName, slot_size.X, slot_size.Y)
+			end
+		else
+			success = player:AddItemToInventory("feet", itemName)
+			--print(itemName, success)
+		end
+	end
+
+	if (!success) then
+		player:ChatPrint("Could not pick up item")
+	else
+		entity:Remove()
 	end
 end
 

@@ -142,8 +142,31 @@ end
 
 
 util.AddNetworkString("deadremains_refreshinv")
+
 hook.Add("PlayerSpawn", "deadremains_player_spawn_char", function(ply)
+	print("Resetting flags")
+	ply.dr_character.float_hp = 100
 	deadremains.character.resetFlags(ply)
+
+	if (timer.Exists("player_check_details" .. ply:UniqueID())) then
+		timer.Remove("player_check_details" .. ply:UniqueID())
+	end
+
+	timer.Create("player_check_details" .. ply:UniqueID(), 1.5, 0, function()
+		if (ply:Health() <= 0) or (ply.dr_character.float_hp == 0) then
+			ply:Kill()
+		end
+
+		if (ply:getNeed("Thirst") < 0) then ply:setNeed("Thirst", 0) end
+		if (ply:getNeed("Hunger") < 0) then ply:setNeed("Hunger", 0) end
+	end)
+
+	timer.Simple(1, function()
+		ply:AddInventory("hunting_backpack", 9, 9)
+		ply:AddItemToInventory("hunting_backpack", "bandage")
+		ply:AddItemToInventory("hunting_backpack", "fizzy_drink")
+		ply:AddItemToInventory("hunting_backpack", "tfm_blunt_shovel")
+	end)
 
 	net.Start("deadremains_refreshinv")
 	net.Send(ply)
@@ -451,13 +474,15 @@ deadremains.character.finishFlagFuncs["BLEEDING"] = function(ply)
 	ply:SetJumpPower( 200 )
 	ply.dr_character.bleed_time = 0
 end
-hook.Add("EntityTakeDamage", "BloodDamageCheck", function(ent, dmgInfo)
-	local amount = dmginfo:GetDamage() --jamez
-	local BleedRandomize = 4--math.random(0,17)
-
+hook.Add("EntityTakeDamage", "BloodDamageCheck", function(ent, dmginfo)
 	if ent:IsPlayer() then
+
+		local amount = dmginfo:GetDamage() --jamez
+		local BleedRandomize = math.random(0,17)
+
 		--if dmginfo:IsFallDamage() then
-		if amount >= 25 or BleedRandomize == 4 then
+		if (amount >= 25 or BleedRandomize <= 4) and ent:Health() < 70 then
+
 			deadremains.character.setBuff(ent, "BLEEDING", 1)
 
 			ent.DropBlood = CurTime() + 2.5
@@ -466,6 +491,11 @@ hook.Add("EntityTakeDamage", "BloodDamageCheck", function(ent, dmgInfo)
 
 			ent:SetNWInt("BRedFade", 0.7)
 			ent:SetNWInt("BColorFade", 0.3)
+
+		end
+
+		if ent:Health() <= 0 then
+			ent:Kill()
 		end
 	end
 end)

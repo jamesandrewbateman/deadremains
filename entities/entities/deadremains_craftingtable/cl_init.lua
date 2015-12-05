@@ -278,7 +278,7 @@ function PANEL:RebuildCraftableItemPanel()
 		i:SetSize(slotWidth, slotHeight)
 
 		local offsetX = (slotWidth/4) + ((slotWidth) * (k-1))
-		i:SetPos(offsetX, self:GetParent():GetTall()-64)
+		i:SetPos(offsetX, self:GetParent():GetTall()-slotHeight)
 		i:SetModel(i_data.model)
 		i:SetCamPos(i_data.cam_pos)
 		i:SetLookAt(i_data.look_at)

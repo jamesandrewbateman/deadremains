@@ -1,5 +1,5 @@
 
-deadremains.ui.key = KEY_F4
+deadremains.ui.key = KEY_Q
 
 deadremains.ui.enableBlur = true
 
@@ -12,7 +12,6 @@ local UI_MAIN
 local keyDown = false
 local menuOpen = false
 uiOpen = false
-
 hook.Add("Think", "deadremains.ui.detectKey", function()
 
 	if !keyDown then
@@ -27,13 +26,23 @@ hook.Add("Think", "deadremains.ui.detectKey", function()
 				LocalPlayer():ConCommand("Networkinv")
 
 				uiOpen = true
-			else
+			end
+
+		end
+
+	end
+
+	if keyDown then
+
+		if !input.IsKeyDown(deadremains.ui.key) then
+
+			keyDown = false
+
+			if uiOpen then
 				deadremains.ui.hideMenu()
 				
 				uiOpen = false
 			end
-
-			timer.Simple(0.5, function() keyDown = false end)
 
 		end
 

@@ -20,7 +20,7 @@
 ]]
 
 concommand.Add("give_backpack", function(ply)
-	ply:AddInventory("hunting_backpack", 9, 3)
+	ply:AddInventory("hunting_backpack", 9, 9)
 end)
 
 concommand.Add("dr_drop_inv", function(ply, cmd, args)
@@ -234,7 +234,7 @@ function player_meta:AddItemToInventory(inv_name, item_unique, contains)
 
 end
 concommand.Add("add_shovel", function(ply)
-	ply:AddItemToInventory("feet", "tfm_sharp_screwdriver")
+	ply:AddItemToInventory("feet", "tfm_sword_snowflake_katana")
 end)
 
 function player_meta:SwitchItemToInventory(inv_name, target_inv_name, item_unique, item_position, contains)
