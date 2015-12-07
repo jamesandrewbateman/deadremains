@@ -145,21 +145,25 @@ util.AddNetworkString("deadremains_refreshinv")
 
 hook.Add("PlayerSpawn", "deadremains_player_spawn_char", function(ply)
 	print("Resetting flags")
-	ply.dr_character.float_hp = 100
+
+	ply.dr_character.elapsed_minutes = 0
 	deadremains.character.resetFlags(ply)
 
 	if (timer.Exists("player_check_details" .. ply:UniqueID())) then
+
 		timer.Remove("player_check_details" .. ply:UniqueID())
+
 	end
 
 	timer.Create("player_check_details" .. ply:UniqueID(), 1.5, 0, function()
-		if (ply:Health() <= 0) or (ply.dr_character.float_hp == 0) then
-			ply:Kill()
-		end
 
 		if (ply:getNeed("Thirst") < 0) then ply:setNeed("Thirst", 0) end
 		if (ply:getNeed("Hunger") < 0) then ply:setNeed("Hunger", 0) end
+
+		if (ply:getNeed("Thirst") > 100) then ply:setNeed("Thirst", 100) end
+		if (ply:getNeed("Hunger") > 100) then ply:setNeed("Hunger", 100) end
 	end)
+
 
 	timer.Simple(1, function()
 		ply:AddInventory("hunting_backpack", 9, 9)
@@ -167,6 +171,7 @@ hook.Add("PlayerSpawn", "deadremains_player_spawn_char", function(ply)
 		ply:AddItemToInventory("hunting_backpack", "fizzy_drink")
 		ply:AddItemToInventory("hunting_backpack", "tfm_blunt_shovel")
 	end)
+
 
 	net.Start("deadremains_refreshinv")
 	net.Send(ply)
@@ -190,6 +195,8 @@ end)
 
 function deadremains.character.setBuff(ply, name, val, disableNetwork)
 	if (ply.dr_character.created) then
+		local previous_value = ply.dr_character.buffs[name]
+
 		ply.dr_character.buffs[name] = val
 
 		if tonumber(val) == 0 then
@@ -203,13 +210,17 @@ function deadremains.character.setBuff(ply, name, val, disableNetwork)
 		end			
 
 		if not (disableNetwork == 1) then
-			deadremains.character.networkFlags(ply)
+			if val ~= previous_value then
+				deadremains.character.networkFlags(ply)
+			end
 		end
 	end
 end
 
 function deadremains.character.setDebuff(ply, name, val, disableNetwork)
 	if (ply.dr_character.created) then
+		local previous_value = ply.dr_character.buffs[name]
+
 		ply.dr_character.debuffs[name] = val
 
 		if tonumber(val) == 0 then
@@ -223,12 +234,16 @@ function deadremains.character.setDebuff(ply, name, val, disableNetwork)
 		end	
 
 		if not (disableNetwork == 1) then
-			deadremains.character.networkFlags(ply)
+			if val ~= previous_value then
+				deadremains.character.networkFlags(ply)
+			end
 		end
 	end
 end
 
 function deadremains.character.networkFlags(ply)
+	print("Sending buffs and debuffs")
+
 	net.Start("deadremains.getbuffs")
 
 		net.WriteUInt(table.Count(ply.dr_character.buffs), 8)
@@ -260,6 +275,8 @@ function deadremains.character.startFlagsChecker()
 			if (ply.dr_character) then
 				if (IsValid(ply) and (ply.dr_character.created == true)) then
 
+					ply.dr_character.elapsed_minutes = ply.dr_character.elapsed_minutes * (1/60)
+
 					-- process each flag one by one
 					for unique, flag in pairs(ply.dr_character.buffs) do
 
@@ -282,7 +299,6 @@ function deadremains.character.startFlagsChecker()
 					end
 
 					for unique, flag in pairs(ply.dr_character.debuffs) do
-
 						-- does this buff actually have any code to run/check?
 						if (deadremains.character.flagCheckFuncs[unique] ~= nil) then
 							local newFlag = tonumber(deadremains.character.flagCheckFuncs[unique](ply))
@@ -311,7 +327,7 @@ deadremains.character.startFlagsChecker()
 -- Hydrated --
 -- ran every second if enabled.
 deadremains.character.startFlagFuncs["HYDRATED"] = function(ply)
-	ply:ChatPrint("You are hydrated!")
+
 end
 deadremains.character.flagCheckFuncs["HYDRATED"] = function(ply)
 	if (ply:getThirst() > 80) then
@@ -321,27 +337,15 @@ deadremains.character.flagCheckFuncs["HYDRATED"] = function(ply)
 	end
 end
 deadremains.character.processFlagFuncs["HYDRATED"] = function(ply)
-	local addVal = 1/60	-- 1 hp every 60 seconds.
-	local newHp = ply.dr_character.float_hp + addVal
-
-	if (newHp > 100) then
-		newHp = 100
-	end
-
-	-- track float value.
-	ply.dr_character.float_hp = newHp
-
-	-- floor the tracked float value
-	ply:SetHealth(math.floor(ply.dr_character.float_hp))
+	ply:SetHealth(ply:Health() + ply.dr_character.elapsed_minutes)
 end
 deadremains.character.finishFlagFuncs["HYDRATED"] = function(ply)
-	ply:ChatPrint("You are not hydrated...")
+
 end
 
 -- Dehydrated --
-
 deadremains.character.startFlagFuncs["DEHYDRATED"] = function (ply)
-	ply:ChatPrint("You are dehydrated!")
+
 	ply:SetWalkSpeed(180)
 	ply:SetRunSpeed(200)
 end
@@ -353,7 +357,7 @@ deadremains.character.flagCheckFuncs["DEHYDRATED"] = function(ply)
 	end
 end
 deadremains.character.finishFlagFuncs["DEHYDRATED"] = function(ply)
-	ply:ChatPrint("You are not dehydrated anymore...")
+
 	ply:SetWalkSpeed(180)	-- change these
 	ply:SetRunSpeed(200)	-- change these
 end 
@@ -362,31 +366,20 @@ end
 
 -- Full --
 deadremains.character.startFlagFuncs["FULL"] = function(ply)
-	ply:ChatPrint("You are full!")
+
 end
 deadremains.character.flagCheckFuncs["FULL"] = function(ply)
 	if (ply:getHunger() > 80) then return 1 else return 0 end
 end
 deadremains.character.processFlagFuncs["FULL"] = function(ply)
-	local addVal = 1/60	-- 1 hp every 60 seconds.
-	local newHp = ply.dr_character.float_hp + addVal
-
-	if (newHp > 100) then
-		newHp = 100
-	end
-
-	-- track float value.
-	ply.dr_character.float_hp = newHp
-
-	ply:SetHealth(math.floor(ply.dr_character.float_hp))
+	ply:SetHealth(ply:Health() + ply.dr_character.elapsed_minutes)
 end
 deadremains.character.finishFlagFuncs["FULL"] = function(ply)
-	ply:ChatPrint("You are not full...")
+
 end
 
 -- STARVATION
 deadremains.character.startFlagFuncs["STARVATION"] = function(ply)
-	ply:ChatPrint("You are starving!")
 	ply:SetWalkSpeed(180)
 	ply:SetRunSpeed(200)
 end
@@ -394,7 +387,6 @@ deadremains.character.flagCheckFuncs["STARVATION"] = function(ply)
 	if (ply:getHunger() < 25) then return 1 else return 0 end
 end
 deadremains.character.finishFlagFuncs["STARVATION"] = function(ply)
-	ply:ChatPrint("You are not starving...")
 	ply:SetWalkSpeed(180)
 	ply:SetRunSpeed(200)
 end
@@ -404,23 +396,20 @@ end
 
 -- Healthy --
 deadremains.character.startFlagFuncs["HEALTHY"] = function(ply)
-	ply:ChatPrint("You are healthy!")
 end
 deadremains.character.flagCheckFuncs["HEALTHY"] = function(ply)
 	if (ply:Health() > 80) then return 1 else return 0 end
 end
 deadremains.character.processFlagFuncs["HEALTHY"] = function(ply)
-	if (ply:hasDebuff("COLD")) then
+	if ply:hasDebuff("COLD") == 1 then
 		deadremains.character.setDebuff(ply, "COLD", 0)
 	end
 end
 deadremains.character.finishFlagFuncs["HEALTHY"] = function(ply)
-	ply:ChatPrint("You are not healthy...")
 end
 
 -- Sickness --
 deadremains.character.startFlagFuncs["SICKNESS"] = function(ply)
-	ply:ChatPrint("You are sick brah!")
 	ply:SetWalkSpeed(180)
 	ply:SetRunSpeed(200)
 end
@@ -428,16 +417,13 @@ deadremains.character.flagCheckFuncs["SICKNESS"] = function(ply)
 	if (ply:Health() < 30 and ply.dr_character.bleed_time > 120) then return 1 else return 0 end
 end
 deadremains.character.finishFlagFuncs["SICKNESS"] = function(ply)
-	ply:ChatPrint("You are not sick... brah.")
 	ply:SetWalkSpeed(180)
 	ply:SetRunSpeed(200)
 end
 
 
 -- Bleeding --
-
 deadremains.character.startFlagFuncs["BLEEDING"] = function (ply)
-	ply:ChatPrint("You are bleeding out!")
 	ply:SetWalkSpeed(180)
 	ply:SetRunSpeed(200)
 	ply.dr_character.bleed_time = 0
@@ -445,13 +431,7 @@ end
 deadremains.character.processFlagFuncs["BLEEDING"] = function(ply)
 	ply.dr_character.bleed_time = ply.dr_character.bleed_time + 1
 
-	local addVal = 1	-- 1 hp every 60 seconds.
-	local newHp = ply.dr_character.float_hp - addVal
-
-	-- track float value.
-	ply.dr_character.float_hp = newHp
-
-	ply:SetHealth(math.floor(ply.dr_character.float_hp))
+	ply:SetHealth(ply:Health() - 1)
 
 	-- jamez + bambo
 	-- spawn a decal every multiple of 4 of HP.
@@ -468,7 +448,6 @@ deadremains.character.processFlagFuncs["BLEEDING"] = function(ply)
 	end
 end
 deadremains.character.finishFlagFuncs["BLEEDING"] = function(ply)
-	ply:ChatPrint("You have stopped bleeding...")
 	ply:SetWalkSpeed(230)
 	ply:SetRunSpeed(330)
 	ply:SetJumpPower( 200 )
@@ -483,7 +462,7 @@ hook.Add("EntityTakeDamage", "BloodDamageCheck", function(ent, dmginfo)
 		--if dmginfo:IsFallDamage() then
 		if (amount >= 25 or BleedRandomize <= 4) and ent:Health() < 70 then
 
-			deadremains.character.setBuff(ent, "BLEEDING", 1)
+			deadremains.character.setDebuff(ent, "BLEEDING", 1)
 
 			ent.DropBlood = CurTime() + 2.5
 			ent.BloodyTrail = CurTime() + 1
@@ -494,8 +473,5 @@ hook.Add("EntityTakeDamage", "BloodDamageCheck", function(ent, dmginfo)
 
 		end
 
-		if ent:Health() <= 0 then
-			ent:Kill()
-		end
 	end
 end)
