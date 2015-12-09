@@ -36,13 +36,15 @@ end
 
 
 --! @brief clientside can have multiple callbacks.
-function deadremains.netrequest.create(name, callback)
-	-- do we already have a request set for this event?
-	-- if so add it to that events callback table.
-	for k,v in pairs(deadremains.netrequest.requests) do
-		if (v.Name == name) then
-			table.insert(v.Callbacks, callback)
-			return
+function deadremains.netrequest.create(name, callback, unique)
+	if not unique then
+		-- do we already have a request set for this event?
+		-- if so add it to that events callback table.
+		for k,v in pairs(deadremains.netrequest.requests) do
+			if (v.Name == name) then
+				table.insert(v.Callbacks, callback)
+				return
+			end
 		end
 	end
 

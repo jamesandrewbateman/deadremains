@@ -15,6 +15,7 @@ LoadModule("team")
 LoadModule("map_config")
 --LoadModule("gear")
 LoadModule("crafting")
+LoadModule("container")
 LoadModule("deadmin")
 LoadModule("notifyer")
 
