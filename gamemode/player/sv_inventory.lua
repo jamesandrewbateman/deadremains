@@ -299,9 +299,17 @@ function player_meta:RemoveItem(inv_name, slot_position)
 	local items = self:GetInventory(inv_name).Items
 
 	for k,v in pairs(items) do
+
 		if (v.SlotPosition == slot_position) then
+
+			local item_weight = deadremains.item.get(v.Unique).weight
+
 			table.remove(items, k)
+
+			self:GetInventory(inv_name).CurrentWeight = self:GetInventory(inv_name).CurrentWeight - item_weight
+
 		end
+
 	end
 end
 
@@ -466,4 +474,7 @@ net.Receive("deadremains.itemaction", function(bits, ply)
 	-- if itemInvData == 0, means we tried to select an item which isn't
 	-- here serverside.
 	ply:NetworkInventory()
+
+	net.Start("deadremains.refreshinv")
+	net.Send(ply)
 end)
