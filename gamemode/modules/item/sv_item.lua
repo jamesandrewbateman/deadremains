@@ -82,6 +82,8 @@ end
 function deadremains.item.zombie_drop(zname, zposition)
 	local items = deadremains.item.getAll()
 
+	local container_index = deadremains.containers.create("zombie_package", 4, 4, zposition)
+
 	for i=1,math.random(1,15) do
 		if (math.random(0,100) > 20) then
 
@@ -100,17 +102,10 @@ function deadremains.item.zombie_drop(zname, zposition)
 					c = c + 1
 				end
 			end
+
 			--print(item)
 			if item ~= 0 then
-				--print(item.unique)
-				local entity = ents.Create("deadremains_item")
-				entity:SetPos(zposition + Vector(0, target_i*5, 0))
-				entity:SetModel(item.model)
-				entity:Spawn()
-
-				entity.item = item.unique
-				entity:SetDRName(item.label)
-				entity.meta = {}
+				deadremains.containers.addItem(container_index, item.unique)
 			else
 				print("could not find item with index", target_i)
 			end

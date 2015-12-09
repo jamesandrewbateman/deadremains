@@ -2,7 +2,7 @@ local containers = containers or {}
 
 function deadremains.containers.create(pName, pSlotX, pSlotY, pWorldPosition)
 
-	deadremains.log.write("general", "Creating container " .. pName .. " with size " .. pSlotX .. ", " .. pSlotY)
+	--deadremains.log.write("general", "Creating container " .. pName .. " with size " .. pSlotX .. ", " .. pSlotY)
 
 	local netId = util.AddNetworkString("deadremains.networkcontainers")	-- does nothing if net str exists.
 
@@ -91,7 +91,7 @@ end
 
 function deadremains.containers.networkItemChanges(pContainerIndex)
 
-	deadremains.log.write("general", "Networking item changes for container " .. pContainerIndex)
+	--deadremains.log.write("general", "Networking item changes for container " .. pContainerIndex)
 
 
 	local containerTbl = containers[pContainerIndex]
@@ -111,15 +111,12 @@ function deadremains.containers.networkItemChanges(pContainerIndex)
 
 	net.WriteUInt(containerTbl.SlotY, 8)
 
-
-	deadremains.log.write("general", "Item count " .. itemCount)
-
 	net.WriteUInt(itemCount, 8)
 
 
 	for i = 1, itemCount do
 
-		deadremains.log.write("general", "Sending item info for container " .. containers[pContainerIndex].Items[i])
+		--deadremains.log.write("general", "Sending item info for container " .. containers[pContainerIndex].Items[i])
 		
 		net.WriteString(containers[pContainerIndex].Items[i])
 	

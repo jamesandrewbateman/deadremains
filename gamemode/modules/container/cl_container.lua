@@ -54,7 +54,7 @@ net.Receive("deadremains.networkcontainers", function(bits)
 	local nContainerSlotX = net.ReadUInt(8)
 	local nContainerSlotY = net.ReadUInt(8)
 
-	deadremains.log.write("general", "Rebuilding container (" .. nContainerIndex .. ") " .. nContainerName)
+	--deadremains.log.write("general", "Rebuilding container (" .. nContainerIndex .. ") " .. nContainerName)
 
 	containers[nContainerIndex] = {
 		Name = nContainerName,
@@ -73,7 +73,7 @@ net.Receive("deadremains.networkcontainers", function(bits)
 
 		table.insert(containers[nContainerIndex].Items, nItemName)
 
-		deadremains.log.write("general", "Recieved item " .. nItemName)
+		--deadremains.log.write("general", "Recieved item " .. nItemName)
 
 	end
 end)
@@ -83,7 +83,6 @@ deadremains.netrequest.create("deadremains.updatecontainerui", function(data)
 	-- called when the container changes serverside.
 
 	-- MAGIC
-	print("got update container ui")
 
 	if data then
 
@@ -120,6 +119,7 @@ local CONTAINER_BASE = {}
 
 function CONTAINER_BASE:Init()
 
+	self:SetKeyboardInputEnabled(true)
 
 end
 
@@ -154,6 +154,7 @@ end
 function CONTAINER_BASE:Paint(w, h)
 
 end
+
 vgui.Register("CONTAINER_BASE", CONTAINER_BASE, "Panel")
 
 
@@ -236,7 +237,7 @@ end
 
 function CONTAINER_GRID:Paint(w, h)
 
-	draw.RoundedBox(4, 0, 0, w, h, Color(155, 155, 155, 100))
+	draw.RoundedBox(4, 0, 0, w, h, deadremains.ui.colors.clr1)
 
 end
 
@@ -305,7 +306,7 @@ function deadremains.containers.refreshUI()
 end
 
 function deadremains.containers.hideUI()
-	
+
 	if base ~= 0 then
 
 		if IsValid(base) then
