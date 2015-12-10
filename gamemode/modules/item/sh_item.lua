@@ -25,7 +25,26 @@ end
 ----------------------------------------------------------------------
 
 function deadremains.item.get(unique)
-	return stored[unique]
+	local i = stored[unique]
+	if i == nil then
+		local w = DR_GetWeaponInfo(unique)
+
+		if w == nil then return false end
+		
+		w.label = w.label
+		w.meta = {}
+		w.meta["type"] = item_type_weapon
+
+		if CLIENT then
+
+			w.context_menu = {item_function_equip, item_function_drop}
+
+		end
+
+		return w
+	else
+		return i
+	end
 end
 
 function deadremains.item.getAll()
@@ -49,6 +68,7 @@ item_action_use = 1
 item_action_drop = 2
 item_action_destroy = 3
 item_action_consume = 4
+item_action_equip = 5
 
 ----------------------------------------------------------------------
 -- Purpose:
@@ -58,32 +78,23 @@ item_action_consume = 4
 if (CLIENT) then
 
 item_function_use = {name = "Use", callback = function(slot)
-	net.Start("deadremains.itemaction")
-		net.WriteString(slot.action_name)
-		net.WriteString(slot.inventory_name)
-		net.WriteString(slot.item_unique)
-		net.WriteVector(slot.slot_position)
-	net.SendToServer()
+	LocalPlayer():InventoryItemAction(slot.action_name, slot.inventory_name, slot.item_unique, slot.slot_position)
 end}
 
 item_function_drop = {name = "Drop", callback = function(slot)
-	net.Start("deadremains.itemaction")
-		net.WriteString(slot.action_name)
-		net.WriteString(slot.inventory_name)
-		net.WriteString(slot.item_unique)
-		net.WriteVector(slot.slot_position)
-	net.SendToServer()
+	LocalPlayer():InventoryItemAction(slot.action_name, slot.inventory_name, slot.item_unique, slot.slot_position)
 end}
 
 item_function_destroy = {name = "Destroy", callback = function(slot)
-	net.Start("deadremains.itemaction")
-		net.WriteString(slot.action_name)
-		net.WriteString(slot.inventory_name)
-		net.WriteString(slot.item_unique)
-		net.WriteVector(slot.slot_position)
-	net.SendToServer()
+	LocalPlayer():InventoryItemAction(slot.action_name, slot.inventory_name, slot.item_unique, slot.slot_position)
 end}
 
-item_function_consume = {name = "Consume", callback = item_function_use.callback}
+item_function_consume = {name = "Consume", callback = function(slot)
+	LocalPlayer():InventoryItemAction(slot.action_name, slot.inventory_name, slot.item_unique, slot.slot_position)
+end}
+
+item_function_equip = {name = "Equip", callback = function(slot)
+	LocalPlayer():InventoryItemAction(slot.action_name, slot.inventory_name, slot.item_unique, slot.slot_position)
+end}
 
 end

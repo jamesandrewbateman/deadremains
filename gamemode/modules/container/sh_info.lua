@@ -2,7 +2,9 @@ LoadInfoFile({
 	Name = "container",
 	Order = 
 	{
-		"sv_container.lua"
+		"sh_container.lua",
+		"sv_container.lua",
+		"cl_container.lua"
 	},
 	Dependencies =
 	{

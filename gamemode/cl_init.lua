@@ -13,7 +13,8 @@ LoadModule("inventory")
 LoadModule("character")
 LoadModule("team")
 LoadModule("map_config")
-LoadModule("gear")
+--LoadModule("gear")
+LoadModule("crafting")
 LoadModule("container")
 LoadModule("deadmin")
 LoadModule("notifyer")
@@ -29,8 +30,6 @@ deadremains.loader.initialize()
 ----------------------------------------------------------------------
 
 function GM:InitPostEntity()
-	net.Start("deadremains.player.initalize")
-	net.SendToServer()
 end
 
 ----------------------------------------------------------------------
@@ -59,10 +58,10 @@ local defaultHUD = {
 	["CHudHealth"] 			= true,
 	["CHudBattery"] 		= true,
 	--["CHudChat"] 			= true,
-	["CHudAmmo"] 			= true,
-	["CHudCrosshair"]		= true,
-	["CHudSecondaryAmmo"] 	= true,
-	["CHudWeaponSelection"] = true
+	["CHudAmmo"] 			= false,
+	["CHudCrosshair"]		= false,
+	["CHudSecondaryAmmo"] 	= false,
+	["CHudWeaponSelection"] = false
 }
 
 function GM:HUDShouldDraw(id)

@@ -1,4 +1,5 @@
 item.unique = "bike_armor"
+item.label = "Bike Armour"
 
 -- The model that this item should have.
 item.model = "models/props_junk/TrafficCone001a.mdl"

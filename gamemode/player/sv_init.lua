@@ -1,4 +1,4 @@
-local function default(self)
+function default(self)
 	-- loads all the default data into containers.
 	local needs = deadremains.settings.get("needs")
 	for unique, data in pairs (needs) do
@@ -44,7 +44,8 @@ local function default(self)
 end
 
 --! @brief prepares the player_meta.dr_character table for all incoming data.
-function player_meta:reset()
+function player_meta:resetData()
+	print("set dr_character")
 	self.dr_character = {}
 
 	self.dr_character.needs = {}
@@ -54,30 +55,3 @@ function player_meta:reset()
 
 	default(self)
 end
-
-----------------------------------------------------------------------
--- Purpose:
---		
-----------------------------------------------------------------------
-
-function player_meta:initializeCharacter()
-	self:reset()
-
-	timer.Simple(1, function()
-		self:loadFromMysql()
-	end)
-end
-
-----------------------------------------------------------------------
--- Purpose:
---		
-----------------------------------------------------------------------
-
-util.AddNetworkString("deadremains.player.initalize")
-
-net.Receive("deadremains.player.initalize", function(bits, player)
-	if (!player.dr_loaded) then
-		player:initializeCharacter()
-		player.dr_loaded = true
-	end
-end)

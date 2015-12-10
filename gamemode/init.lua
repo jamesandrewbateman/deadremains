@@ -21,7 +21,8 @@ LoadModule("inventory")
 LoadModule("character")
 LoadModule("team")
 LoadModule("map_config")
-LoadModule("gear")
+--LoadModule("gear")
+LoadModule("crafting")
 LoadModule("container")
 LoadModule("deadmin")
 LoadModule("notifyer")
@@ -55,26 +56,17 @@ function GM:Initialize()
 		end
 	end)
 end
-----------------------------------------------------------------------
--- Purpose:
---
-----------------------------------------------------------------------
-
-function GM:PlayerInitialSpawn(player)
-	player.zombie_kill_count = 0
-	self.BaseClass:PlayerInitialSpawn(player)
-end
 
 ----------------------------------------------------------------------
 -- Purpose:
 --
 ----------------------------------------------------------------------
 
-function GM:ShowHelp(ply)
+hook.Add("ShowHelp", "deadremains_main_show_help", function(ply)
 	ply:ConCommand("inventory")
-end
+end)
 
-hook.Add("PlayerSpawn", "drPlayerSpawn", function(ply)
+hook.Add("PlayerSpawn", "deadremains_main_ply_spawn", function(ply)
 	ply.alive_timer = 0
 
 	timer.Create("dr_alive_timer" .. ply:UniqueID(), 1, 0, function()
@@ -82,24 +74,22 @@ hook.Add("PlayerSpawn", "drPlayerSpawn", function(ply)
 			ply.alive_timer = ply.alive_timer + 1
 		end
 	end)
+
+	net.Start("deadremains_refreshinv")
+	net.Send(ply)
 end)
 
-function GM:PlayerConnect(ply)
-
-end
-
-function GM:PlayerDisconnect(ply)
+hook.Add("PlayerDisconnect", "deadremains_main_ply_dc", function(ply)
 	timer.Remove("dr_alive_timer" .. ply:UniqueID())
 	timer.Remove("dr.thirst." .. ply:UniqueID())
 	timer.Remove("dr.hunger." .. ply:UniqueID())
 
 	deadremains.sql.savePlayer(ply)
-	self.BaseClass:PlayerDisconnect(ply)
-end
+end)
 
-function GM:PostPlayerDeath(ply)
+hook.Add("PostPlayerDeath", "deadremains_main_ply_death", function(ply)
 	player.alive_timer = 0
-end
+end)
 
 hook.Add("PlayerLoadout", "drPlayerLoadout", function(ply)
 	ply:Give("keys")

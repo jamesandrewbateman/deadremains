@@ -2,57 +2,6 @@
 -- Purpose:
 --		
 ----------------------------------------------------------------------
--- always listen
-deadremains.netrequest.create("load_deadmin_items", function()
-	local data = {}
-
-	local temp_data = {}
-	for k,v in pairs(ents.GetAll()) do
-		if IsValid(v) then
-			if v.item then
-				local i = deadremains.item.get(v.item)
-
-				if temp_data[v.item] then
-					-- specify data to send back.
-					temp_data[v.item] = {
-						count = 1 + temp_data[v.item].count,
-						type = i.meta["type"]
-					}
-				else
-					temp_data[v.item] = {
-						count = 1,
-						type = i.meta["type"]
-					}
-				end
-			end
-		end
-	end
-
-	for k,v in pairs(temp_data) do
-		table.insert(data, {unique=k, count=v.count, type=v.type})
-	end
-
-	return data
-end)
-
--- for deadmin
-deadremains.netrequest.create("deadremains.spawnitem", function(ply, meta)
-	local i = deadremains.item.get(meta.unique)
-	if (i == nil) then return end
-
-	-- preserve the default values.
-	local default_meta = i.meta
-
-	if (meta.frequency) then
-		default_meta["frequency"] = meta.frequency
-	end
-	if (meta.rarity) then
-		default_meta["rarity"] = meta.rarity
-	end
-
-	deadremains.item.spawn_meta(ply, meta.unique, default_meta)
-end)
-
 -- for mapconfig
 function deadremains.item.mapSpawn(unique, position, model)
 	local item = deadremains.item.get(unique)
@@ -64,6 +13,7 @@ function deadremains.item.mapSpawn(unique, position, model)
 		entity:Spawn()
 
 		entity.item = item.unique
+		entity:SetDRName(item.label)
 	end
 end
 
@@ -85,8 +35,13 @@ function deadremains.item.spawn(player, cmd, args)
 		entity:Spawn()
 
 		entity.item = item.unique
+		entity:SetDRName(item.label)
+		entity.Use = function(self, activator, caller)
+			deadremains.item.worldUse(activator, self.Entity)
+		end
 	end
 end
+concommand.Add("dr_item_spawn", deadremains.item.spawn)
 
 -- for spawning code
 function deadremains.item.spawn_meta(player, unique, meta_data)
@@ -101,7 +56,99 @@ function deadremains.item.spawn_meta(player, unique, meta_data)
 		entity:Spawn()
 
 		entity.item = item.unique
+		entity:SetDRName(item.label)
 		entity.meta = table.Copy(meta_data)
+	end
+end
+
+function deadremains.item.spawn_contains(player, unique, contains)
+	local item = deadremains.item.get(unique)
+
+	if (item) then
+		local trace = player:eyeTrace(192)
+
+		local entity = ents.Create("deadremains_item")
+		entity:SetPos(trace.HitPos)
+		entity:SetModel(item.model)
+		entity:Spawn()
+
+		entity.item = item.unique
+		entity:SetDRName(item.label)
+		entity.meta = {}
+		entity.meta["contains"] = contains
+	end
+end
+
+function deadremains.item.zombie_drop(zname, zposition)
+	local items = deadremains.item.getAll()
+
+	local container_index = deadremains.containers.create("zombie_package", 4, 4, zposition)
+
+	for i=1,math.random(1,15) do
+		if (math.random(0,100) > 20) then
+
+			local item = 0
+			local target_i = math.random(1, table.Count(items))
+			--print(target_i)
+			local c = 0
+			local reached = false
+			for k,v in pairs(items) do
+				if not reached then
+					if c == target_i then
+						item = v
+						reached = true
+					end
+
+					c = c + 1
+				end
+			end
+
+			--print(item)
+			if item ~= 0 then
+				deadremains.containers.addItem(container_index, item.unique)
+			else
+				print("could not find item with index", target_i)
+			end
+
+		end
+	end
+end
+
+function deadremains.item.worldUse(player, entity)
+	local success = false
+	local itemName = entity.item
+
+	if itemName then
+		if deadremains.item.isInventory(itemName) then
+			local dr_item_info = deadremains.settings.get("default_inventories")
+			
+			local slot_size = 0
+
+			for k,v in pairs(dr_item_info) do
+				if v.unique == itemName then
+					slot_size = v.size
+				end
+			end
+			
+			--print("item name", itemName)
+			--PrintTable(entity.meta["contains"])
+			if entity.meta then
+				if (entity.meta["contains"] ~= nil) then
+					success = player:AddInventoryContains(itemName, slot_size.X, slot_size.Y, entity.meta["contains"])
+				end
+			else
+				success = player:AddInventory(itemName, slot_size.X, slot_size.Y)
+			end
+		else
+			success = player:AddItemToInventory("feet", itemName)
+			--print(itemName, success)
+		end
+	end
+
+	if (!success) then
+		player:ChatPrint("Could not pick up item")
+	else
+		entity:Remove()
 	end
 end
 
@@ -110,11 +157,7 @@ end
 --	Find out whether the item provides inventory expansion.	
 ----------------------------------------------------------------------
 
-deadremains.item.types = {}
-deadremains.item.types.normal = 1
-deadremains.item.types.inventory_provider = 2
-
-function deadremains.item.type(unique)
+function deadremains.item.isInventory(unique)
 	local item = deadremains.item.get(unique)
 
 	-- items which provide the space name.
@@ -125,9 +168,9 @@ function deadremains.item.type(unique)
 
 	for _, u in pairs(inventory_uniques) do
 		if (u == item.unique) then
-			return deadremains.item.types.inventory_provider
+			return true
 		end
 	end
 
-	return deadremains.item.types.normal
+	return false
 end

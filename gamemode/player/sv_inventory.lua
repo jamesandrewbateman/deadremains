@@ -20,21 +20,15 @@
 ]]
 
 concommand.Add("give_backpack", function(ply)
-	ply:AddInventory("hunting_backpack", 9, 3)
+	ply:AddInventory("hunting_backpack", 9, 9)
 end)
 
-concommand.Add("Instinbeans", function(ply)
-	ply:AddItemToInventory("primary", "tin_beans")
+concommand.Add("dr_drop_inv", function(ply, cmd, args)
+	ply:DropInventory(args[1])
 end)
 
 concommand.Add("Networkinv", function(ply)
-	print("networking inv...")
-
 	ply:NetworkInventory()
-end)
-
-concommand.Add("invcontains", function(ply)
-	print(ply:ContainsItem("hunting_backpack", "fizzy_drink", Vector(0, 0, 0)))
 end)
 
 -- BASE INVENTORY STRUCTURE
@@ -44,31 +38,72 @@ function player_meta:InitInventories()
 	self.Inventories = {}
 
 	for k,v in pairs(invs) do
-		self.Inventories[v.inventory_index] = 
-		{
-			Name = v.unique,
-			Size = v.size,
-			MaxWeight = v.max_weight,
-			CurrentWeight = 0,
-			Items = {}
-		}
+		if (v.inventory_index ~= -1) then 
+			self.Inventories[v.inventory_index] = 
+			{
+				Name = v.unique,
+				Size = v.size,
+				MaxWeight = v.max_weight,
+				CurrentWeight = 0,
+				Items = {}
+			}
+		end
 	end
 
 	self:NetworkInventory()
 end
 
 function player_meta:AddInventory(unique, horiz, vert, inv_index, max_weight)
-	if (inv_index == nil) then inv_index = #self.Inventories + 1 end
+	local found = false
+
+	if (inv_index == nil) then
+		for k,v in pairs(self.Inventories) do
+			if v.Name == unique and not found then
+				inv_index = k
+				found = true
+			end
+		end
+
+		if not found then
+			inv_index = #self.Inventories + 1
+		end
+	end
+
 	if (max_weight == nil) then max_weight = 2000 end
 
-	self.Inventories[inv_index] =
-	{
-		Name = unique,
-		Size = Vector(horiz, vert, 0),
-		MaxWeight = max_weight,
-		CurrentWeight = 0,
-		Items = {}
-	}
+	if found then
+		return false
+	else
+		self.Inventories[inv_index] =
+		{
+			Name = unique,
+			Size = Vector(horiz, vert, 0),
+			MaxWeight = max_weight,
+			CurrentWeight = 0,
+			Items = {}
+		}
+	end
+
+	self:NetworkInventory()
+
+	return true
+end
+
+function player_meta:AddInventoryContains(unique, horiz, vert, contains)
+	if self:AddInventory(unique, horiz, vert) then
+		for k,v in pairs(contains) do
+			local item_unique = v.Unique
+			self:AddItemToInventory(unique, item_unique)
+		end
+		return true
+	else
+		for k,v in pairs(contains) do
+			local item_unique = v.Unique
+			self:AddItemToInventory(unique, item_unique)
+		end
+		return true
+	end
+	return false
 end
 
 function player_meta:GetInventoryId(name)
@@ -80,7 +115,7 @@ end
 
 function player_meta:RemoveInventory(name)
 	local invID = self:GetInventoryId(name)
-	
+	self.Inventories[invID] = nil
 end
 
 function player_meta:GetInventory(name)
@@ -92,6 +127,17 @@ function player_meta:GetInventoryName(id)
 	return self.Inventories[id].Name
 end
 
+function player_meta:DropInventory(unique)
+	deadremains.item.spawn_contains(self, unique, self:GetInventory(unique).Items)
+
+	self:RemoveInventory(unique)
+
+	self:NetworkInventory()
+
+	net.Start("deadremains.refreshinv")
+	net.Send(self)
+end
+util.AddNetworkString("deadremains.refreshinv")
 
 -- ITEM ACTIONS --
 -- used internally, does not check for placement collisions.
@@ -120,6 +166,8 @@ function player_meta:InsertItem(inv_name, unique, inv_type, slot_position, conta
 						})
 					self:NetworkInventory()
 					print("Item added to inventory")
+
+					return true
 				else
 					-- pretend we didn't do that.
 					inv.CurrentWeight = inv.CurrentWeight - itemData.weight
@@ -131,7 +179,6 @@ function player_meta:InsertItem(inv_name, unique, inv_type, slot_position, conta
 		-- after index 7 of inventories, ANYTHING can be placed.
 		if (#self.Inventories > inventory_equip_maximum) then		-- do we have more inventory space?
 			for indx = inventory_equip_maximum + 1, #self.Inventories do
-				print("checking")
 				local invName = self:GetInventoryName(indx)
 				local inv = self:GetInventory(invName);
 					
@@ -151,12 +198,11 @@ function player_meta:InsertItem(inv_name, unique, inv_type, slot_position, conta
 						
 						self:NetworkInventory()
 						print("Item added to inventory")
-						return
+						return true
 					else
 						-- pretend we didn't do that.
 						inv.CurrentWeight = inv.CurrentWeight - itemData.weight
 						print("Inventory weight limit reached in this bag!")
-						return
 					end
 				end
 			end
@@ -180,14 +226,16 @@ end
 -- EXTERNAL version of the additem.
 --
 function player_meta:AddItemToInventory(inv_name, item_unique, contains)
-	print("Adding item " .. item_unique)
 	local s, x, y = self:CanFitItem(inv_name, item_unique, contains)
 	local selectedItemCore = deadremains.item.get(item_unique)
 
-	if s then
-		self:InsertItem(inv_name, item_unique, selectedItemCore.inventory_type, Vector(x, y, 0), contains)
-	end
+
+	return self:InsertItem(inv_name, item_unique, selectedItemCore.inventory_type, Vector(x, y, 0), contains)
+
 end
+concommand.Add("add_shovel", function(ply)
+	ply:AddItemToInventory("feet", "tfm_sword_snowflake_katana")
+end)
 
 function player_meta:SwitchItemToInventory(inv_name, target_inv_name, item_unique, item_position, contains)
 	local s, x, y = self:CanFitItem(target_inv_name, item_unique, contains)
@@ -205,9 +253,12 @@ end
 
 
 function player_meta:CanFitItem(inv_name, item_unique, contains)
-	print(item_unique)
 	local inv = self:GetInventory(inv_name)
 	local selectedItemCore = deadremains.item.get(item_unique)
+
+	if selectedItemCore == nil then
+		return false, -1, -1
+	end
 
 	local it_slotwidth = inv.Size.X - selectedItemCore.slots_horizontal
 	local it_slotheight = inv.Size.Y - selectedItemCore.slots_vertical
@@ -231,6 +282,7 @@ function player_meta:CanFitItem(inv_name, item_unique, contains)
 				end
 
 				if slotsFreeArea >= (selectedItemCore.slots_horizontal * selectedItemCore.slots_vertical) then
+					
 					return true, ox, oy
 				end
 			else
@@ -239,7 +291,7 @@ function player_meta:CanFitItem(inv_name, item_unique, contains)
 		end
 	end
 
-	return false
+	return false, 0, 0
 end
 
 -- for removing from the inventory
@@ -247,9 +299,17 @@ function player_meta:RemoveItem(inv_name, slot_position)
 	local items = self:GetInventory(inv_name).Items
 
 	for k,v in pairs(items) do
+
 		if (v.SlotPosition == slot_position) then
+
+			local item_weight = deadremains.item.get(v.Unique).weight
+
 			table.remove(items, k)
+
+			self:GetInventory(inv_name).CurrentWeight = self:GetInventory(inv_name).CurrentWeight - item_weight
+
 		end
+
 	end
 end
 
@@ -286,6 +346,22 @@ function player_meta:InventoryGetAll(inv_name, item_name)
 	end
 
 	return selected_items
+end
+
+function player_meta:InventoryGetItemCount(item_name)
+	local item_count = 0
+
+	for k,v in pairs(self.Inventories) do
+		local items = v.Items
+
+		for k,v in pairs(items) do
+			if (v.Unique == item_name) then
+				item_count = item_count + 1
+			end
+		end
+	end
+
+	return item_count
 end
 
 function player_meta:ContainsItem(inv_name, item_name, position)
@@ -359,9 +435,7 @@ net.Receive("deadremains.itemaction", function(bits, ply)
 	local action_name = net.ReadString()
 	local inventory_name = net.ReadString()
 	local item_unique = net.ReadString()
-	local item_slot_postion = net.ReadVector()
-
-	print("target slot position", item_slot_position)
+	local item_slot_position = net.ReadVector()
 
 	-- net library likes to optimize out 0,0,0 value of vector.
 	if (item_slot_position == nil) then item_slot_position = Vector(0,0,0) end
@@ -373,13 +447,13 @@ net.Receive("deadremains.itemaction", function(bits, ply)
 		if (action_name == "Consume") and (type_to_string(itemData.meta["type"]) == "consumable") then
 			ply:RemoveItem(inventory_name, itemInvData.SlotPosition)
 
-			print("eating ", item_unique, itemInvData.SlotPosition)
+			--print("eating ", item_unique, itemInvData.SlotPosition)
 
 			itemData:use(ply)
 		elseif (action_name == "Drop") then
 			ply:RemoveItem(inventory_name, itemInvData.SlotPosition)
 
-			print("dropping", item_unique, itemInvData.SlotPosition)
+			--print("dropping", item_unique, itemInvData.SlotPosition)
 			if (itemData.inventory_type) then
 				deadremains.item.spawn_meta(ply, itemInvData.Unique, itemInvData.Contains)
 			else
@@ -388,12 +462,19 @@ net.Receive("deadremains.itemaction", function(bits, ply)
 		elseif (action_name == "Use") then
 			ply:RemoveItem(inventory_name, itemInvData.SlotPosition)
 
-			print("using", item_unique, itemInvData.SlotPosition)
+			--print("using", item_unique, itemInvData.SlotPosition)
 			itemData:use(ply)
+		elseif (action_name == "Equip") then
+			ply:RemoveItem(inventory_name, itemInvData.SlotPosition)
+			--PrintTable(itemData)
+			ply:Give(itemData.unique)
 		end
 	end
 
 	-- if itemInvData == 0, means we tried to select an item which isn't
 	-- here serverside.
 	ply:NetworkInventory()
+
+	net.Start("deadremains.refreshinv")
+	net.Send(ply)
 end)

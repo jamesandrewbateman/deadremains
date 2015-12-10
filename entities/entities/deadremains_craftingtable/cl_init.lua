@@ -4,41 +4,77 @@ function ENT:Initialize()
 	self.Meta = {}
 	self.Meta["Capacity"] = {width = 5, height = 5}
 	self.Meta["Items"] = {}
+	self.Meta["CraftableItems"] = {}
+
+	-- ui hooks to serverside.
+	local this = self
+	this.LinkedFrame = 0
+	this.IsOpen = false
 
 	net.Receive(self:GetNetworkName(), function(bits)
-		self.Meta["Items"] = {}
+		this.Meta["Items"] = {}
 
 		local item_count = net.ReadUInt(16)
 
 		for i=1, item_count do
 			local item_name = net.ReadString()
 			local slot_position = net.ReadVector()
-			table.insert(self.Meta["Items"], {
+
+			table.insert(this.Meta["Items"], {
 				Unique = item_name,
 				SlotPosition = slot_position
 			})
 		end
-	end)
 
-	-- ui hooks to serverside.
+		if (this.LinkedFrame ~= 0) then
+			if this.LinkedFrame:IsValid() then
+				this.LinkedFrame:RebuildCraftingPanel()
+			end
+		end
+	end)
 
 	-- sent on player use. called before openUI
 	net.Receive(self:GetNetworkName() .. ":ContainerSize", function(bits)
 		-- print("Updating container size...")
-		self.Meta["Capacity"].width = net.ReadUInt(8)
-		self.Meta["Capacity"].height = net.ReadUInt(8)
+		this.Meta["Capacity"].width = net.ReadUInt(8)
+		this.Meta["Capacity"].height = net.ReadUInt(8)
 	end)
 
 	net.Receive(self:GetNetworkName() .. ":OpenUI", function(bits)
+		if (this.LinkedFrame ~= 0) then this.LinkedFrame:Remove() this.LinkedFrame = 0 end
+
+		this.IsOpen = false
+
 		-- print("Opening panel...")
-		local frame = vgui.Create("deadremains.container.frame")
-		frame:SetGridSize(self.Meta["Capacity"].width, self.Meta["Capacity"].height)
+		this.LinkedFrame = vgui.Create("deadremains.container.frame")
+		this.LinkedFrame:SetGridSize(this.Meta["Capacity"].width, this.Meta["Capacity"].height)
 
 		-- for slot_grid bg colour drawing
 		-- get items.
-		frame:LinkEntity(self)
+		this.LinkedFrame:LinkEntity(this)
 	end)
 
+	net.Receive(self:GetNetworkName() .. ":UpdateCraftables", function(bits)
+		if (this.LinkedFrame == 0) then return end
+
+		this.Meta["CraftableItems"] = {}
+
+		local item_count = net.ReadUInt(16)
+
+		for i=1, item_count do
+			local item_name = net.ReadString()
+
+			table.insert(this.Meta["CraftableItems"], item_name)
+		end
+
+		if (this.LinkedFrame ~= 0) then
+			timer.Simple(1, function()
+				if this.LinkedFrame:IsValid() then
+					this.LinkedFrame:RebuildCraftablesPanel()
+				end
+			end)
+		end
+	end)
 
 	self.label = "Crafting\nTable"
 end
@@ -52,8 +88,8 @@ end
 local PANEL = {}
 
 function PANEL:OnRemove()
-	print("re-opening the container.")
 	if IsValid(self.LinkedEntity) then
+		self.LinkedEntity.IsOpen = true
 		net.Start(self.LinkedEntity:GetNetworkName() .. ":CloseUI")
 		net.SendToServer()
 	end
@@ -101,8 +137,26 @@ function PANEL:LinkEntity(ent)
 	self.LinkedEntity = ent
 
 	-- now we can open this panel
-	local slots_background = vgui.Create("deadremains.container.slot_grid", self)
-	slots_background.LinkedEntity = ent
+	self.slots_background = vgui.Create("deadremains.container.slot_grid", self)
+	self.slots_background.LinkedEntity = ent
+end
+
+function PANEL:Rebuild()
+	if (self.slots_background) then
+		self.slots_background:Rebuild()
+	end
+end
+
+function PANEL:RebuildCraftablesPanel()
+	if (self.slots_background) then
+		self.slots_background:RebuildCraftableItemPanel()
+	end
+end
+
+function PANEL:RebuildCraftingPanel()
+	if (self.slots_background) then
+		self.slots_background:RebuildCraftingItemsPanel()
+	end
 end
 
 -- where i handle all the clicking events.
@@ -113,11 +167,11 @@ function PANEL:SetTargetPos(slot_x, slot_y)
 	-- inside the x/y bounds of this panel..
 	if self.TargetSlot.x > self.GridSize.width or self.TargetSlot.x < 0 or self.TargetSlot.y > self.GridSize.height or self.TargetSlot.y < 0 then
 		-- move the item
-		print("Move item: ", self.SelectedSlot.x .. ", " .. self.SelectedSlot.y)
-		print("to:", self.TargetSlot.y .. ", " .. self.TargetSlot.y)
+		--print("Move item: ", self.SelectedSlot.x .. ", " .. self.SelectedSlot.y)
+		--print("to:", self.TargetSlot.y .. ", " .. self.TargetSlot.y)
 	else
-		print("Take item: ", self.SelectedSlot.x .. ", " .. self.SelectedSlot.y)
-		print("to:", self.TargetSlot.y .. ", " .. self.TargetSlot.y)
+		--print("Take item: ", self.SelectedSlot.x .. ", " .. self.SelectedSlot.y)
+		--print("to:", self.TargetSlot.y .. ", " .. self.TargetSlot.y)
 	end
 end
 
@@ -127,14 +181,19 @@ vgui.Register("deadremains.container.frame", PANEL, "DFrame")
 -- this panel is just a display under the floating panel icons.
 local PANEL = {}
 
+function PANEL:Rebuild()
+	self:RebuildCraftingItemsPanel()
+	self:RebuildCraftableItemPanel()
+end
+
 function PANEL:Init()
 	if not self:GetParent() then
-		print("NO PARENT FOR SLOT GRID")
+		--print("NO PARENT FOR SLOT GRID")
 		return
 	end
 
 	if not IsValid(self:GetParent().LinkedEntity) then
-		print("NO ENTITY LINKED TO FRAME")
+		--print("NO ENTITY LINKED TO FRAME")
 	end
 
 
@@ -144,7 +203,7 @@ function PANEL:Init()
 
 	-- calculate the size in pixels needed to contain this number of slots.
 	local slotWidth, slotHeight = self:GetParent().SlotWidth, self:GetParent().SlotHeight
-	self:SetSize(slotWidth * width, slotHeight * height + 32)
+	self:SetSize(slotWidth * width, (slotHeight * height) + 128)
 
 	-- resize our frame to fit these slots
 	local currentWidth, currentHeight = self:GetSize()
@@ -160,11 +219,21 @@ function PANEL:Init()
 
 	-- craftable items currently
 	self.CraftableItems = {}
-	table.insert(self.CraftableItems, deadremains.item.get("tin_beans"))
-	table.insert(self.CraftableItems, deadremains.item.get("hunting_backpack"))
+
+	self:Rebuild()
+end
+
+function PANEL:RebuildCraftingItemsPanel()
+	if (self.ItemModelPanels ~= nil) then
+		for k,v in pairs(self.ItemModelPanels) do
+			v:Remove()
+		end
+	end
 
 	-- build a table of model panels for items.
 	self.ItemModelPanels = {}
+	local slotWidth, slotHeight = self:GetParent().SlotWidth, self:GetParent().SlotHeight
+
 	for k,v in pairs(self:GetParent().LinkedEntity.Meta["Items"]) do
 		local unique = v.Unique
 		local slotpos = v.SlotPosition
@@ -183,57 +252,46 @@ function PANEL:Init()
 			local grid_panel = self:GetParent()
 			grid_panel:DModelPanelMousePressed(self.SlotPosition.x, self.SlotPosition.y)
 		end
+
+		table.insert(self.ItemModelPanels, i)
 	end
 
-	-- now the craftable item section
-
-	-- craft button.
-	local button = vgui.Create("DButton", self)
-	local pWidth, pHeight = self:GetSize()
-	button:SetText("CRAFT")
-	button:SetPos(0, pHeight-32)
-	button:SetSize(pWidth, 32)
-	button.Paint = function (self, w, h)
-		draw.RoundedBox(0, 0,0, w,h, Color(30, 30, 30, 255))
-	end
-	button.DoClick = function (self)
-		sound.Play("ambient/energy/spark6.wav", LocalPlayer():GetPos(), 75, 100, 0.25)
-
-		local effPos = self:GetParent().LinkedEntity:GetPos()
-		local effData = EffectData()
-		effData:SetStart(effPos)
-		effData:SetOrigin(effPos)
-		effData:SetScale(25)
-		util.Effect("ManhackSparks", effData)
-	end
-
-	self:RebuildCraftableItemPanel()
 end
 
 function PANEL:RebuildCraftableItemPanel()
 	local slotWidth, slotHeight = self:GetParent().SlotWidth, self:GetParent().SlotHeight
-
 	local width, height = self:GetSize()
 
-	for k,v in pairs(self.CraftableItems) do
-		local unique = v.unique
+	if (self.CraftableItemModelPanels ~= nil) then
+		for k,v in pairs(self.CraftableItemModelPanels) do
+			v:Remove()
+		end
+	end
+
+	self.CraftableItemModelPanels = {}
+
+	for k,v in pairs(self:GetParent().LinkedEntity.Meta["CraftableItems"]) do
+		local unique = tostring(v)
 		local i_data = deadremains.item.get(unique)
 
 		local i = vgui.Create("DModelPanel", self:GetParent())
-		i:SetSize(slotWidth/2, slotHeight/2)
+		i:SetSize(slotWidth, slotHeight)
 
-		local offsetX = (slotWidth/4) + ((slotWidth/2) * (k-1))
-		i:SetPos(offsetX, height + 4)
-
+		local offsetX = (slotWidth/4) + ((slotWidth) * (k-1))
+		i:SetPos(offsetX, self:GetParent():GetTall()-slotHeight)
 		i:SetModel(i_data.model)
 		i:SetCamPos(i_data.cam_pos)
 		i:SetLookAt(i_data.look_at)
 		i:SetFOV(i_data.fov)
 
-		i.Unique = unique
+		i.Unique = i_data.unique
 		i.DoClick = function(self)
-			print(self.Unique)
+			net.Start(self:GetParent().LinkedEntity:GetNetworkName() .. ":CraftItem")
+				net.WriteString(i.Unique)
+			net.SendToServer()
 		end
+
+		table.insert(self.CraftableItemModelPanels, i)
 	end
 end
 
@@ -241,8 +299,9 @@ function PANEL:Paint(w, h)
 	local gridSize = self:GetParent().GridSize
 	-- size in slots.
 	local width, height = gridSize.width, gridSize.height
-
 	local slotWidth, slotHeight = self:GetParent().SlotWidth, self:GetParent().SlotHeight
+
+	draw.RoundedBox(0, 0, 0, w, h + slotHeight*((#self.CraftableItemModelPanels - 1) / width), Color(55, 55, 55, 255))
 
 	for y = 0, width do
 		for x = 0, height do
@@ -271,7 +330,7 @@ function PANEL:DModelPanelMousePressed(slot_x, slot_y)
 
 	-- take item from table to inventory.
 	net.Start(self:GetParent().LinkedEntity:GetNetworkName() .. ":TakeItem")
-	net.WriteVector(Vector(slot_x, slot_y, 0))
+		net.WriteVector(Vector(slot_x, slot_y, 0))
 	net.SendToServer()
 end
 

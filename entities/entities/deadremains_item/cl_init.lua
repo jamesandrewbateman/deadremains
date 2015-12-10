@@ -2,16 +2,17 @@ include("shared.lua")
 
 ENT.RenderGroup = RENDERGROUP_TRANSLUCENT
 
---local outlineWhiteMaterial = Material("models/debug/debugwhite")
+local outlineWhiteMaterial = Material("models/debug/debugwhite")
 
 function ENT:Initialize()
 	--self.itemData = nil
 	
-	--self.nextPulse = CurTime()
-	--self.pulseAlpha = 0.5
+	self.nextPulse = CurTime()
+	self.pulseAlpha = 0.8
+	self.enabled = false
 end
 
---function ENT:Think()
+function ENT:Think()
 	--local item_id = self:GetItemID()
 	
 	--if (item_id and self.itemData == nil) then
@@ -19,14 +20,20 @@ end
 	--end
 	
 	--self:NextThink(CurTime() +0.5)
+		--return true
 	
---	--return true
---end
+	if input.IsKeyDown(KEY_Z) and not self.enabled then
+		self.enabled = true
+	end
+
+	self:NextThink(CurTime() + 0.8)
+	return true
+end
 
 function ENT:Draw()
 	self:DrawModel()
---[[
-	if (self.nextPulse < CurTime() and self.itemData and !self.itemData.hidePulsing) then
+
+	if (self.nextPulse < CurTime()) and self.enabled then
 		self.pulseAlpha = math.Clamp(self.pulseAlpha -0.90 *FrameTime(), 0, 1)
 		
 		render.SuppressEngineLighting(true)
@@ -36,7 +43,7 @@ function ENT:Draw()
 		render.SetColorModulation(1, 1, 1)
 		
 		render.MaterialOverride(outlineWhiteMaterial)
-		self:SetModelScale(1.05, 0)
+		self:SetModelScale(1.15, 0)
 		self:DrawModel()
 		
 		render.MaterialOverride(0)
@@ -47,9 +54,10 @@ function ENT:Draw()
 		render.SetBlend(self.pulseAlpha)
 		
 		if (self.pulseAlpha <= 0) then
-			self.nextPulse = CurTime() +3
-			self.pulseAlpha = 0.5
+			self.nextPulse = CurTime() + 1.5
+			self.pulseAlpha = 0.8
+			self.enabled = false
 		end
 	end
-]]
+
 end

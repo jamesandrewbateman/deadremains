@@ -12,8 +12,9 @@ include("player/sv_init.lua")
 deadremains.netrequest.create("deadremains.syncdata", function (ply, data)
 	ply:networkChars()
 	ply:networkSkills()
+	deadremains.character.networkFlags(ply)
 
-	-- if data.show_menu = 1 then return {show_menu = data.show_menu} end
+	-- pingback
 	if (data) then
 		return data
 	end

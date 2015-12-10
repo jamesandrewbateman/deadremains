@@ -2,15 +2,20 @@ util.AddNetworkString("deadremains.character.new")
 util.AddNetworkString("deadremains.shownotification_ok")
 
 net.Receive("deadremains.character.new", function(bits, ply)
+
 	if ply:GetNWInt("dr_character_created") == 0 then
+
 		ply:SetNWInt("dr_character_created", 1)
 
 		local model = net.ReadString()
 		local gender = net.ReadString()
 
 		ply:newCharacter(model, gender)
+
 	else
+
 		ply:sendNotification("Warning", "Could not save character, already have\n one one created.")
+
 	end
 end)
 
@@ -18,12 +23,14 @@ end)
 -- Purpose:
 --		
 ----------------------------------------------------------------------
-concommand.Add("newchar", function(ply)
-	ply:newCharacter("models/player/group01/male_03.mdl", "m")
-end)
+
+util.AddNetworkString("deadremains.getbuffs")
+util.AddNetworkString("deadremains.getdebuffs")
 
 function player_meta:newCharacter(model, gender)
+
 	self:SetModel(model)
+
 	self.dr_character.gender = gender
 
 	-- use this as temp storage for players health.
@@ -33,7 +40,7 @@ function player_meta:newCharacter(model, gender)
 
 	self.dr_character.float_hp = self:Health()
 
-	-- flags, on or off?
+	-- do not sure set/buff/debuff because that would trigger end/start funcs.
 	self.dr_character.debuffs = {}
 	self.dr_character.debuffs["COLD"] = 0
 	self.dr_character.debuffs["SICKNESS"] = 0
@@ -64,97 +71,299 @@ function player_meta:newCharacter(model, gender)
 	self.dr_character.buffs["HERO"] = 0
 
 	self.dr_character.created = true
+
+	deadremains.character.networkFlags(self)
+
 	print("Created a new character")
+
 end
+
+hook.Add("PlayerInitialSpawn", "deadremains_init_spawn_char", function(ply)
+
+	ply:resetData()
+
+	timer.Simple(1, function()
+
+		ply:loadDataFromMysql()
+
+		timer.Simple(1, function()
+			ply:AddInventory("hunting_backpack", 9, 9)
+			ply:AddItemToInventory("hunting_backpack", "bandage")
+			ply:AddItemToInventory("hunting_backpack", "fizzy_drink")
+			ply:AddItemToInventory("hunting_backpack", "tfm_blunt_shovel")
+		end)
+
+	end)
+
+	ply.dr_loaded = true
+
+	ply:newCharacter("models/player/group01/male_03.mdl", "m")
+
+	ply.zombie_kill_count = 0
+
+end)
+
+function player_meta:hasBuff(name)
+
+	if (self.dr_character.created) then
+
+		return self.dr_character.buffs[name]
+
+	end
+
+end
+
+function player_meta:hasDebuff(name)
+
+	if (self.dr_character.created) then
+
+		return self.dr_character.debuffs[name]
+
+	end
+
+end
+
+
+
 
 deadremains.character = {}
 
--- list of functions with strings as keys and value as 1 or 0
-deadremains.character.flagCheckFuncs = {}
--- these are ran if the condition of the buff/debuff is met.
-deadremains.character.processFlagFuncs = {}
+function deadremains.character.resetFlags(ply)
 
--- looper to apply these to all players online.
-timer.Create("deadremains.buffschecker", 1, 0, function()
-	for k,ply in pairs(player.GetAll()) do
-		if (ply.dr_character) then
-			if (IsValid(ply) and (ply.dr_character.created == true)) then
-				-- process each flag one by one
-				for unique, flag in pairs(ply.dr_character.buffs) do
-					if (flag == 1) then
-						-- does this buff actually have any code to run/check?
-						if (deadremains.character.flagCheckFuncs[unique] ~= nil) then
-							flag = deadremains.character.flagCheckFuncs[unique](ply)
-						end
+	-- trigger on/off functions too.
+	deadremains.character.setDebuff(ply, "COLD", 0, 1)
+	deadremains.character.setDebuff(ply, "SICKNESS", 0, 1)
+	deadremains.character.setDebuff(ply, "HEART_ATTACK", 0, 1)
+	deadremains.character.setDebuff(ply, "UNCONCIOUS", 0, 1)
+	deadremains.character.setDebuff(ply, "TIREDNESS", 0, 1)
+	deadremains.character.setDebuff(ply, "BANDIT", 0, 1)
+	deadremains.character.setDebuff(ply, "DEPRESSION", 0, 1)
+	deadremains.character.setDebuff(ply, "PSYCHOSIS", 0, 1)
+	deadremains.character.setDebuff(ply, "ZINFECTED_HIT", 0, 1)
+	deadremains.character.setDebuff(ply, "ZINFECTED_BLOOD", 0, 1)
+	deadremains.character.setDebuff(ply, "DEHYDRATED", 0, 1)
+	deadremains.character.setDebuff(ply, "STARVATION", 0, 1)
+	deadremains.character.setDebuff(ply, "BLEEDING", 0, 1)
+	deadremains.character.setDebuff(ply, "RESTRAINED", 0, 1)
 
-						-- check again incase our flagCheckFunc has returned a 0.
-						-- otherwise the flag is preserved.
-						if (flag == 1) then
-							deadremains.character.processFlagFuncs[unique](ply)
-						end
-					end
-				end
+	deadremains.character.setBuff(ply, "HYDRATED", 1, 1)
+	deadremains.character.setBuff(ply, "FULL", 1, 1)
+	deadremains.character.setBuff(ply, "ZINVISIBLE", 0, 1)
+	deadremains.character.setBuff(ply, "BOOST", 0, 1)
+	deadremains.character.setBuff(ply, "PAUSE", 0, 1)
+	deadremains.character.setBuff(ply, "HEALTHY", 1, 1)
+	deadremains.character.setBuff(ply, "ATHLETIC", 0, 1)
+	deadremains.character.setBuff(ply, "IRON_MAN", 0, 1)
+	deadremains.character.setBuff(ply, "RIPPED", 0, 1)
+	deadremains.character.setBuff(ply, "WARM", 0, 1)
+	deadremains.character.setBuff(ply, "HERO", 0, 1)
 
-				for unique, flag in pairs(ply.dr_character.debuffs) do
-					if (flag == 1) then
-						-- does this buff actually have any code to run/check?
-						if (deadremains.character.flagCheckFuncs[unique] ~= nil) then
-							flag = deadremains.character.flagCheckFuncs[unique](ply)
-						end
+	deadremains.character.networkFlags(ply)
 
-						-- check again incase our flagCheckFunc has returned a 0.
-						-- otherwise the flag is preserved.
-						if (flag == 1) then
-							deadremains.character.processFlagFuncs[unique](ply)
-						end
-					end
-				end
-			end
-		end
+end
+
+
+util.AddNetworkString("deadremains_refreshinv")
+
+hook.Add("PlayerSpawn", "deadremains_player_spawn_char", function(ply)
+
+	ply.dr_character.elapsed_minutes = 0
+
+	deadremains.character.resetFlags(ply)
+
+	ply:setNeed("Thirst", 100)
+	ply:setNeed("Hunger", 100)
+
+	if (timer.Exists("player_check_details" .. ply:UniqueID())) then
+
+		timer.Remove("player_check_details" .. ply:UniqueID())
+
 	end
+
+	timer.Create("player_check_details" .. ply:UniqueID(), 1.5, 0, function()
+
+		if (ply:getNeed("Thirst") < 0) then ply:setNeed("Thirst", 0) end
+		if (ply:getNeed("Hunger") < 0) then ply:setNeed("Hunger", 0) end
+
+		if (ply:getNeed("Thirst") > 100) then ply:setNeed("Thirst", 100) end
+		if (ply:getNeed("Hunger") > 100) then ply:setNeed("Hunger", 100) end
+
+		if (ply:Health() <= 0) and (ply:Alive()) then ply:Kill() end
+
+	end)
+
+
+	net.Start("deadremains_refreshinv")
+	net.Send(ply)
+
 end)
 
--- ran every second if enabled.
-deadremains.character.flagCheckFuncs["HYDRATED"] = function(ply)
-	if (ply:getThirst() > 80) then return 1 else return 0 end
-end
-deadremains.character.processFlagFuncs["HYDRATED"] = function(ply)
-	local addVal = 1/60	-- 1 hp every 60 seconds.
-	local newHp = ply.dr_character.float_hp + addVal
 
-	if (newHp > 100) then
-		newHp = 100
-	elseif (newHp < 0) then
-		newHp = 0
+concommand.Add("dr_setflag", function(ply, cmd, args)
+
+	local flagname = args[1]
+	local flagval = args[2]
+
+	if (ply.dr_character.buffs[flagname] ~= nil) then
+
+		deadremains.character.setBuff(ply, flagname, flagval)
+
+	elseif (ply.dr_character.debuffs[flagname] ~= nil) then
+
+		deadremains.character.setDebuff(ply, flagname, flagval)
+
+	else
+
+		ply:ChatPrint("Could not set buff/debuff.")
+
 	end
 
-	-- track float value.
-	ply.dr_character.float_hp = newHp
+	deadremains.character.networkFlags(ply)
 
-	-- floor the tracked float value
-	ply:SetHealth(math.floor(ply.dr_character.float_hp))
-end
+end)
 
+function deadremains.character.setBuff(ply, name, val, disableNetwork)
 
-deadremains.character.flagCheckFuncs["FULL"] = function(ply)
-	if (ply:getHunger() > 80) then return 1 else return 0 end
-end
-deadremains.character.processFlagFuncs["FULL"] = function(ply)
-	local addVal = 1/60	-- 1 hp every 60 seconds.
-	local newHp = ply.dr_character.float_hp + addVal
+	if (ply.dr_character.created) then
 
-	if (newHp > 100) then
-		newHp = 100
-	elseif (newHp < 0) then
-		newHp = 0
+		local previous_value = ply.dr_character.buffs[name]
+
+		ply.dr_character.buffs[name] = val
+
+		if tonumber(val) == 0 then
+
+			local feffect = deadremains.character.GetFEffect(name)
+
+			if (feffect ~= nil) then
+
+				feffect:OnEnd(ply)
+
+			end
+
+		else
+
+			local feffect = deadremains.character.GetFEffect(name)
+
+			if (feffect ~= nil) then
+
+				feffect:OnStart(ply)
+
+			end
+
+		end			
+
+		if not (disableNetwork == 1) then
+
+			if val ~= previous_value then
+
+				deadremains.character.networkFlags(ply)
+
+			end
+
+		end
+
 	end
 
-	-- track float value.
-	ply.dr_character.float_hp = newHp
-
-	ply:SetHealth(math.floor(ply.dr_character.float_hp))
 end
 
-deadremains.character.processFlagFuncs["BLEEDING"] = function(ply)
-	--print("bleeding out")
+function deadremains.character.setDebuff(ply, name, val, disableNetwork)
+
+	if (ply.dr_character.created) then
+
+		local previous_value = ply.dr_character.buffs[name]
+
+		ply.dr_character.debuffs[name] = val
+
+		if tonumber(val) == 0 then
+
+			local feffect = deadremains.character.GetFEffect(name)
+
+			if (feffect ~= nil) then
+
+				feffect:OnEnd(ply)
+
+			end
+
+		else
+
+			local feffect = deadremains.character.GetFEffect(name)
+
+			if (feffect ~= nil) then
+
+				feffect:OnStart(ply)
+
+			end
+
+		end		
+
+		if not (disableNetwork == 1) then
+
+			if val ~= previous_value then
+
+				deadremains.character.networkFlags(ply)
+
+			end
+
+		end
+
+	end
+
 end
+
+function deadremains.character.networkFlags(ply)
+
+	print("Sending buffs and debuffs")
+
+	net.Start("deadremains.getbuffs")
+
+		net.WriteUInt(table.Count(ply.dr_character.buffs), 8)
+
+		for k,v in pairs(ply.dr_character.buffs) do
+
+			net.WriteString(k)
+
+			net.WriteUInt(v, 4)
+
+		end
+
+	net.Send(ply)
+
+
+	net.Start("deadremains.getdebuffs")
+	
+		net.WriteUInt(table.Count(ply.dr_character.debuffs), 8)
+
+		for k,v in pairs(ply.dr_character.debuffs) do
+
+			net.WriteString(k)
+
+			net.WriteUInt(v, 4)
+
+		end
+
+	net.Send(ply)
+end
+
+
+hook.Add("EntityTakeDamage", "BloodDamageCheck", function(ent, dmginfo)
+	if ent:IsPlayer() then
+
+		local amount = dmginfo:GetDamage() --jamez
+		local BleedRandomize = math.random(0,17)
+
+		--if dmginfo:IsFallDamage() then
+		if (amount >= 25 or BleedRandomize <= 4) and ent:Health() < 70 then
+
+			deadremains.character.setDebuff(ent, "BLEEDING", 1)
+
+			ent.DropBlood = CurTime() + 2.5
+			ent.BloodyTrail = CurTime() + 1
+			ent.LimpEffect = CurTime() + 0.7
+
+			ent:SetNWInt("BRedFade", 0.7)
+			ent:SetNWInt("BColorFade", 0.3)
+
+		end
+
+	end
+end)

@@ -1,4 +1,5 @@
 item.unique = "water_canteen"
+item.label = "Canteen"
 
 -- The model that this item should have.
 item.model = "models/props_junk/MetalBucket02a.mdl"

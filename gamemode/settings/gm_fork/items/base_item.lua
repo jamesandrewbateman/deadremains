@@ -1,4 +1,5 @@
 item.unique = "base"
+item.label = "Unknown"
 
 -- The model that this item should have.
 item.model = "models/captainbigbutt/skeyler/hats/bear_hat.mdl"
@@ -60,26 +61,7 @@ item.context_menu = {item_function_drop, item_function_destroy}
 ----------------------------------------------------------------------
 
 function item:worldUse(player, entity)
-	-- adds the item to the inventory system too, if it is one.
-	local success, message = player:findSuitableInventory(self.unique)
-
-	if (entity.meta) then
-		if (entity.meta.items) then
-			-- find the index of the inventory we just picked up
-			local inv_index = player:findInventoryIndex(self.unique)
-
-			for k,v in pairs(entity.meta.items) do
-				local s, m = player:addItem(inv_index, v.unique, v.slot_x, v.slot_y)
-			end
-		end
-	end
-
-
-	if (!success) then
-		player:ChatPrint(message)
-	else
-		entity:Remove()
-	end
+	deadremains.item.worldUse(player, entity)
 end
 
 ----------------------------------------------------------------------

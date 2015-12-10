@@ -1,4 +1,5 @@
 item.unique = "melon"
+item.label = "Melon"
 
 -- The model that this item should have.
 item.model = "models/props_junk/watermelon01.mdl"

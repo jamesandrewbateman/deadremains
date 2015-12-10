@@ -89,15 +89,46 @@ function ELEMENT:OnMousePressed(m)
 
 	if m == MOUSE_LEFT then
 
-		local x, y = self:GetPos()
-		self.xPos = x
-		self.yPos = y
+		local opened_container_id = LocalPlayer():GetNetworkedString("OpenedContainerID", "")
+		if opened_container_id ~= "" then
 
-		self.clicked = true
+			-- find item information about this entry.
+			local items = LocalPlayer().Inventories
+			local foundItem = false
+			local sX, sY = self:GetPos()
 
-		self.mPosX = gui.MouseX()
-		self.mPosY = gui.MouseY()
+			for k,v in pairs(items) do
+				if (v.SlotPosition.X*60 == sX) then
+					if (v.SlotPosition.Y*60 == sY) then
+						foundItem = v
+					end
+				end
+			end
 
+			-- does it exist?
+			if not foundItem then
+				--print(sX, sY)
+				--PrintTable(items)
+				return
+			end
+
+			net.Start(opened_container_id .. ":PutItem")
+				net.WriteString(foundItem.ItemUnique)
+				net.WriteString(foundItem.InventoryName)
+				net.WriteVector(foundItem.SlotPosition)
+			net.SendToServer()
+
+			self:Remove()
+		else
+			local x, y = self:GetPos()
+			self.xPos = x
+			self.yPos = y
+
+			self.clicked = true
+
+			self.mPosX = gui.MouseX()
+			self.mPosY = gui.MouseY()
+		end
 	end
 
 end
@@ -124,8 +155,8 @@ function ELEMENT:OnMouseReleased(m)
 		local sX, sY = self:GetPos()
 
 		for k,v in pairs(items) do
-			if (v.SlotPosition.X == sX) then
-				if (v.SlotPosition.Y == sY) then
+			if (v.SlotPosition.X*60 == sX) then
+				if (v.SlotPosition.Y*60 == sY) then
 					foundItem = v
 				end
 			end
@@ -152,7 +183,8 @@ function ELEMENT:OnMouseReleased(m)
 		local actionMenu = vgui.Create("deadremains.inventory_action_menu")
 		actionMenu:SetSize(190, 5)
 		actionMenu:setOrigin(x + 15, y)
-		actionMenu:setDisableFunc(function() self.active = false end)
+
+		--actionMenu:setDisableFunc(function() self.active = false end)
 
 		-- item meta to send to server
 		actionMenu.inventoryName = foundItem.InventoryName
@@ -166,13 +198,15 @@ function ELEMENT:OnMouseReleased(m)
 				slot.action_name = v.name
 				slot.inventory_name = actionMenu.inventoryName
 				slot.item_unique = actionMenu.itemUnique
-				slot.slot_position = Vector(sX, sY, 0)
+				slot.slot_position = Vector(sX/60, sY/60, 0)
 
 				v.callback(slot)
 				deadremains.ui.getActiveActionMenu():Remove()
 
+				deadremains.ui.rebuildInventory()
 				deadremains.ui.destroyMenu()
 				deadremains.ui.createMenu()
+
 			end, Material("deadremains/characteristics/sprintspeed.png", "noclamp smooth"))
 
 		end

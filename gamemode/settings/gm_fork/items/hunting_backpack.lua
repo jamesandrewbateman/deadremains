@@ -1,7 +1,8 @@
 item.unique = "hunting_backpack"
+item.label = "Hunting Backpack"
 
 -- The model that this item should have.
-item.model = "models/lamps/torch.mdl"
+item.model = "models/fallout3/campish_pack.mdl"
 
 -- How many horizontal slots this item should take.
 item.slots_horizontal = 2

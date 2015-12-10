@@ -1,4 +1,5 @@
 item.unique = "apple"
+item.label = "Apple"
 
 -- The model that this item should have.
 item.model = "models/Gibs/HGIBS.mdl"

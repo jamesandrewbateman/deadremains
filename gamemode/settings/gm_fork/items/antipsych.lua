@@ -1,7 +1,8 @@
 item.unique = "antipsych"
+item.label = "Chlorpromazine"
 
 -- The model that this item should have.
-item.model = "models/props_junk/shoe001a.mdl"
+item.model = "models/ressource/healthvial.mdl"
 
 -- How many horizontal slots this item should take.
 item.slots_horizontal = 1

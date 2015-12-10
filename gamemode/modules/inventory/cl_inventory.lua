@@ -28,7 +28,17 @@ net.Receive("deadremains.networkinventory", function(bits)
 	--PrintTable(LocalPlayer().Inventories)
 	
 	deadremains.ui.rebuildInventory()
-	
+end)
+
+net.Receive("deadremains.refreshinv", function(bits)
+	if uiOpen then
+		deadremains.ui.destroyMenu()
+		deadremains.ui.createMenu()
+	else
+		deadremains.ui.destroyMenu()
+		deadremains.ui.createMenu()
+		deadremains.ui.hideMenu()
+	end
 end)
 
 function player_meta:InventoryItemAction(action_name, inventory_name, item_unique, item_slot_position)
@@ -38,7 +48,8 @@ function player_meta:InventoryItemAction(action_name, inventory_name, item_uniqu
 		net.WriteString(item_unique)
 		net.WriteVector(item_slot_position)
 	net.SendToServer()
+
+	timer.Simple(0.5, function()
+		LocalPlayer():ConCommand("Networkinv")
+	end)
 end
-concommand.Add("dropbeans", function()
-	LocalPlayer():InventoryItemAction("consume", "hunting_backpack", "tin_beans", Vector(0,0,0))
-end)

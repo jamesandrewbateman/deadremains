@@ -1,7 +1,8 @@
 item.unique = "tin_beans"
+item.label = "Tin of Beans"
 
 -- The model that this item should have.
-item.model = "models/props_c17/canister01a.mdl"
+item.model = "models/props_junk/garbage_metalcan001a.mdl"
 
 -- How many horizontal slots this item should take.
 item.slots_horizontal = 1
@@ -34,9 +35,8 @@ item.context_menu = {item_function_consume, item_function_drop, item_function_de
 --		
 ----------------------------------------------------------------------
 
-function item:use(player)
+function item:use(ply)
 	if (SERVER) then
-		sound.Play("ambient/explosions/exp1.wav", player:GetPos(), 75, 100, 0.25)
-		player:SetHealth(math.Clamp(player:Health() + 10, 0, 100))
+		ply:setNeed("hunger", ply:getNeed("hunger") + 15)
 	end
 end
