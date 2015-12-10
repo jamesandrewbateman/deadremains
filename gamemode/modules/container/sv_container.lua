@@ -2,7 +2,7 @@ local containers = containers or {}
 
 function deadremains.containers.create(pName, pSlotX, pSlotY, pWorldPosition)
 
-	--deadremains.log.write("general", "Creating container " .. pName .. " with size " .. pSlotX .. ", " .. pSlotY)
+	deadremains.log.write("general", "Creating container " .. pName .. " with size " .. pSlotX .. ", " .. pSlotY)
 
 	local netId = util.AddNetworkString("deadremains.networkcontainers")	-- does nothing if net str exists.
 
@@ -157,4 +157,96 @@ deadremains.netrequest.create("deadremains.updatecontainerui", function (ply, da
 
 	end
 
+end)
+
+function containerSpawn()
+	timer.Simple(2, function()
+		print("Spawning containers")
+		local allNavs = navmesh.GetAllNavAreas()
+		if (allNavs == nil) then print("This map has no nav maps!") return end
+
+		for i = 1, 100 do
+
+			local found = false
+
+			local spwnPoint
+
+			for j = 1, 10 do
+
+				found = true
+
+				local nav = allNavs[ math.random( 1, #allNavs ) ]
+
+				spwnPoint = nav:GetRandomPoint() + Vector( 0, 0, 4 )
+
+				if !nav:IsUnderwater() then
+
+					for _, v in pairs( player.GetAll() ) do
+						if v:GetPos():Distance( spwnPoint ) < 1500 then
+							found = false
+							break
+						end
+					end
+
+					local tr = {
+						start = spwnPoint,
+						endpos = spwnPoint,
+						mins = Vector( - 16, - 16, 0 ),
+						maxs = Vector( 16, 16, 71 )
+					}
+
+					if util.TraceHull( tr ).Hit then
+						found = false
+					end
+
+					if found then break end
+
+				end
+
+			end
+
+			if found then
+
+				local container_index = deadremains.containers.create("world_pack", 4, 4, spwnPoint)
+
+				for i=1,math.random(1,15) do
+					if (math.random(0,100) > 20) then
+
+						local item = 0
+						local target_i = math.random(1, table.Count(items))
+						--print(target_i)
+						local c = 0
+						local reached = false
+						for k,v in pairs(items) do
+							if not reached then
+								if c == target_i then
+									item = v
+									reached = true
+								end
+
+								c = c + 1
+							end
+						end
+
+						--print(item)
+						if item ~= 0 then
+							deadremains.containers.addItem(container_index, item.unique)
+						else
+							print("could not find item with index", target_i)
+						end
+
+					end
+				end
+	
+			end
+
+		end
+
+	end)
+end
+concommand.Add("dr_spawn_containers", function(ply, cmd, args)
+	containerSpawn()
+end)
+hook.Add( "InitPostEntity", "containerSpawnThink", function()
+	containerSpawn()
 end)

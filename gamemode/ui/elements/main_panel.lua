@@ -27,6 +27,7 @@ function ELEMENT:Init()
 	end
 
 	local skills = deadremains.settings.get("skills")
+
 	for unique, data in pairs(skills) do
 
 		self.catSkills:addSkill(unique, data.name, data.icon, data.type)
@@ -43,6 +44,7 @@ function ELEMENT:Init()
 		self.catSkills:addCharacteristic(id, data.name, data.default, data.icon)
 
 	end
+	
 	self.catSkills:updateLayout()
 	self.tabList:addCategory(matHunting, self.catSkills, 2, "SKILLS", function() local main = deadremains.ui.getMenu() main.sec:Hide() end)
 

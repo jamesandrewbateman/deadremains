@@ -149,6 +149,8 @@ function CONTAINER_BASE:LoadContainer(pContainerIndex)
 
 	grid:LoadContainer(pContainerIndex)
 
+	self:SizeToChildren()
+
 end
 
 function CONTAINER_BASE:Paint(w, h)
@@ -218,14 +220,19 @@ end
 
 function CONTAINER_GRID:AddItem(pItemName, pParentWidth, pParentHeight)
 
-	pParentWidth = pParentWidth * 64
-	pParentHeight = pParentHeight * 64
+	local next_slotx = 0
+	local next_sloty = 0
+
+	next_sloty = math.floor(table.Count(self:GetChildren()) / pParentWidth)
+	next_slotx = table.Count(self:GetChildren()) % pParentWidth
 
 	local listItem = vgui.Create("CONTAINER_SLOT", self)
 
 	listItem:SetItemName(pItemName)
 
-	listItem:SetPos(math.random(-32, pParentWidth - 32), math.random(-32, pParentHeight - 32))
+	listItem:SetPos(next_slotx * 64, next_sloty * 64)
+
+	listItem:SetSize(64, 64)
 
 end
 
@@ -252,8 +259,6 @@ function CONTAINER_SLOT:Init()
 
 	--self:Droppable("dr_container_slot_droppable")
 
-	self:SetSize(64, 64)
-
 end
 
 
@@ -262,6 +267,8 @@ function CONTAINER_SLOT:SetItemName(pItemName)
 	self.ItemName = pItemName
 
 	local item = deadremains.item.get(pItemName)
+
+	if not item then return end
 
 	self:SetModel(item.model)
 

@@ -38,7 +38,7 @@ deadremains.settings.new("characteristics", characteristics)
 ----------------------------------------------------------------------
 
 local skills = {
-	fortification = {unique = "fortification", name = "Fortification", type = "crafting", icon = "materials/deadremains/skills/craftingskill_fortification.png"},
+	fortification = {unique = "fortification", name = "Fortification", type = "crafting", icon = "materials/deadremains/skills/CraftingSkill_Fortification.png"},
 	mechanics = {unique = "mechanics", name = "Mechanics", type = "crafting", icon = "materials/deadremains/skills/craftingskill_mechanics.png"},
 	woodwork = {unique = "woodwork", name = "Woodwork", type = "crafting", icon = "materials/deadremains/skills/craftingskill_woodwork.png"},
 

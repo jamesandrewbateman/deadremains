@@ -29,6 +29,8 @@ function deadremains.item.get(unique)
 	if i == nil then
 		local w = DR_GetWeaponInfo(unique)
 
+		if w == nil then return false end
+		
 		w.label = w.label
 		w.meta = {}
 		w.meta["type"] = item_type_weapon
