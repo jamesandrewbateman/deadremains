@@ -214,7 +214,7 @@ function containerSpawn()
 
 						local item = 0
 						local target_i = math.random(1, table.Count(items))
-						--print(target_i)
+
 						local c = 0
 						local reached = false
 						for k,v in pairs(items) do
@@ -228,7 +228,7 @@ function containerSpawn()
 							end
 						end
 
-						--print(item)
+
 						if item ~= 0 then
 							deadremains.containers.addItem(container_index, item.unique)
 						else
@@ -237,7 +237,7 @@ function containerSpawn()
 
 					end
 				end
-	
+
 			end
 
 		end
