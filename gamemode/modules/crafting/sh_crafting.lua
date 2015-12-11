@@ -80,27 +80,47 @@ deadremains.crafting.weapons["tfm_sword_knight_longsword"] = { name = "Longsword
 deadremains.crafting.weapons["tfm_sword_snowflake_katana"] = { name = "Katana", quantity = 1 }
 deadremains.crafting.weapons["tfbow_arrow"] = { name = "Arrow", quantity = 5 }
 
+function deadremains.crafting.GetRecipeCategory(cat_name)
+
+	local return_tbl = {}
+
+	for k,v in pairs(deadremains.crafting.recipes) do
+
+		local iteminfo = deadremains.crafting.GetItemInfo(k)
+
+		if (iteminfo.category == cat_name) then
+
+			table.insert(return_tbl, iteminfo)
+
+		end
+
+	end
+
+	return return_tbl
+
+end
+
 function deadremains.crafting.GetItemInfo(item_name)
 
 	local return_tbl = {}
 
 	if deadremains.crafting.weapons[item_name] ~= nil then
 
-		return_tbl.type = "weapon"
+		return_tbl.category = "weapons"
 		return_tbl.item_name = item_name
 		return_tbl.print_name = deadremains.crafting.weapons[item_name].name
 		return_tbl.quantity = deadremains.crafting.weapons[item_name].quantity
 
 	elseif deadremains.crafting.craftingitems[item_name] ~= nil then
 
-		return_tbl.type = "craftingitem"
+		return_tbl.category = "craftingitems"
 		return_tbl.item_name = item_name
 		return_tbl.print_name = deadremains.crafting.craftingitems[item_name].name
 		return_tbl.quantity = deadremains.crafting.craftingitems[item_name].quantity
 
 	elseif deadremains.crafting.consumables[item_name] ~= nil then
 
-		return_tbl.type = "consumable"
+		return_tbl.category = "consumables"
 		return_tbl.item_name = item_name
 		return_tbl.print_name = deadremains.crafting.consumables[item_name].name
 		return_tbl.quantity = deadremains.crafting.consumables[item_name].quantity

@@ -294,6 +294,27 @@ function player_meta:CanFitItem(inv_name, item_unique, contains)
 	return false, 0, 0
 end
 
+function player_meta:RemoveItemCrafting(item_name)
+
+	for k,v in pairs(self.Inventories) do
+
+		for i,j in pairs(v.Items) do
+
+			if j.Unique == item_name then
+
+				local item_weight = deadremains.item.get(j.Unique).weight
+
+				table.remove(self:GetInventory(v.Name).Items, i)
+
+				self:GetInventory(v.Name).CurrentWeight = self:GetInventory(v.Name).CurrentWeight - item_weight
+
+			end
+
+		end
+
+	end
+end
+
 -- for removing from the inventory
 function player_meta:RemoveItem(inv_name, slot_position)
 	local items = self:GetInventory(inv_name).Items
