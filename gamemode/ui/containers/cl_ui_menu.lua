@@ -132,6 +132,7 @@ function deadremains.ui.createMenu()
 	-- Do not re-create the whole menu so players can stay on the same tab when re-opening
 	if UI_MAIN then
 		UI_MAIN:Show()
+		UI_MAIN.main:Rebuild()
 		gui.EnableScreenClicker(true)
 		menuOpen = true
 
@@ -147,9 +148,10 @@ function deadremains.ui.createMenu()
 		UI_MAIN:SetSize(deadremains.ui.screenSizeX, deadremains.ui.screenSizeY)
 		UI_MAIN:SetPos(0, 0)
 
-		local main_panel = vgui.Create("deadremains.main_panel", UI_MAIN)
-		main_panel:SetSize(640, 761)
-		main_panel:SetPos(deadremains.ui.screenSizeX / 2 - 35 / 2 - 640, deadremains.ui.screenSizeY / 2 - 761 / 2)
+		UI_MAIN.main = vgui.Create("deadremains.main_panel", UI_MAIN)
+		UI_MAIN.main:SetSize(640, 761)
+		UI_MAIN.main:SetPos(deadremains.ui.screenSizeX / 2 - 35 / 2 - 640, deadremains.ui.screenSizeY / 2 - 761 / 2)
+		UI_MAIN.main:Rebuild()
 
 		UI_MAIN.sec = vgui.Create("deadremains.secondary_inventory_panel", UI_MAIN)
 		UI_MAIN.sec:SetSize(540, 761)

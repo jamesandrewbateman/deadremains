@@ -42,14 +42,14 @@ local function handleCallback(name, query, result, callback_success, callback_fa
 				callback_success(result.data, result.affected, result.lastid)
 			end
 		else
-			deadremains.log.write(deadremains.log.mysql, "The mysql query \"" .. tostring(query) .. "\" on database \"" .. tostring(name) .. "\" failed: " .. tostring(result.error))
+			--deadremains.log.write(deadremains.log.mysql, "The mysql query \"" .. tostring(query) .. "\" on database \"" .. tostring(name) .. "\" failed: " .. tostring(result.error))
 			
 			if (callback_failed) then
 				callback_failed()
 			end
 		end
 	else
-		deadremains.log.write(deadremains.log.mysql, "The mysql query \"" .. tostring(query) .. "\" on database \"" .. tostring(name) .. "\" failed: Returned no result table?")
+		--deadremains.log.write(deadremains.log.mysql, "The mysql query \"" .. tostring(query) .. "\" on database \"" .. tostring(name) .. "\" failed: Returned no result table?")
 		
 		if (callback_failed) then
 			callback_failed()

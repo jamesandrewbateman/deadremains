@@ -84,6 +84,7 @@ function ENT:Draw()
 	self:DrawModel()
 end
 
+
 -- clientside UI
 local PANEL = {}
 

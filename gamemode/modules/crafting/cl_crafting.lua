@@ -5,3 +5,4 @@ end
 concommand.Add("cl_getCraftables", function(ply)
 	deadremains.crafting.getCraftables("bandage")
 end)
+

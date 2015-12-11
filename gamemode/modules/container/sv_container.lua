@@ -207,6 +207,8 @@ function containerSpawn()
 
 			if found then
 
+				local items = deadremains.item.getAll()
+
 				local container_index = deadremains.containers.create("world_pack", 4, 4, spwnPoint)
 
 				for i=1,math.random(1,15) do

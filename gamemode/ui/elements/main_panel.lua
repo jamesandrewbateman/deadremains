@@ -72,4 +72,12 @@ end
 function ELEMENT:Paint(w, h)
 
 end
+
+function ELEMENT:Rebuild()
+
+	print("rebuilding main panel")
+
+	self.catCrafting:Rebuild()
+
+end
 vgui.Register("deadremains.main_panel", ELEMENT, "Panel")
