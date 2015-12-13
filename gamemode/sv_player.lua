@@ -10,8 +10,11 @@ include("player/sv_init.lua")
 
 --! @brief global network function to send all the required data to the client at runtime.
 deadremains.netrequest.create("deadremains.syncdata", function (ply, data)
+	
 	ply:networkChars()
+
 	ply:networkSkills()
+
 	deadremains.character.networkFlags(ply)
 
 	-- pingback

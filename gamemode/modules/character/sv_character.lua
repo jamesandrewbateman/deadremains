@@ -99,7 +99,7 @@ hook.Add("PlayerInitialSpawn", "deadremains_init_spawn_char", function(ply)
 
 	ply:newCharacter("models/player/group01/male_03.mdl", "m")
 
-	ply.zombie_kill_count = 0
+	ply:SetNWInt("zombie_kill_count", 0)
 
 end)
 

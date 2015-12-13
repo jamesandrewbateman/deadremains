@@ -44,7 +44,7 @@ function deadremains.sql.savePlayer(player)
 	params = params .. "z = " .. player:GetPos().z .. ", "
 	params = params .. "name = " .. deadremains.sql.escape(database_main, player:Nick()) .. ", "
 	params = params .. "time_alive = " .. player.alive_timer .. ", "
-	params = params .. "zombie_kill_count = " .. player.zombie_kill_count
+	params = params .. "zombie_kill_count = " .. player:GetNWInt("zombie_kill_count")
 	params = params .. " WHERE steam_id = " .. steam_id .. ";"
 	deadremains.sql.query(database_main, params)
 
