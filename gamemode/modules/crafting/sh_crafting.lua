@@ -29,7 +29,7 @@ deadremains.crafting.craftingitems["crafted_feather"] = { name = "Crafted Feathe
 deadremains.crafting.recipes["tfa_dr_bow"] = {
 	stick = 1,
 	{ string = 1, crafted_string = 1 },
-	entry_count = 1
+	entry_count = 2
 }
 deadremains.crafting.recipes["tfm_sharp_trpaxe"] = {
 	stick = 1,
@@ -159,73 +159,87 @@ end
 
 function deadremains.crafting.GetCraftableItems(ply)
 
-	local craftable_items = {}
+	local crafted_items_store = {}
 
-	for craftable_name, required_items in pairs(deadremains.crafting.recipes) do
-		craftable_items[craftable_name] = 100
+	for target_item_name, target_required_mats in pairs(deadremains.crafting.recipes) do
 
-		for item_name, required_item_count in pairs(required_items) do
-			if type(required_item_count) == "table" then
-				
-				local recipe_item_found = false
+		crafted_items_store[target_item_name] = {
+			TotalCheckMatCount = 0,
+			CurrentMatCount = 0,
+			Mats = {
 
-				-- ANY of the items in this table.
-				for recipe_item_name, recipe_item_quantity in pairs(required_item_count) do
+			}
+		}
 
-					if not recipe_item_found then
-						
-						local item_count = deadremains.crafting.GetItemCount( ply, recipe_item_name )
-						--print(recipe_item_name, item_count)
-						local craft_count = math.floor(item_count / recipe_item_quantity) or 0
+		for mat_name, mat_count in pairs(target_required_mats) do
 
-						if item_count >= recipe_item_quantity then
+			if mat_name == "entry_count" then
 
-							if craft_count < craftable_items[craftable_name] then
-								craftable_items[craftable_name] = craft_count
+				-- how many required materials we need to have the correct amount of mats for.
+				crafted_items_store[target_item_name].TotalCheckMatCount = mat_count
 
-								recipe_item_found = true
-							end
+			elseif type(mat_count) == "table" then
 
-						else
+				local selected_mat_name = ""
 
-							craftable_items[craftable_name] = 0
+				-- any of the items exceed the amount needed to craft it.
+				-- select that mat.
+				for k,v in pairs(mat_count) do
 
-						end
+					local ply_mat_count = deadremains.crafting.GetItemCount(ply, k)
+
+					if ply_mat_count >= v then
+
+						selected_mat_name = tostring(k)
+
+						break
 
 					end
+
 				end
 
-			elseif tostring(item_name) ~= "entry_count" then
+				if selected_mat_name ~= "" then
 
-				local item_count = deadremains.crafting.GetItemCount( ply, item_name )
-				--print(item_name, item_count)
-				local craft_count = math.floor(item_count / required_item_count) or 0
+					-- we can craft this item with this material.
+					crafted_items_store[target_item_name].CurrentMatCount = crafted_items_store[target_item_name].CurrentMatCount + 1
 
-				if item_count >= required_item_count then
+					table.insert(crafted_items_store[target_item_name].Mats, selected_mat_name)
 
-					if craft_count < craftable_items[craftable_name] then
-						craftable_items[craftable_name] = craft_count
-					end
+				end
 
-				else
+			elseif type(mat_count) == "number" then
 
-					craftable_items[craftable_name] = 0
+				local ply_mat_count = deadremains.crafting.GetItemCount(ply, mat_name)
+
+				if ply_mat_count >= mat_count then
+
+					crafted_items_store[target_item_name].CurrentMatCount = crafted_items_store[target_item_name].CurrentMatCount + 1
+
+					table.insert(crafted_items_store[target_item_name].Mats, mat_name)
 
 				end
 
 			end
-		end
-	end
 
-	for k,v in pairs(craftable_items) do
-		if v == 0 then
-			craftable_items[k] = nil
 		end
+
+	end
+	--PrintTable(craftable_items)
+	--PrintTable(crafted_items_store)
+	for k,v in pairs(crafted_items_store) do
+
+		if v.CurrentMatCount ~= v.TotalCheckMatCount then
+
+			crafted_items_store[k] = nil
+
+		end
+
 	end
 
 	--print(table.Count(craftable_items), "HI")
+	--PrintTable(craftable_items)
 
-	return craftable_items
+	return crafted_items_store
 end
 
 

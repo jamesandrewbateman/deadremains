@@ -151,7 +151,7 @@ function ELEMENT:RebuildList()
 	depth = 0
 
 	current_bottom = current_bottom + 32
-	for k,v in pairs(weapons_cat) do
+	for k,v in pairs(crftitems_cat) do
 
 		local listItem = vgui.Create("deadremains.crafting_panel_entry", self)
 		

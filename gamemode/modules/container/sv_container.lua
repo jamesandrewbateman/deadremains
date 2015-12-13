@@ -38,6 +38,8 @@ end)
 
 function deadremains.containers.addItem(pContainerIndex, pItemName)
 
+	if containers[pContainerIndex] == nil then print("Container doesn't exist!") return end
+
 	table.insert(containers[pContainerIndex].Items, pItemName)
 
 	deadremains.containers.networkItemChanges(pContainerIndex)

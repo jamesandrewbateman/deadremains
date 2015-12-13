@@ -103,7 +103,7 @@ function deadremains.sql.intialize(name, hostname, username, password, database,
 end
 
 function deadremains.sql.connect()
-	deadremains.sql.intialize(database_main, "knby.site.nfoservers.com", "knby", "XZ7ZLmVmEL", "knby_deadremains", 3306)
+	deadremains.sql.intialize(database_main, "db1.eu.serenityservers.net", "db3996", "6t1R8XITU1", "db3996", 3306)
 	deadremains.map_config.initialize(database_main, "gm_fork")
 end
 

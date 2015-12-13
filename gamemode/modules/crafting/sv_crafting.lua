@@ -37,6 +37,8 @@ deadremains.netrequest.create("deadremains.craftitem", function (ply, data)
 
 	local items = deadremains.crafting.GetCraftableItems(ply)
 
+	PrintTable(items)
+
 	if table.Count(items) > 0 then
 
 		if items[item_name] ~= nil then
@@ -46,11 +48,36 @@ deadremains.netrequest.create("deadremains.craftitem", function (ply, data)
 
 			for k,v in pairs(required_items) do
 
-				if tostring(k) ~= "entry_count" and not deadremains.crafting.IsPersisted(pItemName) then
+				if type(v) == "table" then
+
+					local found_item_name = ""
+					local found_item_quant = ""
+
+					for i,j in pairs(v) do
+
+						local this_item_count = deadremains.crafting.GetItemCount( ply, i )
+
+						if this_item_count >= j and found_item_name == "" then
+
+							found_item_name = i
+							found_item_quant = j
+
+						end
+
+					end
+
+					print(found_item_name, found_item_quant)
+
+					for n=1, found_item_quant do
+
+						ply:RemoveItemCrafting(k)
+
+					end
+
+				elseif tostring(k) ~= "entry_count" and not deadremains.crafting.IsPersisted(k) then
 
 					for i=1, v do
 
-						print(k)
 						ply:RemoveItemCrafting(k)
 
 					end

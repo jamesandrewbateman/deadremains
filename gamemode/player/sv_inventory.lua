@@ -301,6 +301,7 @@ function player_meta:RemoveItemCrafting(item_name)
 		for i,j in pairs(v.Items) do
 
 			if j.Unique == item_name then
+				print(j.Unique, item_name)
 
 				local item_weight = deadremains.item.get(j.Unique).weight
 
