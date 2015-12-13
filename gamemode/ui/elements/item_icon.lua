@@ -21,7 +21,7 @@ function ELEMENT:setGridSize(x, y)
 
 	--print(self.sizeX, self.sizeY)
 	--print(self:GetSize())
-	self.modelPanel = vgui.Create("DModelPanel", self)
+	self.modelPanel = vgui.Create("SpawnIcon", self)
 	self.modelPanel:SetSize(self.sizeX * 60, self.sizeY * 60)
 
 	local i_data = deadremains.item.get(self.id)
@@ -30,9 +30,10 @@ function ELEMENT:setGridSize(x, y)
 	self.modelPanel:SetPos(sX, sY)
 
 	self.modelPanel:SetModel(i_data.model)
-	self.modelPanel:SetCamPos(i_data.cam_pos)
-	self.modelPanel:SetLookAt(i_data.look_at)
-	self.modelPanel:SetFOV(i_data.fov)
+	self.modelPanel:SetTooltip(i_data.label)
+	--self.modelPanel:SetCamPos(i_data.cam_pos)
+	--self.modelPanel:SetLookAt(i_data.look_at)
+	--self.modelPanel:SetFOV(i_data.fov)
 	self.modelPanel:SetMouseInputEnabled(true)
 
 	self.modelPanel.item_icon = self

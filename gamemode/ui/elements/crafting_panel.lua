@@ -113,6 +113,38 @@ function ELEMENT:RebuildList()
 
 	current_bottom = current_bottom + 15
 
+
+	local crftitems_panel = vgui.Create("deadremains.crafting_panel_category", self)
+	crftitems_panel:SetPos(10, current_bottom)
+	crftitems_panel:SetTitle("Crafting Items")
+
+	depth = 0
+
+	current_bottom = current_bottom + 32
+	for k,v in pairs(crftitems_cat) do
+
+		local listItem = vgui.Create("deadremains.crafting_panel_entry", self)
+		
+		listItem:SetItemName(v.item_name)
+
+		listItem:SetPrintName(v.print_name)
+
+		listItem:SetQuantity(v.quantity)
+
+		listItem:SetPos( 14, current_bottom)
+
+		listItem:SetCraftable(items[v.item_name] ~= nil)
+
+		current_bottom = current_bottom + 80
+
+		table.insert(ItemList.CraftingItems, listItem)
+
+		depth = depth + 1
+
+	end
+
+	current_bottom = current_bottom + 15
+
 	local weapons_panel = vgui.Create("deadremains.crafting_panel_category", self)
 	weapons_panel:SetPos(10, current_bottom)
 	weapons_panel:SetTitle("Weapons")
@@ -137,37 +169,6 @@ function ELEMENT:RebuildList()
 		current_bottom = current_bottom + 80
 
 		table.insert(ItemList.Weapons, listItem)
-
-		depth = depth + 1
-
-	end
-
-	current_bottom = current_bottom + 15
-
-	local weapons_panel = vgui.Create("deadremains.crafting_panel_category", self)
-	weapons_panel:SetPos(10, current_bottom)
-	weapons_panel:SetTitle("Crafting Items")
-
-	depth = 0
-
-	current_bottom = current_bottom + 32
-	for k,v in pairs(crftitems_cat) do
-
-		local listItem = vgui.Create("deadremains.crafting_panel_entry", self)
-		
-		listItem:SetItemName(v.item_name)
-
-		listItem:SetPrintName(v.print_name)
-
-		listItem:SetQuantity(v.quantity)
-
-		listItem:SetPos( 14, current_bottom)
-
-		listItem:SetCraftable(items[v.item_name] ~= nil)
-
-		current_bottom = current_bottom + 80
-
-		table.insert(ItemList.CraftingItems, listItem)
 
 		depth = depth + 1
 
