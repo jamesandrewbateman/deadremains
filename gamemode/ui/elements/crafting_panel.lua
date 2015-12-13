@@ -103,7 +103,7 @@ function ELEMENT:RebuildList()
 
 		listItem:SetCraftable(items[v.item_name] ~= nil)
 
-		current_bottom = current_bottom + 64
+		current_bottom = current_bottom + 80
 
 		table.insert(ItemList.Consumables, listItem)
 
@@ -134,7 +134,7 @@ function ELEMENT:RebuildList()
 
 		listItem:SetCraftable(items[v.item_name] ~= nil)
 
-		current_bottom = current_bottom + 64
+		current_bottom = current_bottom + 80
 
 		table.insert(ItemList.Weapons, listItem)
 
@@ -165,7 +165,7 @@ function ELEMENT:RebuildList()
 
 		listItem:SetCraftable(items[v.item_name] ~= nil)
 
-		current_bottom = current_bottom + 64
+		current_bottom = current_bottom + 80
 
 		table.insert(ItemList.CraftingItems, listItem)
 
@@ -217,11 +217,16 @@ function ELEMENT:SetItemName( item_name )
 	self.ItemName = item_name
 
 	if (self.ItemSpawnIcon) then self.ItemSpawnIcon:Remove() end
+	if (self.ItemCraftList) then
+		self.ItemCraftList:Clear()
+		self.ItemCraftList:Remove()
+	end
 
 	local item_info = deadremains.item.get(item_name)
 
 	if not item_info then return end
 
+	-- icon setup
 	self.ItemSpawnIcon = vgui.Create("SpawnIcon", self)
 
 	self.ItemSpawnIcon:SetModel(item_info.model)
@@ -231,6 +236,64 @@ function ELEMENT:SetItemName( item_name )
 	self.ItemSpawnIcon:SetTooltip(item_info.label)
 
 	self:SetSize(self:GetParent():GetWide(), self:GetParent():GetWide())
+
+	self.ItemCraftList = vgui.Create( "DScrollPanel", self )
+	self.ItemCraftList:SetSize( 180, 64 )
+	self.ItemCraftList:SetPos( self:GetParent():GetWide() - 200, 0 )
+
+	-- crafting details setup
+	local craft_info = deadremains.crafting.GetItemInfo(item_name)
+
+	local offset = 0
+	for k,v in pairs(craft_info.required_mats) do
+
+		if tostring(k) ~= "entry_count" then
+
+			local label_contents = ""
+
+			if type(v) == "table" then
+
+				local item_count = table.Count(v)
+
+				local current_item_index = 1
+
+				for i,j in pairs(v) do
+				
+					if (current_item_index < item_count) then
+
+						label_contents = label_contents .. tostring(j) .. "x " .. tostring(i) .. "/"
+					
+					else
+
+						label_contents = label_contents .. tostring(j) .. "x " .. tostring(i)
+
+					end
+
+					current_item_index = current_item_index + 1
+				end
+
+			else
+
+				label_contents = tostring(v) .. "x " .. tostring(k)
+
+			end
+
+			local label = vgui.Create("DLabel")
+
+			label:SetText(label_contents)
+
+
+			label:SetPos(0, offset)
+
+
+			label:SizeToContents()
+
+			self.ItemCraftList:AddItem(label)
+
+			offset = offset + 15
+		end
+
+	end
 
 end
 
@@ -281,17 +344,17 @@ function ELEMENT:Paint(w,h)
 		surface.SetDrawColor(deadremains.ui.colors.clr17)
 
 	end
-
+	-- background
 	surface.DrawRect(0,0, self:GetParent():GetWide() - 32, 64)
 
 
+	-- border
 	surface.SetDrawColor(deadremains.ui.colors.clr6)
 
 	surface.DrawOutlinedRect(0, 0, self:GetParent():GetWide() - 31, 65 )
 
-
+	-- main nname
 	draw.SimpleText(self.Quantity .. "x " .. self.PrintName, "deadremains.menu.gridTitle", 14 + 64 + 14, 16, deadremains.ui.colors.clr3, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
-
 
 	--surface.DisableClipping(false)
 

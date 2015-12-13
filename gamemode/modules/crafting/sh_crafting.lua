@@ -108,6 +108,7 @@ function deadremains.crafting.GetItemInfo(item_name)
 
 		return_tbl.category = "weapons"
 		return_tbl.item_name = item_name
+		return_tbl.required_mats = deadremains.crafting.recipes[item_name]
 		return_tbl.print_name = deadremains.crafting.weapons[item_name].name
 		return_tbl.quantity = deadremains.crafting.weapons[item_name].quantity
 
@@ -115,6 +116,7 @@ function deadremains.crafting.GetItemInfo(item_name)
 
 		return_tbl.category = "craftingitems"
 		return_tbl.item_name = item_name
+		return_tbl.required_mats = deadremains.crafting.recipes[item_name]
 		return_tbl.print_name = deadremains.crafting.craftingitems[item_name].name
 		return_tbl.quantity = deadremains.crafting.craftingitems[item_name].quantity
 
@@ -122,6 +124,7 @@ function deadremains.crafting.GetItemInfo(item_name)
 
 		return_tbl.category = "consumables"
 		return_tbl.item_name = item_name
+		return_tbl.required_mats = deadremains.crafting.recipes[item_name]
 		return_tbl.print_name = deadremains.crafting.consumables[item_name].name
 		return_tbl.quantity = deadremains.crafting.consumables[item_name].quantity
 
