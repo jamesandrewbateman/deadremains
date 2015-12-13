@@ -87,12 +87,15 @@ deadremains.netrequest.create("deadremains.updatecontainerui", function(data)
 	if data then
 
 		local ContainerIndex = data.ContainerIndex
+		local ContainerName = data.ContainerName
 
 		if base == 0 then
 
 			base = vgui.Create("CONTAINER_BASE")
 
 			base:LoadContainer(ContainerIndex)
+
+			base:SetContainerName(ContainerName)
 
 		else
 
@@ -105,6 +108,8 @@ deadremains.netrequest.create("deadremains.updatecontainerui", function(data)
 				base = vgui.Create("CONTAINER_BASE")
 
 				base:LoadContainer(ContainerIndex)
+
+				base:SetContainerName(ContainerName)
 
 			end
 
@@ -121,6 +126,7 @@ function CONTAINER_BASE:Init()
 
 	self:SetKeyboardInputEnabled(true)
 
+	self.ContainerName = "Loading..."
 end
 
 function CONTAINER_BASE:SetSlotsSize(pSlotX, pSlotY)
@@ -128,6 +134,12 @@ function CONTAINER_BASE:SetSlotsSize(pSlotX, pSlotY)
 	self:SetSize(pSlotX * 70, pSlotY * 70)
 
 	self:Center()
+
+end
+
+function CONTAINER_BASE:SetContainerName(pContainerName)
+
+	self.ContainerName = pContainerName
 
 end
 
@@ -154,6 +166,12 @@ function CONTAINER_BASE:LoadContainer(pContainerIndex)
 end
 
 function CONTAINER_BASE:Paint(w, h)
+
+	surface.DisableClipping(true)
+
+	draw.SimpleText(self.ContainerName, "deadremains.menu.title", w/2, -32, deadremains.ui.colors.clr3, TEXT_ALIGN_CENTER , TEXT_ALIGN_BOTTOM)
+
+	surface.DisableClipping(false)
 
 end
 
@@ -210,7 +228,7 @@ function CONTAINER_GRID:LoadContainer(pContainerIndex)
 
 	for k,v in pairs(thisContainer.Items) do
 
-		self:AddItem(v, thisContainer.SlotX, thisContainer.SlotY)
+		self:AddContainedItem(v, thisContainer.SlotX, thisContainer.SlotY)
 
 	end
 
@@ -218,7 +236,7 @@ function CONTAINER_GRID:LoadContainer(pContainerIndex)
 
 end
 
-function CONTAINER_GRID:AddItem(pItemName, pParentWidth, pParentHeight)
+function CONTAINER_GRID:AddContainedItem(pItemName, pParentWidth, pParentHeight)
 
 	local next_slotx = 0
 	local next_sloty = 0
@@ -248,7 +266,7 @@ function CONTAINER_GRID:Paint(w, h)
 
 end
 
-vgui.Register("CONTAINER_GRID", CONTAINER_GRID, "Panel")
+vgui.Register("CONTAINER_GRID", CONTAINER_GRID, "DPanel")
 
 
 
@@ -272,9 +290,11 @@ function CONTAINER_SLOT:SetItemName(pItemName)
 
 	self:SetModel(item.model)
 
-	self:SetLookAt(item.look_at)
+	self:SetTooltip(item.label)
 
-	self:SetFOV(item.fov)
+	--self:SetLookAt(item.look_at)
+
+	--self:SetFOV(item.fov)
 
 	self:SetSize(64 * item.slots_horizontal, 64 * item.slots_vertical)
 
@@ -288,7 +308,7 @@ function CONTAINER_SLOT:OnMousePressed()
 
 end
 
-vgui.Register("CONTAINER_SLOT", CONTAINER_SLOT, "DModelPanel")
+vgui.Register("CONTAINER_SLOT", CONTAINER_SLOT, "SpawnIcon")
 
 
 

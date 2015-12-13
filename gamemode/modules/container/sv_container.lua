@@ -155,7 +155,7 @@ deadremains.netrequest.create("deadremains.updatecontainerui", function (ply, da
 
 		deadremains.containers.networkItemChanges(container_index)
 
-		return { ContainerIndex = container_index }
+		return { ContainerIndex = container_index, ContainerName = containers[container_index].Name }
 
 	end
 
