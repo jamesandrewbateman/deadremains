@@ -36,12 +36,12 @@ function ELEMENT:Init()
 
 	// local chars = deadremains.settings.get("char")
 
-	local chars = {speed = {name = "Speed", default = 0, icon = "materials/deadremains/characteristics/sprintspeed.png"}, thirst = {name = "Thirst", default = 1, icon = "materials/deadremains/characteristics/thirst.png"}, health = {name = "Health", default = 2, icon = "materials/deadremains/characteristics/health.png"}, hunger = {name = "Hunger", default = 5, icon = "materials/deadremains/characteristics/hunger.png"}, strength = {name = "Strength", default = 9, icon = "materials/deadremains/characteristics/strength.png"}}
+	local chars = {speed = {name = "Speed", default = 5, icon = "materials/deadremains/characteristics/sprintspeed.png"}, thirst = {name = "Thirst", default = 100, icon = "materials/deadremains/characteristics/thirst.png"}, health = {name = "Health", default = 100, icon = "materials/deadremains/characteristics/health.png"}, hunger = {name = "Hunger", default = 100, icon = "materials/deadremains/characteristics/hunger.png"}, strength = {name = "Strength", default = 5, icon = "materials/deadremains/characteristics/strength.png"}}
 	
 	--PrintTable(characteristics)
 	for id, data in pairs(chars) do
 
-		self.catSkills:addCharacteristic(id, data.name, data.default, data.icon)
+		self.catSkills:addCharacteristic(id, data.name, data.default, characteristics[string.lower(data.name)], data.icon)
 
 	end
 	

@@ -18,6 +18,8 @@ function deadremains.containers.create(pName, pSlotX, pSlotY, pWorldPosition)
 	local entity = ents.Create("deadremains_container")
 	entity:SetPos(pWorldPosition)
 	entity:SetModel("models/fallout3/backpack_1.mdl")
+	entity.label = pName
+	entity.meta = {}
 	entity:Spawn()
 
 	entity:SetContainerIndex(#containers)

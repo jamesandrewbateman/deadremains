@@ -22,7 +22,9 @@ function deadremains.sql.savePlayer(player)
 	-- characteristics
 	local chars = deadremains.settings.get("characteristics")
 	for unique, data in pairs(chars) do
+
 		params = params .. "characteristic_" .. unique .. " = " .. player:getChar(unique) .. ", "
+	
 	end
 
 	params = params .. "gender = 1 "
@@ -106,11 +108,15 @@ function deadremains.sql.newPlayer(player)
 	local query = "INSERT INTO users(steam_id, "
 
 	for unique, value in pairs(needs) do
+
 		query = query .. "need_" .. unique .. ", "
+
 	end
 
 	for unique, value in pairs(characteristics) do
+
 		query = query .. "characteristic_" .. unique .. ", "
+
 	end
 
 	query = string.sub(query, 0, #query -2) .. ", gender) VALUES(".. steam_id .. ", "
@@ -133,8 +139,11 @@ function deadremains.sql.newPlayer(player)
 	local randomized = {}
 
 	for _, type in pairs(skill_types) do
+
 		local sorted = deadremains.getSkillByType(type)
+
 		table.insert(randomized, sorted[math.random(1, #sorted)])
+
 	end
 
 
@@ -153,8 +162,11 @@ function deadremains.sql.newPlayer(player)
 
 		-- if we find it in our randomized table, enable it.
 		for i = 1, #randomized do
+
 			local data = randomized[i]
+
 			if (data.unique == v.unique) then out_var = 1 end
+
 		end
 
 		query = query .. out_var .. ", "
@@ -221,25 +233,38 @@ function player_meta:loadDataFromMysql()
 
 	deadremains.sql.query(database_main, "SELECT * FROM `user_skills` WHERE `steam_id` = " .. steam_id, function(data, affected, last_id)
 		if (data and data[1]) then
+
 			data = data[1]
 
 			for unique, _ in pairs (skills) do
+
 				self:setSkill(unique, data[unique])
+
 			end
 
 			-- when finished setting skills
 			-- push loaded skills data to the client
 			-- needs are done automagically.
 			net.Start("deadremains.getskills")
+
 				net.WriteUInt(table.Count(skills), 32)
+
 				for k,v in pairs(skills) do
+
 					if self:getSkill(v.unique) == 1 then
+
 						net.WriteString(v.unique)
+
 					end
+
 				end
+
 			net.Send(self)
+
 		else
+
 			deadremains.log.write(deadremains.log.mysql, "No data found in database for user_skills, inserting new one...")
+		
 		end
 	end)
 
@@ -279,8 +304,11 @@ function player_meta:loadDataFromMysql()
 
 	deadremains.sql.query(database_main, "SELECT * FROM `user_teams` WHERE `steam_id` = " .. steam_id, function (data)
 		if (data and data[1]) then
+			
 			data = data[1]
+
 			self:setTeam(data.team_id, data.is_gov)
+
 		end
 	end)
 end

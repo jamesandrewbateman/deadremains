@@ -23,11 +23,11 @@ deadremains.settings.new("needs", needs)
 ----------------------------------------------------------------------
 
 local characteristics = {
-	speed = {name = "Speed", default = 0, icon = "materials/deadremains/characteristics/sight.png"},
-	thirst = {name = "Thirst", default = 0, icon = "materials/deadremains/characteristics/thirst.png"},
-	health = {name = "Health", default = 0, icon = "materials/deadremains/characteristics/health.png"},
-	hunger = {name = "Hunger", default = 0, icon = "materials/deadremains/characteristics/hunger.png"},
-	strength = {name = "Strength", default = 0, icon = "materials/deadremains/characteristics/strength.png"}
+	speed = {name = "Speed", default = 5, icon = "materials/deadremains/characteristics/sight.png"},
+	thirst = {name = "Thirst", default = 100, icon = "materials/deadremains/characteristics/thirst.png"},
+	health = {name = "Health", default = 100, icon = "materials/deadremains/characteristics/health.png"},
+	hunger = {name = "Hunger", default = 100, icon = "materials/deadremains/characteristics/hunger.png"},
+	strength = {name = "Strength", default = 5, icon = "materials/deadremains/characteristics/strength.png"}
 }
 
 deadremains.settings.new("characteristics", characteristics)

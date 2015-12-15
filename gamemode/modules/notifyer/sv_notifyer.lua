@@ -1,34 +1,13 @@
-deadremains.notifyer = {}
-deadremains.notifyer.active = {}
+util.AddNetworkString("deadremains.notifyer.add")
 
-util.AddNetworkString("deadremains.notifyer.popup")
-util.AddNetworkString("deadremains.notifyer.receive")
-
-function deadremains.notifyer.popup(ply, message, mode, callback)
-	net.Start("deadremains.notifyer.popup")
+function deadremains.notifyer.Add(ply, message)
+	net.Start("deadremains.notifyer.add")
 		net.WriteString(message)
-		net.WriteUInt(mode, 8)
-		-- mode 1 = yes/no
-		-- mode 2 = ok
 	net.Send(ply)
-
-	deadremains.notifyer.active[ply:SteamID()] = callback
 end
 
-net.Receive("deadremains.notifyer.receive", function(bits, ply)
-	local response = net.ReadUInt(8)
-	-- response is a uint representing which button was pressed.
-	-- 1 = yes
-	-- 2 = no
-	-- 3 = ok
+concommand.Add("dr_addnotification", function(ply, cmd, args)
 
-	local callback = deadremains.notifyer.active[ply:SteamID()]
-	callback(response)
-end)
+	deadremains.notifyer.Add(ply, "hello world")
 
---[[
-concommand.Add("TestNotifyer", function(ply)
-	deadremains.notifyer.popup(ply, "Test message", 2, function(res)
-	end)
 end)
-]]

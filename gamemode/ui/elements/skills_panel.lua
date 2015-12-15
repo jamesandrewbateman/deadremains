@@ -93,14 +93,15 @@ function ELEMENT:addSkill(unique, name, icon, type)
 
 end
 
-function ELEMENT:addCharacteristic(id, name, default, icon)
+function ELEMENT:addCharacteristic(id, name, default, level, icon)
 
 	local char = vgui.Create("deadremains.characteristic_icon", self)
 	char:SetSize(64, 64)
 	char:setID(id)
 	char:setName(name)
 	char:setIcon(icon)
-	char:setLevel(default)
+	char:setLevel(level)
+	char:setDefault(default)
 
 	table.insert(self.chars, char)
 

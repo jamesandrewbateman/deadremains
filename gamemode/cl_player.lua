@@ -27,7 +27,9 @@ deadremains.assets.icons["ZINFECTED_HIT"] = Material("bambo/icon_infected.png")
 deadremains.assets.icons["UNCONCIOUS"] = Material("bambo/icon_unconcious.png")
 deadremains.assets.icons["HEART_ATTACK"] = Material("bambo/icon_heartattack.png")
 
-hook.Add("HUDPaint", "playerInfoHudPaint", function()
+
+
+function DrawPlayerInfo()
 	for k, v in pairs(player.GetAll()) do
 
 		--if v = LocalPlayer() then
@@ -99,6 +101,38 @@ hook.Add("HUDPaint", "playerInfoHudPaint", function()
 
 	end
 
+end
+
+function DrawNotifications()
+
+	local notifications = deadremains.notifyer.GetNotifications()
+	local notifications_len = #notifications
+
+	for k,v in pairs(notifications) do
+
+		v.Countdown = v.Countdown - 1
+
+		if (v.Countdown > 0) then
+
+			-- first in is the oldest for notifications
+
+			draw.DrawText(v.Message, "deadremains.menu.title", ScrW()/2, v.Countdown-50, Color(0,0, 0, 230), 1)
+
+
+		else
+
+			deadremains.notifyer.RemoveNotification(k)
+
+		end
+
+	end
+
+end
+
+hook.Add("HUDPaint", "drHudPaint", function()
+	DrawPlayerInfo()
+
+	DrawNotifications()
 end)
 
 hook.Add("RenderScreenspaceEffects", "drawItemTooltip", function()

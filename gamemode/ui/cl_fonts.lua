@@ -8,4 +8,4 @@ surface.CreateFont("deadremains.menu.gridTitle", {font = "Bebas Neue", size = 26
 surface.CreateFont("deadremains.menu.inventoryTitle", {font = "Bebas Neue", size = 32, weight = 200})
 surface.CreateFont("deadremains.notification.title", {font = "AvenirNext LT Pro Regular", size = 22, weight = 400})
 surface.CreateFont("deadremains.notification.action", {font = "Bebas Neue", size = 38, weight = 400})
---surface.CreateFont("deadremains.hud.big.blur", {font = "AvenirNext LT Pro Regular", size = 60, weight = 400, blursize = 6, antialias = false})
+surface.CreateFont("deadremains.hud.big.blur", {font = "AvenirNext LT Pro Regular", size = 60, weight = 400, blursize = 6, antialias = false})
