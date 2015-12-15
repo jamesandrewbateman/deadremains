@@ -33,11 +33,11 @@ end
 deadremains.netrequest.create("deadremains.craftitem", function (ply, data)
 	local item_name = data.name
 
-	print("crafing", item_name)
+	--print("crafing", item_name)
 
 	local items = deadremains.crafting.GetCraftableItems(ply)
 
-	PrintTable(items)
+	--PrintTable(items)
 
 	if table.Count(items) > 0 then
 
@@ -66,15 +66,16 @@ deadremains.netrequest.create("deadremains.craftitem", function (ply, data)
 
 					end
 
-					print(found_item_name, found_item_quant)
+					--print("multiple", found_item_name, found_item_quant)
 
 					for n=1, found_item_quant do
 
-						ply:RemoveItemCrafting(k)
+						ply:RemoveItemCrafting(found_item_name)
 
 					end
 
 				elseif tostring(k) ~= "entry_count" and not deadremains.crafting.IsPersisted(k) then
+					--print("single", k, v)
 
 					for i=1, v do
 

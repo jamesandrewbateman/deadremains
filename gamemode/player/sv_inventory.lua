@@ -296,9 +296,13 @@ end
 
 function player_meta:RemoveItemCrafting(item_name)
 
+	--PrintTable(self.Inventories)
+
 	for k,v in pairs(self.Inventories) do
 
 		for i,j in pairs(v.Items) do
+
+			--print(j.Unique, item_name)
 
 			if j.Unique == item_name then
 				print(j.Unique, item_name)

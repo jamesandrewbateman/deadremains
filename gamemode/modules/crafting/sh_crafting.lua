@@ -17,6 +17,9 @@ deadremains.crafting.consumables = {}
 deadremains.crafting.consumables["bandage"] = { name = "Bandage", quantity = 1 }
 deadremains.crafting.consumables["filled_water_bottle"] = { name = "Filled Water Bottle", quantity = 1 }
 
+
+
+
 -- crafting items
 deadremains.crafting.recipes["crafted_feather"] = {
 	dead_bird = 1,
@@ -24,6 +27,10 @@ deadremains.crafting.recipes["crafted_feather"] = {
 }
 deadremains.crafting.craftingitems = {}
 deadremains.crafting.craftingitems["crafted_feather"] = { name = "Crafted Feather", quantity = 1 }
+
+
+
+
 
 -- weapons
 deadremains.crafting.recipes["tfa_dr_bow"] = {
@@ -63,6 +70,7 @@ deadremains.crafting.recipes["tfm_sword_snowflake_katana"] = {
 	rusty_bolt = 2,
 	entry_count = 5	
 }
+
 -- ammo
 deadremains.crafting.recipes["tfbow_arrow"] = {
 	{string = 1, crafted_string = 1 },
@@ -79,6 +87,10 @@ deadremains.crafting.weapons["tfm_blunt_shovel"] = { name = "Shovel", quantity =
 deadremains.crafting.weapons["tfm_sword_knight_longsword"] = { name = "Longsword", quantity = 1 }
 deadremains.crafting.weapons["tfm_sword_snowflake_katana"] = { name = "Katana", quantity = 1 }
 deadremains.crafting.weapons["tfbow_arrow"] = { name = "Arrow", quantity = 5 }
+
+
+
+
 
 function deadremains.crafting.GetRecipeCategory(cat_name)
 
