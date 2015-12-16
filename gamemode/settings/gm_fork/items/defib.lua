@@ -28,12 +28,17 @@ item.weight = 1000
 item.meta["type"] = item_type_weapon
 
 -- What functions exists on the context menu.
-item.context_menu = {item_function_consume, item_function_drop, item_function_destroy}
+item.context_menu = {item_function_consume, item_function_drop}
 
 ----------------------------------------------------------------------
 -- Purpose:
 --		
 ----------------------------------------------------------------------
 
-function item:use(player)
+function item:use(ply)
+	if (SERVER) then
+		ply:SetHealth(math.Clamp(ply:Health() - 90, 0, ply:getChar("health")))
+
+		-- do defib code
+	end
 end

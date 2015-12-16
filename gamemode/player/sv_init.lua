@@ -56,7 +56,7 @@ function default(self)
 
 	end)
 
-	self.dr_character.max_weight = 2000
+	self.dr_character.max_weight = 20000
 end
 
 --! @brief prepares the player_meta.dr_character table for all incoming data.

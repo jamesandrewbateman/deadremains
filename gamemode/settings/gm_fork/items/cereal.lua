@@ -5,10 +5,10 @@ item.label = "Cereal"
 item.model = "models/nordfood/cereal.mdl"
 
 -- How many horizontal slots this item should take.
-item.slots_horizontal = 1
+item.slots_horizontal = 2
 
 -- How many vertical slots this item should take.
-item.slots_vertical = 1
+item.slots_vertical = 2
 
 -- Used the modify the position of the camera on DModelPanel.
 item.cam_pos = Vector(50, 30, -2)
@@ -23,17 +23,24 @@ item.fov = 20
 item.rotate = 45
 
 -- How much this item weighs.
-item.weight = 4
+item.weight = 200
 
 item.meta["type"] = item_type_craftable
 
 -- What functions exists on the context menu.
-item.context_menu = {item_function_drop}
+item.context_menu = {item_function_consume, item_function_drop}
 
 ----------------------------------------------------------------------
 -- Purpose:
 --		
 ----------------------------------------------------------------------
 
-function item:use(player)
+function item:use(ply)
+	if (SERVER) then
+		ply:setNeed("hunger", ply:getNeed("hunger") + 600)
+
+		ply:setNeed("thirst", ply:getNeed("thirst") + 60)
+
+		ply:SetHealth(math.Clamp(ply:Health() + 5, 0, ply:getChar("health")))
+	end
 end

@@ -28,15 +28,19 @@ item.weight = 200
 item.meta["type"] = item_type_consumable
 
 -- What functions exists on the context menu.
-item.context_menu = {item_function_consume, item_function_drop, item_function_destroy}
+item.context_menu = {item_function_consume, item_function_drop}
 
 ----------------------------------------------------------------------
 -- Purpose:
 --		
 ----------------------------------------------------------------------
 
-function item:use(player)
+function item:use(ply)
 	if (SERVER) then
-		player:SetHealth(12)
+		ply:setNeed("hunger", ply:getNeed("hunger") + 1200)
+
+		ply:setNeed("thirst", ply:getNeed("thirst") + 60)
+
+		ply:SetHealth(math.Clamp(ply:Health() + 25, 0, ply:getChar("health")))
 	end
 end

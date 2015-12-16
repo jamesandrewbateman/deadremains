@@ -215,16 +215,25 @@ function player_meta:loadDataFromMysql()
 
 	deadremains.sql.query(database_main, "SELECT * FROM `users` WHERE `steam_id` = " .. steam_id, function(data, affected, last_id)
 		if (data and data[1]) then
+
 			data = data[1]
+
 			deadremains.log.write(deadremains.log.mysql, "Data found in database for player, loading...")
 
 			for unique, _ in pairs (needs) do
+
 				self:setNeed(unique, data["need_" .. unique])
+
 			end
 
 			for unique, _ in pairs (characteristics) do
+
 				self:setChar(unique, data["characteristic_" .. unique])
+
 			end
+
+			self:SetNWInt("zombie_kill_count", data["zombie_kill_count"])
+
 		elseif (affected == 0) then
 			deadremains.log.write(deadremains.log.mysql, "No data found in database, inserting new one...")
 			deadremains.sql.newPlayer(self)

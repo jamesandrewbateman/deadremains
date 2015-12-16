@@ -30,7 +30,7 @@ item.weight = 30
 item.meta["type"] = item_type_consumable
 
 -- What functions exists on the context menu.
-item.context_menu = {item_function_consume, item_function_drop, item_function_destroy}
+item.context_menu = {item_function_consume, item_function_drop}
 
 ----------------------------------------------------------------------
 -- Purpose:
@@ -40,5 +40,9 @@ item.context_menu = {item_function_consume, item_function_drop, item_function_de
 function item:use(ply)
 	if (SERVER) then
 		ply:setNeed("hunger", ply:getNeed("hunger") + 300)
+
+		ply:setNeed("thirst", ply:getNeed("thirst") + 300)
+
+		ply:SetHealth(math.Clamp(ply:Health() + 10, 0, ply:getChar("health")))
 	end
 end

@@ -69,7 +69,7 @@ function player_meta:AddInventory(unique, horiz, vert, inv_index, max_weight)
 		end
 	end
 
-	if (max_weight == nil) then max_weight = 2000 end
+	if (max_weight == nil) then max_weight = 20000 end
 
 	if found then
 		return false

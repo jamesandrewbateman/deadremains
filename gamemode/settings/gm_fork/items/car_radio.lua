@@ -5,10 +5,10 @@ item.label = "Car Radio"
 item.model = "models/props/cs_office/radio_p1.mdl"
 
 -- How many horizontal slots this item should take.
-item.slots_horizontal = 2
+item.slots_horizontal = 4
 
 -- How many vertical slots this item should take.
-item.slots_vertical = 2
+item.slots_vertical = 1
 
 -- Used the modify the position of the camera on DModelPanel.
 item.cam_pos = Vector(50, 30, -2)
@@ -23,7 +23,7 @@ item.fov = 20
 item.rotate = 45
 
 -- How much this item weighs.
-item.weight = 4
+item.weight = 600
 
 item.meta["type"] = item_type_craftable
 

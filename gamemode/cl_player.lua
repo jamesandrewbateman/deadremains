@@ -116,7 +116,7 @@ function DrawNotifications()
 
 			-- first in is the oldest for notifications
 
-			draw.DrawText(v.Message, "deadremains.menu.title", ScrW()/2, v.Countdown-50, Color(0,0, 0, 230), 1)
+			draw.DrawText(v.Message, "deadremains.menu.title", ScrW()/2, (k*20) + v.Countdown-50, Color(0,0, 0, 230), 1)
 
 
 		else

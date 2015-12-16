@@ -5,7 +5,7 @@ item.label = "Scrap Metal"
 item.model = "models/props_debris/metal_panel02a.mdl"
 
 -- How many horizontal slots this item should take.
-item.slots_horizontal = 1
+item.slots_horizontal = 8
 
 -- How many vertical slots this item should take.
 item.slots_vertical = 1
