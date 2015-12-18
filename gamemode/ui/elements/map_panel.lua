@@ -1,6 +1,9 @@
 local ELEMENT = {}
 function ELEMENT:Init()
 	self.MapImage = Material("materials/bambo/gm_fork_map.png")
+	self.MarkerImage = Material("materials/bambo/cross-mark.png") --32x32
+
+	self.Markers = {}
 
 	--[[ setup cam for rendering
 	self.ViewData = {}
@@ -28,6 +31,51 @@ end
 function ELEMENT:OnMouseWheeled(dt)
 end
 
+function ELEMENT:OnMousePressed(keycode)
+	
+	local x, y = self:ScreenToLocal(gui.MousePos())
+	local mousePos = Vector(x,y,0)
+
+	if keycode == MOUSE_LEFT then
+
+
+		table.insert(self.Markers, mousePos)
+
+	else
+
+		local removeIndex = -1
+		local thresholdDist = 32
+
+		local closestMarkerDist = 1000
+
+		for k,v in pairs(self.Markers) do
+
+			local thisDist = v:Distance(mousePos)
+
+			if thisDist <= thresholdDist then
+
+				if thisDist <= closestMarkerDist then
+
+					closestMarkerDist = thisDist
+
+					removeIndex = k
+
+				end
+
+			end
+
+		end
+
+		if removeIndex > 0 then
+
+			table.remove(self.Markers, removeIndex)
+
+		end
+
+	end
+
+end
+
 function ELEMENT:Paint(w, h)
 	surface.SetDrawColor(deadremains.ui.colors.clr1)
 	surface.DrawRect(0, 0, w, h)
@@ -44,8 +92,9 @@ function ELEMENT:Paint(w, h)
 	self.ViewData.h = w
 
 	render.RenderView(self.ViewData)
-	]]
 
+
+	calculating position of player in 2d space.
 	local meWorldPos = LocalPlayer():GetPos()
 	local meWorldLen = meWorldPos:Length2D()
 	local meWorldDir = LocalPlayer():GetPos():GetNormalized()
@@ -56,7 +105,17 @@ function ELEMENT:Paint(w, h)
 	meWorldDir:Mul(mePanelLen)
 
 	surface.DrawCircle((w/2) + meWorldDir.x, (w/2) - meWorldDir.y, 50, Color(0, 230, 0, 255))
+	]]
 
+	for k,v in pairs(self.Markers) do
+
+		surface.SetMaterial(self.MarkerImage)
+		surface.SetDrawColor(Color(255,255,255,230))
+		surface.DrawTexturedRectUV(v.x-16,v.y-16, 32,32, 0,0,1,1)
+
+	end
+
+	-- mouse info
 	surface.SetTextPos( 25, h-64 )
 	local mx, my = input.GetCursorPos()
 	local nx, ny = self:ScreenToLocal(mx, my)
