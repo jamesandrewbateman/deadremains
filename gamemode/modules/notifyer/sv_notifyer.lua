@@ -1,6 +1,7 @@
 util.AddNetworkString("deadremains.notifyer.add")
 
-function deadremains.notifyer.Add(ply, message)
+-- mode is optional string
+function deadremains.notifyer.Add(ply, message, mode)
 	net.Start("deadremains.notifyer.add")
 		net.WriteString(message)
 	net.Send(ply)

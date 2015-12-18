@@ -119,7 +119,9 @@ function deadremains.item.worldUse(player, entity)
 	local itemName = entity.item
 
 	if itemName then
+
 		if deadremains.item.isInventory(itemName) then
+
 			local dr_item_info = deadremains.settings.get("default_inventories")
 			
 			local slot_size = 0
@@ -139,16 +141,23 @@ function deadremains.item.worldUse(player, entity)
 			else
 				success = player:AddInventory(itemName, slot_size.X, slot_size.Y)
 			end
+
 		else
+
 			success = player:AddItemToInventory("feet", itemName)
-			--print(itemName, success)
+
 		end
+
 	end
 
 	if (!success) then
+
 		player:ChatPrint("Could not pick up item")
+
 	else
+
 		entity:Remove()
+
 	end
 end
 

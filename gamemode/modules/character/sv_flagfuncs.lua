@@ -13,6 +13,81 @@ function FEffect:OnTick( ply ) end
 
 function FEffect:OnEnd( ply ) end
 
+-- Bandit / Hero system --
+local FEffect_Bandit = middleclass('FEffect_Bandit', FEffect)
+
+function FEffect_Bandit:initialize( )
+
+	FEffect.initialize( self )
+
+end
+
+function FEffect_Bandit:OnStart( ply )
+
+	ply:SetModel("models/player/gasmask.mdl")
+
+end
+
+hook.Add("PlayerDeath", "drPlayerDeath", function(victim, inflictor, attacker)
+
+	if IsValid(attacker) and victim ~= attacker then
+
+		if attacker:IsPlayer() then
+
+			attacker.dr_character.headcount = attacker.dr_character.headcount or {}
+
+			-- another kill to the pool.
+			table.insert( attacker.dr_character.headcount, { Victim = victim, Time = CurTime() } )
+
+			-- how many people have we slain in the last 30 mins? (1800 seconds)
+			local nowTime = CurTime()
+			local halfHourHeadCount = 0
+
+			for k,v in pairs(attacker.dr_character.headcount) do
+
+				local killTime = v.Time
+				local killVictim = v.Victim
+
+				if (nowTime - 1800) <= killTime then
+
+					halfHourHeadCount = halfHourHeadCount + 1
+
+				end
+
+			end
+
+			print(halfHourHeadCount)
+
+			if halfHourHeadCount == 1 then
+
+				deadremains.notifyer.Add(attacker, "You feel numb...", "effect")
+
+			elseif halfHourHeadCount == 2 then
+
+				deadremains.notifyer.Add(attacker, "Unknown voices taunt you...", "effect")
+
+			elseif halfHourHeadCount == 3 then
+
+				deadremains.notifyer.Add(attacker, "Death is only the beginning...", "effect")
+
+			elseif halfHourHeadCount >= 4 then
+
+				deadremains.notifyer.Add(attacker, "Death is only the beginning...", "effect")
+
+			end
+
+		end
+
+	end
+
+end)
+
+function FEffect_Bandit:OnEnd( ply )
+
+	ply:SetModel("models/player/group01/male_03.mdl")
+
+end
+
 
 -- all effects --
 local FEffect_Healthy = middleclass('FEffect_Healthy', FEffect)

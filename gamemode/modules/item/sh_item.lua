@@ -59,6 +59,7 @@ function deadremains.item.get(unique)
 
 		addon_config.meta = {}
 		addon_config.meta["type"] = item_type_weapon
+		addon_config.unique = unique
 
 		if CLIENT then
 

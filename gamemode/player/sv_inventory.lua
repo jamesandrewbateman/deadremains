@@ -495,7 +495,7 @@ net.Receive("deadremains.itemaction", function(bits, ply)
 			itemData:use(ply)
 		elseif (action_name == "Equip") then
 			ply:RemoveItem(inventory_name, itemInvData.SlotPosition)
-			--PrintTable(itemData)
+			PrintTable(itemData)
 			ply:Give(itemData.unique)
 		end
 	end
