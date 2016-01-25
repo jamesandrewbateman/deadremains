@@ -69,7 +69,7 @@ function player_meta:AddInventory(unique, horiz, vert, inv_index, max_weight)
 		end
 	end
 
-	if (max_weight == nil) then max_weight = 2000 end
+	if (max_weight == nil) then max_weight = 20000 end
 
 	if found then
 		return false
@@ -85,6 +85,8 @@ function player_meta:AddInventory(unique, horiz, vert, inv_index, max_weight)
 	end
 
 	self:NetworkInventory()
+
+	deadremains.notifyer.Add(self, "Equipped " .. unique)
 
 	return true
 end
@@ -165,13 +167,15 @@ function player_meta:InsertItem(inv_name, unique, inv_type, slot_position, conta
 							Contains = contains
 						})
 					self:NetworkInventory()
-					print("Item added to inventory")
+
+					deadremains.notifyer.Add(self, "+" .. itemData.label)
 
 					return true
 				else
 					-- pretend we didn't do that.
 					inv.CurrentWeight = inv.CurrentWeight - itemData.weight
-					print("Inventory weight limit reached!")
+
+					deadremains.notifyer.Add(self, "You are over encumbered")
 				end
 			end
 		end
@@ -197,17 +201,20 @@ function player_meta:InsertItem(inv_name, unique, inv_type, slot_position, conta
 							})
 						
 						self:NetworkInventory()
-						print("Item added to inventory")
+
+						deadremains.notifyer.Add(self, "+" ..  itemData.label)
+
 						return true
 					else
 						-- pretend we didn't do that.
 						inv.CurrentWeight = inv.CurrentWeight - itemData.weight
-						print("Inventory weight limit reached in this bag!")
+
+						deadremains.notifyer.Add(self, "You are over encumbered")
 					end
 				end
 			end
 		else
-			print("Max inventory number reached")
+			deadremains.notifyer.Add(self, "Inventory full")
 		end
 	end
 end
@@ -233,9 +240,6 @@ function player_meta:AddItemToInventory(inv_name, item_unique, contains)
 	return self:InsertItem(inv_name, item_unique, selectedItemCore.inventory_type, Vector(x, y, 0), contains)
 
 end
-concommand.Add("add_shovel", function(ply)
-	ply:AddItemToInventory("feet", "tfm_sword_snowflake_katana")
-end)
 
 function player_meta:SwitchItemToInventory(inv_name, target_inv_name, item_unique, item_position, contains)
 	local s, x, y = self:CanFitItem(target_inv_name, item_unique, contains)
@@ -292,6 +296,31 @@ function player_meta:CanFitItem(inv_name, item_unique, contains)
 	end
 
 	return false, 0, 0
+end
+
+function player_meta:RemoveItemCrafting(item_name)
+
+	--PrintTable(self.Inventories)
+
+	for k,v in pairs(self.Inventories) do
+
+		for i,j in pairs(v.Items) do
+
+			--print(j.Unique, item_name)
+
+			if j.Unique == item_name then
+
+				local item_weight = deadremains.item.get(j.Unique).weight
+
+				table.remove(self:GetInventory(v.Name).Items, i)
+
+				self:GetInventory(v.Name).CurrentWeight = self:GetInventory(v.Name).CurrentWeight - item_weight
+
+			end
+
+		end
+
+	end
 end
 
 -- for removing from the inventory

@@ -22,7 +22,9 @@ function deadremains.sql.savePlayer(player)
 	-- characteristics
 	local chars = deadremains.settings.get("characteristics")
 	for unique, data in pairs(chars) do
+
 		params = params .. "characteristic_" .. unique .. " = " .. player:getChar(unique) .. ", "
+	
 	end
 
 	params = params .. "gender = 1 "
@@ -33,6 +35,7 @@ function deadremains.sql.savePlayer(player)
 	params = ""
 	params = params .. "UPDATE user_skills SET "
 	params = params .. player:getSkillsMysqlString()
+	print("Updating", player:getSkillsMysqlString())
 	params = params .. " WHERE steam_id = " .. steam_id .. ";"
 	deadremains.sql.query(database_main, params)
 
@@ -44,7 +47,7 @@ function deadremains.sql.savePlayer(player)
 	params = params .. "z = " .. player:GetPos().z .. ", "
 	params = params .. "name = " .. deadremains.sql.escape(database_main, player:Nick()) .. ", "
 	params = params .. "time_alive = " .. player.alive_timer .. ", "
-	params = params .. "zombie_kill_count = " .. player.zombie_kill_count
+	params = params .. "zombie_kill_count = " .. player:GetNWInt("zombie_kill_count")
 	params = params .. " WHERE steam_id = " .. steam_id .. ";"
 	deadremains.sql.query(database_main, params)
 
@@ -106,11 +109,15 @@ function deadremains.sql.newPlayer(player)
 	local query = "INSERT INTO users(steam_id, "
 
 	for unique, value in pairs(needs) do
+
 		query = query .. "need_" .. unique .. ", "
+
 	end
 
 	for unique, value in pairs(characteristics) do
+
 		query = query .. "characteristic_" .. unique .. ", "
+
 	end
 
 	query = string.sub(query, 0, #query -2) .. ", gender) VALUES(".. steam_id .. ", "
@@ -128,42 +135,7 @@ function deadremains.sql.newPlayer(player)
 	deadremains.sql.query(database_main, query)
 
 
-	-- generate random skill type
-	local skill_types = deadremains.settings.get("skill_types")
-	local randomized = {}
-
-	for _, type in pairs(skill_types) do
-		local sorted = deadremains.getSkillByType(type)
-		table.insert(randomized, sorted[math.random(1, #sorted)])
-	end
-
-
-	-- `user_skills` table.
-	query = "INSERT INTO user_skills ("
-
-	for k,v in pairs(deadremains.settings.get("skills")) do
-		query = query .. v.unique .. ", "
-	end
-
-	query = string.sub(query, 0, #query -2); -- removes the last ", "
-	query = query .. ", steam_id) VALUES ("
-
-	for k,v in pairs(deadremains.settings.get("skills")) do
-		local out_var = 0
-
-		-- if we find it in our randomized table, enable it.
-		for i = 1, #randomized do
-			local data = randomized[i]
-			if (data.unique == v.unique) then out_var = 1 end
-		end
-
-		query = query .. out_var .. ", "
-	end
-
-	query = string.sub(query, 0, #query -2)
-	query = query .. ", " .. steam_id .. ")"
-
-	deadremains.sql.query(database_main, query)
+	player:setRandomSkills()
 
 
 	-- `user_meta` table
@@ -194,6 +166,59 @@ function deadremains.sql.newPlayer(player)
  	-- on the next save, the new default values should be loaded.
 end
 
+function player_meta:setRandomSkills()
+	local steam_id = deadremains.sql.escape(database_main, self:SteamID())
+
+	-- generate random skill type
+	local skill_types = deadremains.settings.get("skill_types")
+	local randomized = {}
+
+	for _, type in pairs(skill_types) do
+
+		local sorted = deadremains.getSkillByType(type)
+
+		table.insert(randomized, sorted[math.random(1, #sorted)])
+
+	end
+
+	-- `user_skills` table.
+	query = "REPLACE INTO user_skills ("
+
+	for k,v in pairs(deadremains.settings.get("skills")) do
+		query = query .. v.unique .. ", "
+	end
+
+	query = string.sub(query, 0, #query -2); -- removes the last ", "
+	query = query .. ", steam_id) VALUES ("
+
+	for k,v in pairs(deadremains.settings.get("skills")) do
+		local out_var = 0
+
+		-- if we find it in our randomized table, enable it.
+		for i = 1, #randomized do
+
+			local data = randomized[i]
+
+			if (data.unique == v.unique) then
+				self:setSkill(v.unique, 1)
+				out_var = 1
+			end
+
+		end
+
+		query = query .. out_var .. ", "
+	end
+
+	query = string.sub(query, 0, #query -2)
+	query = query .. ", " .. steam_id .. ")"
+
+
+	deadremains.sql.query(database_main, query)
+end
+
+concommand.Add("dr_setrandskills", function(ply, cmd, args)
+	ply:setRandomSkills()
+end)
 
 function player_meta:loadDataFromMysql()
 	local steam_id = deadremains.sql.escape(database_main, self:SteamID())
@@ -203,16 +228,25 @@ function player_meta:loadDataFromMysql()
 
 	deadremains.sql.query(database_main, "SELECT * FROM `users` WHERE `steam_id` = " .. steam_id, function(data, affected, last_id)
 		if (data and data[1]) then
+
 			data = data[1]
+
 			deadremains.log.write(deadremains.log.mysql, "Data found in database for player, loading...")
 
 			for unique, _ in pairs (needs) do
+
 				self:setNeed(unique, data["need_" .. unique])
+
 			end
 
 			for unique, _ in pairs (characteristics) do
+
 				self:setChar(unique, data["characteristic_" .. unique])
+
 			end
+
+			self:SetNWInt("zombie_kill_count", data["zombie_kill_count"])
+
 		elseif (affected == 0) then
 			deadremains.log.write(deadremains.log.mysql, "No data found in database, inserting new one...")
 			deadremains.sql.newPlayer(self)
@@ -221,25 +255,21 @@ function player_meta:loadDataFromMysql()
 
 	deadremains.sql.query(database_main, "SELECT * FROM `user_skills` WHERE `steam_id` = " .. steam_id, function(data, affected, last_id)
 		if (data and data[1]) then
+
 			data = data[1]
 
 			for unique, _ in pairs (skills) do
+
 				self:setSkill(unique, data[unique])
+
 			end
 
-			-- when finished setting skills
-			-- push loaded skills data to the client
-			-- needs are done automagically.
-			net.Start("deadremains.getskills")
-				net.WriteUInt(table.Count(skills), 32)
-				for k,v in pairs(skills) do
-					if self:getSkill(v.unique) == 1 then
-						net.WriteString(v.unique)
-					end
-				end
-			net.Send(self)
+			self:networkSkills()
+
 		else
+
 			deadremains.log.write(deadremains.log.mysql, "No data found in database for user_skills, inserting new one...")
+		
 		end
 	end)
 
@@ -279,8 +309,11 @@ function player_meta:loadDataFromMysql()
 
 	deadremains.sql.query(database_main, "SELECT * FROM `user_teams` WHERE `steam_id` = " .. steam_id, function (data)
 		if (data and data[1]) then
+			
 			data = data[1]
+
 			self:setTeam(data.team_id, data.is_gov)
+
 		end
 	end)
 end

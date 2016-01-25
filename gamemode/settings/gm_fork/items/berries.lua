@@ -35,5 +35,10 @@ item.context_menu = {item_function_consume, item_function_drop, item_function_de
 --		
 ----------------------------------------------------------------------
 
-function item:use(player)
+function item:use(ply)
+	if (SERVER) then
+		ply:setNeed("hunger", ply:getNeed("hunger") + 300)
+
+		ply:setNeed("thirst", ply:getNeed("thirst") + 100)
+	end
 end

@@ -23,7 +23,7 @@ item.fov = 20
 item.rotate = 45
 
 -- How much this item weighs.
-item.weight = 4
+item.weight = 10
 
 item.meta["type"] = item_type_craftable
 

@@ -4,7 +4,6 @@ local ELEMENT = {}
 function ELEMENT:Init()
 
 	self.name = ""
-	self.available = false
 	self.active = false
 	self.icon = matCircle
 	self.unique = ""
@@ -23,7 +22,6 @@ end
 function ELEMENT:setUnique(unique)
 
 	self.unique = unique
-	self.available = LocalPlayer():hasSkill(unique)
 
 end
 
@@ -49,7 +47,7 @@ function ELEMENT:Paint(w, h)
 
 	self.circle_rad = deadremains.ui.lerp(0.15, self.circle_rad, self.circle_rad_to)
 
-	if self.available and !self.active then
+	if LocalPlayer():hasSkill(self.unique) and !self.active then
 
 		surface.SetDrawColor(deadremains.ui.colors.clr4)
 		draw.NoTexture()
@@ -117,7 +115,7 @@ function ELEMENT:OnMousePressed(m)
 	actionMenu:setTitle(self.name)
 	actionMenu:setOrigin(x + 15, y)
 	actionMenu:setDisableFunc(function() self:setActive(false) end)
-	if self.available then
+	if LocalPlayer():hasSkill(self.unique) then
 
 		actionMenu:addAction("Share", function() end, Material("deadremains/characteristics/sprintspeed.png", "noclamp smooth"))
 

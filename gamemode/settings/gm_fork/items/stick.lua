@@ -5,7 +5,7 @@ item.label = "Stick"
 item.model = "models/props_wasteland/dockplank01b.mdl"
 
 -- How many horizontal slots this item should take.
-item.slots_horizontal = 1
+item.slots_horizontal = 5
 
 -- How many vertical slots this item should take.
 item.slots_vertical = 1

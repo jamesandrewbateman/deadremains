@@ -23,20 +23,24 @@ item.fov = 20
 item.rotate = 45
 
 -- How much this item weighs.
-item.weight = 4
+item.weight = 300
 
 item.meta["type"] = item_type_consumable
 
 -- What functions exists on the context menu.
-item.context_menu = {item_function_consume, item_function_drop, item_function_destroy}
+item.context_menu = {item_function_consume, item_function_drop}
 
 ----------------------------------------------------------------------
 -- Purpose:
 --		
 ----------------------------------------------------------------------
 
-function item:use(player)
+function item:use(ply)
 	if (SERVER) then
-		player:setThirst(player:getThirst() + 10)
+		ply:setNeed("hunger", ply:getNeed("hunger") + 60)
+
+		ply:setNeed("thirst", ply:getNeed("thirst") + 600)
+
+		ply:SetHealth(math.Clamp(ply:Health() + 5, 0, ply:getChar("health")))
 	end
 end

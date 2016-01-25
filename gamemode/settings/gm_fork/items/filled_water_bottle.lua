@@ -1,11 +1,11 @@
-item.unique = "scrap_metal"
-item.label = "Scrap Metal"
+item.unique = "filled_water_bottle"
+item.label = "Filled Water Bottle"
 
 -- The model that this item should have.
-item.model = "models/props_debris/metal_panel02a.mdl"
+item.model = "models/norddrink/7upcan01a.mdl"
 
 -- How many horizontal slots this item should take.
-item.slots_horizontal = 8
+item.slots_horizontal = 1
 
 -- How many vertical slots this item should take.
 item.slots_vertical = 1
@@ -25,10 +25,10 @@ item.rotate = 45
 -- How much this item weighs.
 item.weight = 4
 
-item.meta["type"] = item_type_craftable
+item.meta["type"] = item_type_consumable
 
 -- What functions exists on the context menu.
-item.context_menu = {item_function_drop}
+item.context_menu = {item_function_consume, item_function_drop, item_function_destroy}
 
 ----------------------------------------------------------------------
 -- Purpose:
@@ -36,4 +36,7 @@ item.context_menu = {item_function_drop}
 ----------------------------------------------------------------------
 
 function item:use(player)
+	if (SERVER) then
+		player:setThirst(player:getThirst() + 10)
+	end
 end

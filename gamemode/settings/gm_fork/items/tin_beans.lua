@@ -1,5 +1,5 @@
 item.unique = "tin_beans"
-item.label = "Tin of Beans"
+item.label = "Beans"
 
 -- The model that this item should have.
 item.model = "models/props_junk/garbage_metalcan001a.mdl"
@@ -23,12 +23,13 @@ item.fov = 20
 item.rotate = 45
 
 -- How much this item weighs.
-item.weight = 4
+item.weight = 400
 
 item.meta["type"] = item_type_consumable
+item.meta["rarity"] = 10
 
 -- What functions exists on the context menu.
-item.context_menu = {item_function_consume, item_function_drop, item_function_destroy}
+item.context_menu = {item_function_consume, item_function_drop}
 
 ----------------------------------------------------------------------
 -- Purpose:
@@ -37,6 +38,10 @@ item.context_menu = {item_function_consume, item_function_drop, item_function_de
 
 function item:use(ply)
 	if (SERVER) then
-		ply:setNeed("hunger", ply:getNeed("hunger") + 15)
+		ply:setNeed("hunger", ply:getNeed("hunger") + 600)
+
+		ply:setNeed("thirst", ply:getNeed("thirst") + 60)
+
+		ply:SetHealth(math.Clamp(ply:Health() + 5, 0, ply:getChar("health")))
 	end
 end

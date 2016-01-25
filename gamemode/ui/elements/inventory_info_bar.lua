@@ -20,14 +20,14 @@ function ELEMENT:setCurrent(num)
 end
 
 function ELEMENT:add(num)
-	if (self.max == nil) then self.max = 2000 end
+	if (self.max == nil) then self.max = 20000 end
 	
 	self.current = math.Clamp(self.current + num, 0, self.max)
 
 end
 
 function ELEMENT:Paint(w, h)
-	if (self.max == nil) then self.max = 2000 end
+	if (self.max == nil) then self.max = 20000 end
 	
 	surface.SetDrawColor(deadremains.ui.colors.clr15)
 	surface.DrawRect(0, 0, w, h)

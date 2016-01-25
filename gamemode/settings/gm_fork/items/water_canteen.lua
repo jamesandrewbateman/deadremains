@@ -31,12 +31,17 @@ item.meta["type"] = item_type_gear
 item.equip_slot = bit.lshift(1, inventory_equip_chest)
 
 -- What functions exists on the context menu.
-item.context_menu = {item_function_drop, item_function_destroy}
+item.context_menu = {item_function_consume, item_function_drop}
 
 ----------------------------------------------------------------------
 -- Purpose:
 --		
 ----------------------------------------------------------------------
 
-function item:use(player)
+function item:use(ply)
+	if (SERVER) then
+		ply:setNeed("thirst", ply:getNeed("thirst") + 1800)
+
+		ply:SetHealth(math.Clamp(ply:Health() + 10, 0, ply:getChar("health")))
+	end
 end

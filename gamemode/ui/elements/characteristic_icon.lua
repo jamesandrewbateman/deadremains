@@ -8,6 +8,8 @@ function ELEMENT:Init()
 
 	self.level = 0
 
+	self.default = 0
+
 	self.id = 0
 
 end
@@ -30,6 +32,12 @@ function ELEMENT:setLevel(num)
 
 end
 
+function ELEMENT:setDefault(num)
+
+	self.default = num
+
+end
+
 function ELEMENT:setID(num)
 
 	self.id = num
@@ -49,13 +57,16 @@ function ELEMENT:Paint(w, h)
 		surface.DrawTexturedRectRotated(w / 2, h / 2, w, h, -40 * (i - 1))
 	end
 
-	for i = 1, self.level do
+	if self.level and self.default then
 
-		surface.SetDrawColor(deadremains.ui.colors.clr3)
-		surface.SetMaterial(matCircleSeg)
-		surface.DrawTexturedRectRotated(w / 2, h / 2, w, h, -40 * (i - 1))
+		for i = 1, math.floor(self.default/self.level) * 10 do
+
+			surface.SetDrawColor(deadremains.ui.colors.clr3)
+			surface.SetMaterial(matCircleSeg)
+			surface.DrawTexturedRectRotated(w / 2, h / 2, w, h, -40 * (i - 1))
+
+		end
 
 	end
-
 end
 vgui.Register("deadremains.characteristic_icon", ELEMENT, "Panel")

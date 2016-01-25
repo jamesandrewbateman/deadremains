@@ -25,25 +25,53 @@ end
 ----------------------------------------------------------------------
 
 function deadremains.item.get(unique)
-	local i = stored[unique]
-	if i == nil then
-		local w = DR_GetWeaponInfo(unique)
+	local internal_item = stored[unique]
 
-		if w == nil then return false end
+	if internal_item == nil then
+
+		local addon_config = deadremains_config[unique]
+
+		if addon_config == nil then return false end
 		
-		w.label = w.label
-		w.meta = {}
-		w.meta["type"] = item_type_weapon
+		local weapon_config = weapons.Get(unique)
 
-		if CLIENT then
+		if weapon_config == nil then
 
-			w.context_menu = {item_function_equip, item_function_drop}
+			if unique == "tfbow_arrow" then
+
+				addon_config.label = "Arrow"
+				
+				addon_config.model = "models/weapons/w_dr_arrow.mdl"
+
+			else
+
+				return false
+
+			end
+
+		else
+
+			-- add attributes to config table
+			addon_config.label = weapon_config.PrintName
+			addon_config.model = weapon_config.WorldModel
 
 		end
 
-		return w
+		addon_config.meta = {}
+		addon_config.meta["type"] = item_type_weapon
+
+		if CLIENT then
+
+			addon_config.context_menu = {item_function_equip, item_function_drop}
+
+		end
+
+		return addon_config
+
 	else
-		return i
+
+		return internal_item
+
 	end
 end
 

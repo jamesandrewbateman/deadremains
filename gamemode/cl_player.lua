@@ -28,6 +28,113 @@ deadremains.assets.icons["UNCONCIOUS"] = Material("bambo/icon_unconcious.png")
 deadremains.assets.icons["HEART_ATTACK"] = Material("bambo/icon_heartattack.png")
 
 
+
+function DrawPlayerInfo()
+	for k, v in pairs(player.GetAll()) do
+
+		--if v = LocalPlayer() then
+
+			if v:Alive() then
+
+				local alpha = 0
+				local position = v:GetPos()
+				local position = Vector(position.x, position.y, position.z + 75)
+				local screenpos = position:ToScreen()
+				local dist = position:Distance(LocalPlayer():GetPos())
+				local dist = dist / 2
+				local dist = math.floor(dist)
+				
+				if dist > 100 then
+
+					alpha = 255 - (dist - 100)
+
+				else
+
+					alpha = 255
+
+				end
+				
+				if alpha > 255 then
+
+					alpha = 255
+
+				elseif alpha < 0 then
+					alpha = 0
+
+				end
+				
+				draw.DrawText(v:Nick(), "deadremains.notification.action", screenpos.x, screenpos.y, Color(255, 255, 255, alpha), 1)
+				
+
+				draw.DrawText("ZED COUNT : " .. v:GetNWInt("zombie_kill_count"), "deadremains.notification.action", screenpos.x, screenpos.y + 32, Color(255, 255, 255, alpha), 1)
+				
+
+				if v:IsSuperAdmin() then
+
+					draw.RoundedBox(0, screenpos.x-65, screenpos.y+64, 135, 32, Color(255, 0, 0, alpha))
+
+					draw.DrawText("Super Admin", "deadremains.notification.action", screenpos.x, screenpos.y+64, Color(0, 0, 0, alpha), 1)
+
+				elseif v:IsAdmin() then
+
+					draw.RoundedBox(0, screenpos.x-32, screenpos.y+64, 65, 32, Color(255, 0, 0, alpha))
+
+					draw.DrawText("Admin", "deadremains.notification.action", screenpos.x, screenpos.y+64, Color(0, 0, 0, alpha), 1)
+
+				else
+
+					draw.RoundedBox(0, screenpos.x-45, screenpos.y+64, 90, 32, Color(125, 125, 255, alpha))
+
+					draw.DrawText("User", "deadremains.notification.action", screenpos.x, screenpos.y+64, Color(0, 0, 0, alpha), 1)
+
+				end
+
+				if v:GetDTInt(3) == 1 then
+
+					draw.DrawText("TYPING", "deadremains.notification.action", screenpos.x, screenpos.y - 50, Color(255, 255, 255, alpha), 1)
+				
+				end
+
+			end
+
+		--end
+
+	end
+
+end
+
+function DrawNotifications()
+
+	local notifications = deadremains.notifyer.GetNotifications()
+	local notifications_len = #notifications
+
+	for k,v in pairs(notifications) do
+
+		v.Countdown = v.Countdown - 1
+
+		if (v.Countdown > 0) then
+
+			-- first in is the oldest for notifications
+
+			draw.DrawText(v.Message, "deadremains.menu.title", ScrW()/2, (k*20) + v.Countdown-50, Color(0,0, 0, 230), 1)
+
+
+		else
+
+			deadremains.notifyer.RemoveNotification(k)
+
+		end
+
+	end
+
+end
+
+hook.Add("HUDPaint", "drHudPaint", function()
+	DrawPlayerInfo()
+
+	DrawNotifications()
+end)
+
 hook.Add("RenderScreenspaceEffects", "drawItemTooltip", function()
 	local trace = LocalPlayer():GetEyeTrace()
 

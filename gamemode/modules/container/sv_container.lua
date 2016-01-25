@@ -18,6 +18,8 @@ function deadremains.containers.create(pName, pSlotX, pSlotY, pWorldPosition)
 	local entity = ents.Create("deadremains_container")
 	entity:SetPos(pWorldPosition)
 	entity:SetModel("models/fallout3/backpack_1.mdl")
+	entity.label = pName
+	entity.meta = {}
 	entity:Spawn()
 
 	entity:SetContainerIndex(#containers)
@@ -37,6 +39,8 @@ end)
 
 
 function deadremains.containers.addItem(pContainerIndex, pItemName)
+
+	if containers[pContainerIndex] == nil then print("Container doesn't exist!") return end
 
 	table.insert(containers[pContainerIndex].Items, pItemName)
 
@@ -153,7 +157,7 @@ deadremains.netrequest.create("deadremains.updatecontainerui", function (ply, da
 
 		deadremains.containers.networkItemChanges(container_index)
 
-		return { ContainerIndex = container_index }
+		return { ContainerIndex = container_index, ContainerName = containers[container_index].Name }
 
 	end
 
@@ -206,6 +210,8 @@ function containerSpawn()
 			end
 
 			if found then
+
+				local items = deadremains.item.getAll()
 
 				local container_index = deadremains.containers.create("world_pack", 4, 4, spwnPoint)
 

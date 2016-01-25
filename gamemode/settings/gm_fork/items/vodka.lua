@@ -1,5 +1,5 @@
 item.unique = "vodka"
-item.label = "YODKA"
+item.label = "Vodka"
 
 -- The model that this item should have.
 item.model = "models/props_urban/tire001.mdl"
@@ -28,12 +28,17 @@ item.weight = 600
 item.meta["type"] = item_type_consumable
 
 -- What functions exists on the context menu.
-item.context_menu = {item_function_consume, item_function_drop, item_function_destroy}
+item.context_menu = {item_function_consume, item_function_drop}
 
 ----------------------------------------------------------------------
 -- Purpose:
 --		
-----------------------------------------------------------------------
+function item:use(ply)
+	if (SERVER) then
+		ply:setNeed("hunger", ply:getNeed("hunger") + 600)
 
-function item:use(player)
+		ply:setNeed("thirst", ply:getNeed("thirst") - 10)
+
+		ply:SetHealth(math.Clamp(ply:Health() + 5, 0, ply:getChar("health")))
+	end
 end

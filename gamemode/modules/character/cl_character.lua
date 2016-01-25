@@ -24,7 +24,7 @@ end)
 ----------------------------------------------------------------------
 
 function player_meta:hasSkill(skill)
-	return skills[skill]
+	return skills[skill] == 1
 end
 
 function player_meta:getChar(name)
@@ -59,8 +59,18 @@ net.Receive("deadremains.getskills", function(bits)
 
 	for i = 1, len do
 		local skill = net.ReadString()
+		print(skill, "set to", 1)
 		skills[skill] = true
 	end
+end)
+
+net.Receive("deadremains.getskill", function(bits)
+	local skillName = net.ReadString()
+	local active = net.ReadUInt(4)
+
+	print(skillName, "set to", active)
+
+	skills[tostring(skillName)] = active
 end)
 
 net.Receive("deadremains.getchars", function(bits)
