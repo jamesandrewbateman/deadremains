@@ -32,9 +32,10 @@ function deadremains.item.get(unique)
 		local addon_config = deadremains_config[unique]
 
 		if addon_config == nil then return false end
-		
+
 		local weapon_config = weapons.Get(unique)
 
+		-- get internal weapon structure to find attributes.
 		if weapon_config == nil then
 
 			if unique == "tfbow_arrow" then
@@ -59,6 +60,7 @@ function deadremains.item.get(unique)
 
 		addon_config.meta = {}
 		addon_config.meta["type"] = item_type_weapon
+		addon_config.unique = unique
 
 		if CLIENT then
 

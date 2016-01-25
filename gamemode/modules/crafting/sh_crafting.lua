@@ -80,8 +80,8 @@ deadremains.crafting.recipes["tfbow_arrow"] = {
 }
 
 deadremains.crafting.weapons = {}
-deadremains.crafting.weapons["tfa_dr_bow"] = { name = "Primitive Bow", quantity = 1 }
-deadremains.crafting.weapons["tfm_sharp_trpaxe"] = { name = "Primitive Axe", quantity = 1 }
+deadremains.crafting.weapons["tfa_dr_bow"] = { name = "Bow", quantity = 1 }
+deadremains.crafting.weapons["tfm_sharp_trpaxe"] = { name = "Wood Axe", quantity = 1 }
 deadremains.crafting.weapons["tfm_sharp_screwdriver"] = { name = "Screwdriver", quantity = 1 }
 deadremains.crafting.weapons["tfm_blunt_shovel"] = { name = "Shovel", quantity = 1 }
 deadremains.crafting.weapons["tfm_sword_knight_longsword"] = { name = "Longsword", quantity = 1 }

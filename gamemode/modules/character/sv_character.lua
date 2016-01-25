@@ -101,6 +101,8 @@ hook.Add("PlayerInitialSpawn", "deadremains_init_spawn_char", function(ply)
 
 	ply:SetNWInt("zombie_kill_count", 0)
 
+	ply:ConCommand("deadremains.syncdata")
+
 end)
 
 function player_meta:hasBuff(name)
@@ -189,6 +191,8 @@ hook.Add("PlayerSpawn", "deadremains_player_spawn_char", function(ply)
 		if (ply:getNeed("Hunger") > 100) then ply:setNeed("Hunger", 100) end
 
 		if (ply:Health() <= 0) and (ply:Alive()) then ply:Kill() end
+
+		ply:ConCommand("deadremains.syncdata")
 
 	end)
 
