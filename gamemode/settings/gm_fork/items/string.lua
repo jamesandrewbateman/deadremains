@@ -2,7 +2,7 @@ item.unique = "string"
 item.label = "String"
 
 -- The model that this item should have.
-item.model = "models/Gibs/HGIBS_rib.mdl"
+item.model = "models/i am alive/items/rope.mdl"
 
 -- How many horizontal slots this item should take.
 item.slots_horizontal = 1

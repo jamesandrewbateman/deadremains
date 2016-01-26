@@ -25,6 +25,8 @@ hook.Add("Think", "deadremains.ui.detectKey", function()
 
 				LocalPlayer():ConCommand("Networkinv")
 
+				LocalPlayer():ConCommand("deadremains.syncdata")
+
 				uiOpen = true
 			end
 

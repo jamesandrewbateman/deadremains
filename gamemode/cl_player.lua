@@ -110,13 +110,19 @@ function DrawNotifications()
 
 	for k,v in pairs(notifications) do
 
-		v.Countdown = v.Countdown - 1
+		v.Countdown = v.Countdown - (1/30)
 
 		if (v.Countdown > 0) then
 
 			-- first in is the oldest for notifications
+			surface.SetDrawColor(deadremains.ui.colors.clr3)
 
-			draw.DrawText(v.Message, "deadremains.menu.title", ScrW()/2, (k*20) + v.Countdown-50, Color(0,0, 0, 230), 1)
+			surface.SetFont("deadremains.menu.title")
+
+			local tw, th = surface.GetTextSize(v.Message)
+			surface.DrawRect(- (1-(v.Countdown/10)) * tw, (k*th), tw, th )
+
+			draw.DrawText(v.Message, "deadremains.menu.title", 0, (k*th), Color(0,0, 0, 230), 0)
 
 
 		else
@@ -130,9 +136,11 @@ function DrawNotifications()
 end
 
 hook.Add("HUDPaint", "drHudPaint", function()
+
 	DrawPlayerInfo()
 
 	DrawNotifications()
+
 end)
 
 hook.Add("RenderScreenspaceEffects", "drawItemTooltip", function()

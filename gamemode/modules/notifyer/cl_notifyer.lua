@@ -4,7 +4,7 @@ net.Receive("deadremains.notifyer.add", function(bits, ply)
 
 	local message = net.ReadString()
 
-	table.insert(deadremains.notifyer.notifications, { Message = message, Countdown = 100 })
+	table.insert(deadremains.notifyer.notifications, { Message = message, Countdown = 10 })
 
 end)
 

@@ -192,7 +192,7 @@ hook.Add("PlayerSpawn", "deadremains_player_spawn_char", function(ply)
 
 		if (ply:Health() <= 0) and (ply:Alive()) then ply:Kill() end
 
-		ply:ConCommand("deadremains.syncdata")
+		--ply:ConCommand("deadremains.syncdata")
 
 	end)
 

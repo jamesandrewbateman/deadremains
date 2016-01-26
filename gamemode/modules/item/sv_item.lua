@@ -119,29 +119,44 @@ function deadremains.item.worldUse(player, entity)
 	local itemName = entity.item
 
 	if itemName then
+
 		if deadremains.item.isInventory(itemName) then
+
 			local dr_item_info = deadremains.settings.get("default_inventories")
 			
 			local slot_size = 0
 
 			for k,v in pairs(dr_item_info) do
+
 				if v.unique == itemName then
+
 					slot_size = v.size
+
 				end
+
 			end
 			
 			--print("item name", itemName)
 			--PrintTable(entity.meta["contains"])
 			if entity.meta then
+
 				if (entity.meta["contains"] ~= nil) then
+
 					success = player:AddInventoryContains(itemName, slot_size.X, slot_size.Y, entity.meta["contains"])
+
 				end
+
 			else
+
 				success = player:AddInventory(itemName, slot_size.X, slot_size.Y)
+
 			end
+
 		else
+
 			success = player:AddItemToInventory("feet", itemName)
-			--print(itemName, success)
+			print(itemName, success)
+
 		end
 	end
 

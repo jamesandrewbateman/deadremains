@@ -2,7 +2,7 @@ item.unique = "petrol"
 item.label = "Petrol"
 
 -- The model that this item should have.
-item.model = "models/props_junk/gascan001a.mdl"
+item.model = "models/zpprops/gascan.mdl"
 
 -- How many horizontal slots this item should take.
 item.slots_horizontal = 1

@@ -2,10 +2,10 @@ item.unique = "stick"
 item.label = "Stick"
 
 -- The model that this item should have.
-item.model = "models/props_wasteland/dockplank01b.mdl"
+item.model = "models/props/debris/wood_logs03.mdl"
 
 -- How many horizontal slots this item should take.
-item.slots_horizontal = 5
+item.slots_horizontal = 1
 
 -- How many vertical slots this item should take.
 item.slots_vertical = 1
